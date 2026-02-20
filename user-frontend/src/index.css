@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap");
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    @apply bg-white text-gray-900 antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Poppins", sans-serif;
+  }
+  a {
+    text-decoration: none;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-light rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary;
+  }
+}
+
+@layer components {
+  .btn-fire {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all duration-200 cursor-pointer;
+    background: linear-gradient(135deg, #ff4500, #ff6b00);
+    box-shadow: 0 4px 14px rgba(255, 69, 0, 0.35);
+  }
+  .btn-fire:hover {
+    background: linear-gradient(135deg, #cc3700, #ff4500);
+    box-shadow: 0 6px 20px rgba(255, 69, 0, 0.5);
+    @apply -translate-y-0.5;
+  }
+  .btn-fire:disabled {
+    @apply opacity-50 cursor-not-allowed translate-y-0;
+  }
+  .btn-outline-fire {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-200 cursor-pointer;
+    @apply border-2 border-primary text-primary bg-transparent;
+  }
+  .btn-outline-fire:hover {
+    @apply bg-primary text-white -translate-y-0.5;
+  }
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-primary-lg;
+  }
+  .tag-fire {
+    @apply inline-block bg-surface-2 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide;
+  }
+  .input-fire {
+    @apply w-full px-4 py-3 border-2 rounded-lg text-sm bg-white text-gray-900 transition-all duration-200 outline-none;
+    border-color: #ffd4b8;
+  }
+  .input-fire:focus {
+    border-color: #ff4500;
+    box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.12);
+  }
+  .badge-fire {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-2 text-primary;
+  }
+  .badge-success {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700;
+  }
+  .badge-danger {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700;
+  }
+  .badge-warning {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700;
+  }
+  .badge-gray {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600;
+  }
+  .fire-gradient-text {
+    background: linear-gradient(135deg, #ff4500, #ff6b00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.4s ease;
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Slick carousel overrides */
+.slick-dots li button:before {
+  color: #ff6b35 !important;
+  font-size: 10px !important;
+}
+.slick-dots li.slick-active button:before {
+  color: #ff4500 !important;
+}
+.slick-prev:before,
+.slick-next:before {
+  color: #ff4500 !important;
+  font-size: 24px !important;
+}
