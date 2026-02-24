@@ -16,9 +16,14 @@ const couponSchema = new mongoose.Schema(
     },
     discountValue: { type: Number, required: true, min: 0 },
     minOrderValue: { type: Number, default: 0 },
-    maxDiscount: { type: Number, default: null }, // cap for percentage discounts
+    maxDiscount: { type: Number, default: null },
     isActive: { type: Boolean, default: true },
     expiresAt: { type: Date, required: true },
+
+    // Featured banner fields
+    title: { type: String, default: "" }, // e.g. "Mega Diwali Sale"
+    description: { type: String, default: "" }, // e.g. "On all combo gift boxes..."
+    isFeatured: { type: Boolean, default: false }, // show on homepage banner
   },
   { timestamps: true },
 );

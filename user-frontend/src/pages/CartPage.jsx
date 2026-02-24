@@ -1,58 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  ShoppingCart,
-  Trash2,
-  Plus,
-  Minus,
-  Tag,
-  ArrowRight,
-  ShoppingBag,
-} from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import api from "../services/api";
-import toast from "react-hot-toast";
 
 const CartPage = () => {
-  const {
-    cartItems,
-    updateQty,
-    removeFromCart,
-    coupon,
-    setCoupon,
-    subtotal,
-    discount,
-    total,
-    itemCount,
-  } = useCart();
+  const { cartItems, updateQty, removeFromCart, subtotal, total, itemCount } =
+    useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [couponCode, setCouponCode] = useState("");
-  const [couponLoading, setCouponLoading] = useState(false);
-
-  const applyCoupon = async () => {
-    if (!couponCode.trim()) return;
-    if (!user) {
-      toast.error("Login to apply coupon");
-      return;
-    }
-    setCouponLoading(true);
-    try {
-      const { data } = await api.post("/coupons/validate", {
-        code: couponCode.trim(),
-        orderTotal: subtotal,
-      });
-      if (data.success) {
-        setCoupon({ code: data.couponCode, discount: data.discount });
-        toast.success(data.message);
-      }
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Invalid coupon");
-    } finally {
-      setCouponLoading(false);
-    }
-  };
 
   const handleCheckout = () => {
     if (!user) {
@@ -91,7 +47,8 @@ const CartPage = () => {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-3">
             {cartItems.map((item) => {
-              const price = item.discountedPrice || item.price;
+              const price =
+                item.effectivePrice ?? item.discountedPrice ?? item.price;
               return (
                 <div
                   key={item._id}
@@ -108,9 +65,12 @@ const CartPage = () => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl">
-                        🎆
-                      </div>
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          background: "linear-gradient(135deg,#FFE4D0,#FFB347)",
+                        }}
+                      />
                     )}
                   </Link>
 
@@ -169,61 +129,11 @@ const CartPage = () => {
                 Order Summary
               </h2>
 
-              {/* Coupon */}
-              <div className="mb-5">
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 block">
-                  Coupon Code
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    value={couponCode}
-                    onChange={(e) =>
-                      setCouponCode(e.target.value.toUpperCase())
-                    }
-                    placeholder="DIWALI2026"
-                    className="flex-1 px-3 py-2.5 border-2 border-orange-100 rounded-xl text-sm outline-none focus:border-primary transition-colors"
-                  />
-                  <button
-                    onClick={applyCoupon}
-                    disabled={couponLoading || !!coupon}
-                    className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
-                    style={{
-                      background: "linear-gradient(135deg,#FF4500,#FF6B00)",
-                    }}
-                  >
-                    {couponLoading ? "..." : coupon ? "✓" : "Apply"}
-                  </button>
-                </div>
-                {coupon && (
-                  <div className="flex items-center justify-between mt-2 px-3 py-2 bg-green-50 border border-green-100 rounded-xl">
-                    <span className="text-xs text-green-700 font-semibold flex items-center gap-1">
-                      <Tag className="w-3.5 h-3.5" />
-                      {coupon.code}
-                    </span>
-                    <button
-                      onClick={() => {
-                        setCoupon(null);
-                        setCouponCode("");
-                      }}
-                      className="text-xs text-red-500 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
-              </div>
-
               <div className="space-y-3 border-t border-orange-50 pt-4">
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Subtotal ({itemCount} items)</span>
                   <span className="font-semibold">₹{subtotal}</span>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
-                    <span>Coupon discount</span>
-                    <span className="font-semibold">-₹{discount}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Shipping</span>
                   <span

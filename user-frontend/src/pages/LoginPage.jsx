@@ -45,7 +45,7 @@ const LoginPage = () => {
             Welcome back!
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Login to your Lash Crackers account
+            Login to your V Crackers account
           </p>
         </div>
 

@@ -1,19 +1,31 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, Zap } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, discountPct = 0 }) => {
   const { addToCart } = useCart();
 
-  const price = product.discountedPrice || product.price;
-  const hasDiscount =
-    product.discountedPrice && product.discountedPrice < product.price;
-  const discountPct = hasDiscount
-    ? Math.round(
-        ((product.price - product.discountedPrice) / product.price) * 100,
-      )
-    : 0;
+  // effectivePrice: apply global discount to base price
+  const basePrice = product.price;
+  const effectivePrice =
+    discountPct > 0
+      ? Math.round(basePrice * (1 - discountPct / 100))
+      : (product.discountedPrice ?? basePrice);
+
+  const showDiscount =
+    discountPct > 0 ||
+    (product.discountedPrice && product.discountedPrice < basePrice);
+  const displayPct =
+    discountPct > 0
+      ? discountPct
+      : product.discountedPrice
+        ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
+        : 0;
+
+  const handleAdd = () => {
+    addToCart({ ...product, effectivePrice }, 1);
+  };
 
   return (
     <div className="group bg-white rounded-2xl border border-orange-100 shadow-sm hover:shadow-primary-lg hover:-translate-y-1 transition-all duration-250 overflow-hidden flex flex-col">
@@ -29,19 +41,23 @@ const ProductCard = ({ product }) => {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Zap className="w-16 h-16 text-orange-200" />
-          </div>
+          <div
+            className="w-full h-full"
+            style={{
+              background:
+                "linear-gradient(135deg, #FFE4D0 0%, #FFB347 60%, #FF6B00 100%)",
+            }}
+          />
         )}
 
         {/* Badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
-          {hasDiscount && (
+          {showDiscount && displayPct > 0 && (
             <span
               className="px-2 py-0.5 rounded-full text-xs font-bold text-white shadow"
               style={{ background: "linear-gradient(135deg,#FF4500,#FF6B00)" }}
             >
-              -{discountPct}%
+              -{displayPct}%
             </span>
           )}
           {product.stock <= 10 && product.stock > 0 && (
@@ -73,17 +89,19 @@ const ProductCard = ({ product }) => {
 
         {/* Pricing */}
         <div className="flex items-center gap-2 mt-auto">
-          <span className="text-lg font-bold text-primary">₹{price}</span>
-          {hasDiscount && (
+          <span className="text-lg font-bold text-primary">
+            ₹{effectivePrice}
+          </span>
+          {showDiscount && (
             <span className="text-sm text-gray-400 line-through">
-              ₹{product.price}
+              ₹{basePrice}
             </span>
           )}
         </div>
 
         {/* Add to Cart */}
         <button
-          onClick={() => addToCart(product, 1)}
+          onClick={handleAdd}
           disabled={product.stock === 0}
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
           style={

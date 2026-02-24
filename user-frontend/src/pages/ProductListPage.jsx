@@ -1,22 +1,17 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-  Filter,
-  SlidersHorizontal,
-  X,
-  Search,
-  ChevronDown,
-} from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
 
 const ProductListPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
+  const [discountPct, setDiscountPct] = useState(0);
 
   const [filters, setFilters] = useState({
     search: searchParams.get("search") || "",
@@ -54,9 +49,16 @@ const ProductListPage = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    const { data } = api
+    api
       .get("/categories")
       .then((r) => setCategories(r.data.categories || []))
+      .catch(() => {});
+    api
+      .get("/discount")
+      .then((r) => {
+        const d = r.data.discount;
+        if (d?.isActive) setDiscountPct(d.percentage);
+      })
       .catch(() => {});
   }, []);
 
@@ -162,7 +164,11 @@ const ProductListPage = () => {
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {products.map((p) => (
-                    <ProductCard key={p._id} product={p} />
+                    <ProductCard
+                      key={p._id}
+                      product={p}
+                      discountPct={discountPct}
+                    />
                   ))}
                 </div>
 

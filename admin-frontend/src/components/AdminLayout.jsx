@@ -7,10 +7,9 @@ import {
   ShoppingBag,
   Monitor,
   Archive,
-  Ticket,
+  Percent,
   Image,
   BarChart2,
-  Flame,
   Menu,
   X,
   LogOut,
@@ -25,7 +24,7 @@ const navItems = [
   { to: "/orders", icon: ShoppingBag, label: "Orders" },
   { to: "/pos", icon: Monitor, label: "POS Billing" },
   { to: "/stock", icon: Archive, label: "Stock" },
-  { to: "/coupons", icon: Ticket, label: "Coupons" },
+  { to: "/discount", icon: Percent, label: "Discount" },
   { to: "/banners", icon: Image, label: "Banners" },
   { to: "/reports", icon: BarChart2, label: "Reports" },
 ];
@@ -55,15 +54,11 @@ const AdminLayout = () => {
         {/* Logo */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
           <Link to="/" className="flex items-center gap-2">
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg,#FF4500,#FF6B00)" }}
-            >
-              <Flame className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-heading font-bold text-base text-white">
-              Lash Crackers
-            </span>
+            <img
+              src="/v-crackers-logo.png"
+              alt="V Crackers"
+              className="h-8 w-auto object-contain brightness-0 invert"
+            />
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}

@@ -11,10 +11,10 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const posRoutes = require("./routes/posRoutes");
 const stockRoutes = require("./routes/stockRoutes");
-const couponRoutes = require("./routes/couponRoutes");
 const bannerRoutes = require("./routes/bannerRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const discountRoutes = require("./routes/discountRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.get("/api/health", (req, res) => {
   res.json({
     success: true,
-    message: "Lash Crackers API is running 🎆",
+    message: "V Crackers API is running 🎆",
     timestamp: new Date(),
   });
 });
@@ -51,7 +51,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/pos", posRoutes);
 app.use("/api/stock", stockRoutes);
-app.use("/api/coupons", couponRoutes);
+app.use("/api/discount", discountRoutes);
 app.use("/api/banners", bannerRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
@@ -74,5 +74,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Lash Crackers Server running on port ${PORT}`);
+  console.log(`🚀 V Crackers Server running on port ${PORT}`);
 });

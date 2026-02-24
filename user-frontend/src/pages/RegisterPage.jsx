@@ -30,7 +30,7 @@ const RegisterPage = () => {
       const { data } = await api.post("/auth/register", form);
       if (data.success) {
         login(data.user, data.token);
-        toast.success("Account created! Welcome to Lash Crackers 🎆");
+        toast.success("Account created! Welcome to V Crackers 🎆");
         navigate(redirect);
       }
     } catch (err) {
@@ -54,7 +54,7 @@ const RegisterPage = () => {
             Create Account
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Join Lash Crackers – India's finest crackers
+            Join V Crackers – India's finest crackers
           </p>
         </div>
 

@@ -10,6 +10,20 @@ const getCoupons = async (req, res) => {
   }
 };
 
+// GET /api/coupons/featured (public) — returns first active featured coupon for homepage banner
+const getFeaturedCoupon = async (req, res) => {
+  try {
+    const coupon = await Coupon.findOne({
+      isFeatured: true,
+      isActive: true,
+      expiresAt: { $gt: new Date() },
+    }).sort({ expiresAt: 1 }); // pick the one expiring soonest
+    res.json({ success: true, coupon: coupon || null });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // POST /api/coupons (admin)
 const createCoupon = async (req, res) => {
   try {
@@ -21,14 +35,15 @@ const createCoupon = async (req, res) => {
       maxDiscount,
       isActive,
       expiresAt,
+      title,
+      description,
+      isFeatured,
     } = req.body;
     if (!code || !discountType || !discountValue || !expiresAt)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "code, discountType, discountValue, expiresAt required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "code, discountType, discountValue, expiresAt required",
+      });
 
     const coupon = await Coupon.create({
       code,
@@ -38,6 +53,9 @@ const createCoupon = async (req, res) => {
       maxDiscount,
       isActive,
       expiresAt,
+      title,
+      description,
+      isFeatured,
     });
     res.status(201).json({ success: true, coupon });
   } catch (err) {
@@ -131,6 +149,7 @@ const validateCoupon = async (req, res) => {
 
 module.exports = {
   getCoupons,
+  getFeaturedCoupon,
   createCoupon,
   updateCoupon,
   deleteCoupon,

@@ -115,7 +115,7 @@ const CheckoutPage = () => {
         key,
         amount: order.amount,
         currency: "INR",
-        name: "Lash Crackers",
+        name: "V Crackers",
         description: "Fireworks Order",
         order_id: order.id,
         prefill: { name: user.name, email: user.email, contact: user.phone },

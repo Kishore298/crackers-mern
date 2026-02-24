@@ -43,9 +43,7 @@ const LoginPage = () => {
           <h1 className="font-heading font-bold text-2xl text-white mb-1">
             Admin Panel
           </h1>
-          <p className="text-gray-400 text-sm">
-            Lash Crackers Management System
-          </p>
+          <p className="text-gray-400 text-sm">V Crackers Management System</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-8">

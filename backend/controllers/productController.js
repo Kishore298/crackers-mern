@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const StockLedger = require("../models/StockLedger");
+const Sale = require("../models/Sale");
 const { cloudinary } = require("../config/cloudinary");
 
 const slugify = (text) =>
@@ -121,12 +122,10 @@ const createProduct = async (req, res) => {
       youtubeId,
     } = req.body;
     if (!name || !price || !stock || !category)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Name, price, stock, category required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Name, price, stock, category required",
+      });
 
     let slug = slugify(name);
     // Ensure unique slug
@@ -226,6 +225,70 @@ const getLowStock = async (req, res) => {
   }
 };
 
+// GET /api/products/popular  — public, top 25 by real sales data
+const getPopularProducts = async (req, res) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 25, 50);
+
+    // Aggregate Sale items to find top-sold product IDs
+    const salesAgg = await Sale.aggregate([
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.product",
+          totalSold: { $sum: "$items.quantity" },
+        },
+      },
+      { $sort: { totalSold: -1 } },
+      { $limit: limit },
+    ]);
+
+    let products;
+    if (salesAgg.length > 0) {
+      // Fetch full product docs in order of popularity
+      const ids = salesAgg.map((s) => s._id);
+      const productMap = {};
+      const docs = await Product.find({
+        _id: { $in: ids },
+        isActive: true,
+      }).populate("category", "name slug");
+      docs.forEach((p) => {
+        productMap[p._id.toString()] = p;
+      });
+      products = ids
+        .map((id) => productMap[id?.toString()])
+        .filter(Boolean)
+        .map((p, i) => ({
+          ...p.toObject(),
+          totalSold: salesAgg[i]?.totalSold || 0,
+        }));
+
+      // If some slots unfilled (products deleted), pad with newest
+      if (products.length < limit) {
+        const filledIds = products.map((p) => p._id.toString());
+        const extra = await Product.find({
+          _id: { $nin: filledIds },
+          isActive: true,
+        })
+          .populate("category", "name slug")
+          .sort({ createdAt: -1 })
+          .limit(limit - products.length);
+        products.push(...extra.map((p) => p.toObject()));
+      }
+    } else {
+      // No sales yet — return newest products as popular
+      products = await Product.find({ isActive: true })
+        .populate("category", "name slug")
+        .sort({ createdAt: -1 })
+        .limit(limit);
+    }
+
+    res.json({ success: true, products });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   getProducts,
   getAdminProducts,
@@ -235,4 +298,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getLowStock,
+  getPopularProducts,
 };

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   ShoppingCart,
-  Shield,
   ChevronLeft,
   Minus,
   Plus,
@@ -21,6 +20,7 @@ const ProductDetailPage = () => {
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [discountPct, setDiscountPct] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -45,6 +45,13 @@ const ProductDetailPage = () => {
       }
     };
     fetchProduct();
+    api
+      .get("/discount")
+      .then((r) => {
+        const d = r.data.discount;
+        if (d?.isActive) setDiscountPct(d.percentage);
+      })
+      .catch(() => {});
     setQty(1);
     setActiveImg(0);
   }, [slug]);
@@ -62,14 +69,21 @@ const ProductDetailPage = () => {
       </div>
     );
 
-  const price = product.discountedPrice || product.price;
-  const hasDiscount =
-    product.discountedPrice && product.discountedPrice < product.price;
-  const discountPct = hasDiscount
-    ? Math.round(
-        ((product.price - product.discountedPrice) / product.price) * 100,
-      )
-    : 0;
+  // Apply global discount to base price
+  const basePrice = product.price;
+  const effectivePrice =
+    discountPct > 0
+      ? Math.round(basePrice * (1 - discountPct / 100))
+      : (product.discountedPrice ?? basePrice);
+  const showDiscount =
+    discountPct > 0 ||
+    (product.discountedPrice && product.discountedPrice < basePrice);
+  const displayPct =
+    discountPct > 0
+      ? discountPct
+      : product.discountedPrice
+        ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
+        : 0;
   const inStock = product.stock > 0;
 
   return (
@@ -99,18 +113,22 @@ const ProductDetailPage = () => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-7xl">
-                  🎆
-                </div>
+                <div
+                  className="w-full h-full"
+                  style={{
+                    background:
+                      "linear-gradient(135deg,#FFE4D0 0%,#FF6B00 100%)",
+                  }}
+                />
               )}
-              {hasDiscount && (
+              {showDiscount && displayPct > 0 && (
                 <span
                   className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold text-white"
                   style={{
                     background: "linear-gradient(135deg,#FF4500,#FF6B00)",
                   }}
                 >
-                  -{discountPct}% OFF
+                  -{displayPct}% OFF
                 </span>
               )}
             </div>
@@ -144,20 +162,22 @@ const ProductDetailPage = () => {
 
             {/* Price */}
             <div className="flex items-end gap-3">
-              <span className="text-3xl font-bold text-primary">₹{price}</span>
-              {hasDiscount && (
+              <span className="text-3xl font-bold text-primary">
+                ₹{effectivePrice}
+              </span>
+              {showDiscount && (
                 <span className="text-lg text-gray-400 line-through self-end pb-0.5">
-                  ₹{product.price}
+                  ₹{basePrice}
                 </span>
               )}
-              {hasDiscount && (
+              {showDiscount && displayPct > 0 && (
                 <span
                   className="px-2 py-0.5 rounded-full text-xs font-bold text-white"
                   style={{
                     background: "linear-gradient(135deg,#FF4500,#FF6B00)",
                   }}
                 >
-                  You save ₹{product.price - product.discountedPrice}
+                  You save ₹{basePrice - effectivePrice}
                 </span>
               )}
             </div>
@@ -201,7 +221,7 @@ const ProductDetailPage = () => {
                   </button>
                 </div>
                 <button
-                  onClick={() => addToCart(product, qty)}
+                  onClick={() => addToCart({ ...product, effectivePrice }, qty)}
                   className="btn-fire flex-1 justify-center py-3.5 rounded-xl text-base"
                 >
                   <ShoppingCart className="w-5 h-5" /> Add to Cart
@@ -252,7 +272,11 @@ const ProductDetailPage = () => {
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {related.map((p) => (
-                <ProductCard key={p._id} product={p} />
+                <ProductCard
+                  key={p._id}
+                  product={p}
+                  discountPct={discountPct}
+                />
               ))}
             </div>
           </div>

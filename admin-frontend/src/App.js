@@ -10,7 +10,7 @@ import ProductsPage from "./pages/ProductsPage";
 import OrdersPage from "./pages/OrdersPage";
 import PosPage from "./pages/PosPage";
 import StockPage from "./pages/StockPage";
-import CouponsPage from "./pages/CouponsPage";
+import DiscountPage from "./pages/DiscountPage";
 import BannersPage from "./pages/BannersPage";
 import ReportsPage from "./pages/ReportsPage";
 import "./index.css";
@@ -42,7 +42,7 @@ function AppRoutes() {
         <Route path="orders" element={<OrdersPage />} />
         <Route path="pos" element={<PosPage />} />
         <Route path="stock" element={<StockPage />} />
-        <Route path="coupons" element={<CouponsPage />} />
+        <Route path="discount" element={<DiscountPage />} />
         <Route path="banners" element={<BannersPage />} />
         <Route path="reports" element={<ReportsPage />} />
       </Route>

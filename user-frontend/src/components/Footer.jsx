@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
-  Flame,
   Phone,
   Mail,
   MapPin,
@@ -18,17 +17,11 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center"
-                style={{
-                  background: "linear-gradient(135deg,#FF4500,#FF6B00)",
-                }}
-              >
-                <Flame className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-heading font-bold text-xl text-white">
-                Lash Crackers
-              </span>
+              <img
+                src="/v-crackers-logo.png"
+                alt="V Crackers"
+                className="h-10 w-auto object-contain brightness-0 invert"
+              />
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed">
               Kovilpatti's most trusted fireworks brand. Celebrate every moment
@@ -121,10 +114,10 @@ const Footer = () => {
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Mail className="w-4 h-4 text-primary shrink-0" />
                 <a
-                  href="mailto:info@lashcrackers.com"
+                  href="mailto:info@vcrackers.com"
                   className="hover:text-primary transition-colors"
                 >
-                  info@lashcrackers.com
+                  info@vcrackers.com
                 </a>
               </li>
             </ul>
@@ -132,9 +125,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
-          <p>
-            © {new Date().getFullYear()} Lash Crackers. All rights reserved.
-          </p>
+          <p>© {new Date().getFullYear()} V Crackers. All rights reserved.</p>
           <p>🎆 Celebrate responsibly. Keep crackers away from children.</p>
         </div>
       </div>

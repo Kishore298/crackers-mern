@@ -9,15 +9,18 @@ const {
   updateProduct,
   deleteProduct,
   getLowStock,
+  getPopularProducts,
 } = require("../controllers/productController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { uploadProduct } = require("../config/cloudinary");
 
 router.get("/", getProducts);
+router.get("/popular", getPopularProducts); // public — top 25 by sales
 router.get("/admin", protect, adminOnly, getAdminProducts);
 router.get("/low-stock", protect, adminOnly, getLowStock);
 router.get("/id/:id", getProductById);
 router.get("/:slug", getProductBySlug);
+
 router.post(
   "/",
   protect,

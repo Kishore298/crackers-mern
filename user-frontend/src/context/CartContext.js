@@ -15,8 +15,6 @@ export const CartProvider = ({ children }) => {
     }
   });
 
-  const [coupon, setCoupon] = useState(null);
-
   useEffect(() => {
     localStorage.setItem(CART_KEY, JSON.stringify(cartItems));
   }, [cartItems]);
@@ -55,20 +53,18 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  const clearCart = () => {
-    setCartItems([]);
-    setCoupon(null);
-  };
+  const clearCart = () => setCartItems([]);
 
   const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
+  // effectivePrice: use pre-computed effectivePrice if present (set by ProductCard/Detail),
+  // otherwise fall back to discountedPrice or base price
   const subtotal = cartItems.reduce((sum, i) => {
-    const price = i.discountedPrice || i.price;
+    const price = i.effectivePrice ?? i.discountedPrice ?? i.price;
     return sum + price * i.quantity;
   }, 0);
 
-  const discount = coupon?.discount || 0;
-  const total = Math.max(0, subtotal - discount);
+  const total = subtotal; // no coupon deduction — global discount already in effectivePrice
 
   return (
     <CartContext.Provider
@@ -78,11 +74,8 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateQty,
         clearCart,
-        coupon,
-        setCoupon,
         itemCount,
         subtotal,
-        discount,
         total,
       }}
     >

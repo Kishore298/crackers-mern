@@ -38,38 +38,27 @@ const Navbar = () => {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-orange-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-[120px]">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg,#FF4500,#FF6B00)" }}
-            >
-              <Flame className="w-5 h-5 text-white" />
-            </div>
-            <span
-              className="font-heading font-bold text-xl"
-              style={{
-                background: "linear-gradient(135deg,#FF4500,#FF6B00)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Lash Crackers
-            </span>
+            <img
+              src="/v-crackers-logo.png"
+              alt="V Crackers"
+              className="h-[120px] w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
               to="/"
-              className="text-sm font-medium text-gray-700 hover:text-primary transition-colors"
+              className="text-md font-medium text-gray-700 hover:text-primary transition-colors"
             >
               Home
             </Link>
             <Link
               to="/products"
-              className="text-sm font-medium text-gray-700 hover:text-primary transition-colors"
+              className="text-md font-medium text-gray-700 hover:text-primary transition-colors"
             >
               Products
             </Link>
@@ -77,7 +66,7 @@ const Navbar = () => {
               <Link
                 key={c}
                 to={`/products?category=${c.toLowerCase().replace(" ", "-")}`}
-                className="text-sm font-medium text-gray-700 hover:text-primary transition-colors"
+                className="text-md font-medium text-gray-700 hover:text-primary transition-colors"
               >
                 {c}
               </Link>
@@ -91,7 +80,7 @@ const Navbar = () => {
               to="/cart"
               className="relative p-2 hover:bg-surface rounded-full transition-colors"
             >
-              <ShoppingCart className="w-5 h-5 text-gray-700" />
+              <ShoppingCart className="w-10 h-10 text-gray-700" />
               {itemCount > 0 && (
                 <span
                   className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white text-xs flex items-center justify-center font-bold"
@@ -111,11 +100,11 @@ const Navbar = () => {
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface transition-colors text-sm font-medium text-gray-700"
                 >
-                  <User className="w-4 h-4" />
+                  <User className="w-8 h-8" />
                   <span className="hidden sm:block">
                     {user.name.split(" ")[0]}
                   </span>
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-8 h-8" />
                 </button>
                 {dropdownOpen && (
                   <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-lg border border-orange-100 py-1 z-50">
@@ -124,27 +113,27 @@ const Navbar = () => {
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface hover:text-primary transition-colors"
                     >
-                      <Package className="w-4 h-4" /> My Orders
+                      <Package className="w-8 h-8" /> My Orders
                     </Link>
                     <Link
                       to="/profile"
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface hover:text-primary transition-colors"
                     >
-                      <User className="w-4 h-4" /> Profile
+                      <User className="w-8 h-8" /> Profile
                     </Link>
                     <div className="border-t border-orange-50 my-1" />
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                     >
-                      <LogOut className="w-4 h-4" /> Logout
+                      <LogOut className="w-8 h-8" /> Logout
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <Link to="/login" className="btn-fire text-sm px-4 py-2">
+              <Link to="/login" className="btn-fire text-md px-4 py-2">
                 Login
               </Link>
             )}
