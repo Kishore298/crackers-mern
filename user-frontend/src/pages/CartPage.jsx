@@ -37,7 +37,7 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen bg-surface">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-heading font-bold text-2xl text-gray-900 mb-8">
           Shopping Cart{" "}
           <span className="text-primary">({itemCount} items)</span>

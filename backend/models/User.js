@@ -21,7 +21,13 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    phone: { type: String, required: true, trim: true },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      sparse: true,
+    },
     password: { type: String, required: true, select: false },
     addresses: [addressSchema],
     role: {
@@ -30,6 +36,10 @@ const userSchema = new mongoose.Schema(
       default: "customer",
     },
     isActive: { type: Boolean, default: true },
+    // OTP fields for password reset
+    otpCode: { type: String, select: false },
+    otpExpiry: { type: Date, select: false },
+    otpVerified: { type: Boolean, default: false, select: false },
   },
   { timestamps: true },
 );

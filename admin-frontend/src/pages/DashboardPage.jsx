@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import {
   TrendingUp,
   ShoppingBag,
-  Package,
   AlertTriangle,
   IndianRupee,
+  Users,
+  Calendar,
 } from "lucide-react";
 import {
   LineChart,
@@ -43,7 +44,8 @@ const DashboardPage = () => {
     const fetch = async () => {
       try {
         const { data } = await api.get("/analytics/dashboard");
-        setStats(data);
+        // API returns { success, stats: { ... } }
+        setStats(data.stats || data);
       } catch {
       } finally {
         setLoading(false);
@@ -59,6 +61,16 @@ const DashboardPage = () => {
       </div>
     );
 
+  // Normalize chart data from API format { _id: { date }, revenue, orders }
+  const revenueChart = (stats?.dailySales || []).map((d) => ({
+    date: d._id?.date?.slice(5) || d.date || "", // "MM-DD"
+    revenue: d.revenue || 0,
+  }));
+  const ordersChart = (stats?.dailySales || []).map((d) => ({
+    date: d._id?.date?.slice(5) || d.date || "",
+    orders: d.orders || 0,
+  }));
+
   return (
     <div className="space-y-6">
       {/* Stat Cards */}
@@ -66,30 +78,55 @@ const DashboardPage = () => {
         <StatCard
           icon={IndianRupee}
           label="Total Revenue"
-          value={`₹${(stats?.revenue || 0).toLocaleString()}`}
-          sub="All time"
-          color="#FF4500"
+          value={`₹${(stats?.totalRevenue || 0).toLocaleString()}`}
+          sub="All time (online + offline)"
+          color="#ff6600"
         />
         <StatCard
           icon={ShoppingBag}
           label="Total Orders"
-          value={stats?.orders || 0}
-          sub="This month"
+          value={(stats?.totalOrders || 0).toLocaleString()}
+          sub={`${stats?.pendingOrders || 0} processing`}
           color="#6366F1"
         />
         <StatCard
-          icon={Package}
-          label="Products"
-          value={stats?.products || 0}
-          sub="Active listings"
+          icon={Users}
+          label="Customers"
+          value={(stats?.totalUsers || 0).toLocaleString()}
+          sub="Registered accounts"
           color="#10B981"
         />
         <StatCard
           icon={AlertTriangle}
           label="Low Stock"
-          value={stats?.lowStock || 0}
-          sub="Below threshold"
+          value={stats?.lowStock?.length || 0}
+          sub="Below 10 units"
           color="#F59E0B"
+        />
+      </div>
+
+      {/* Revenue breakdown */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard
+          icon={IndianRupee}
+          label="Today's Revenue"
+          value={`₹${(stats?.todayRevenue || 0).toLocaleString()}`}
+          sub="Paid orders today"
+          color="#8b0000"
+        />
+        <StatCard
+          icon={Calendar}
+          label="This Month"
+          value={`₹${(stats?.monthRevenue || 0).toLocaleString()}`}
+          sub="Month to date"
+          color="#ff6600"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Online Revenue"
+          value={`₹${(stats?.onlineRevenue || 0).toLocaleString()}`}
+          sub={`Offline: ₹${(stats?.offlineRevenue || 0).toLocaleString()}`}
+          color="#6366F1"
         />
       </div>
 
@@ -100,7 +137,7 @@ const DashboardPage = () => {
             Revenue (Last 7 Days)
           </h3>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={stats?.revenueChart || []}>
+            <LineChart data={revenueChart}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
@@ -108,9 +145,9 @@ const DashboardPage = () => {
               <Line
                 type="monotone"
                 dataKey="revenue"
-                stroke="#FF4500"
+                stroke="#ff6600"
                 strokeWidth={2.5}
-                dot={{ fill: "#FF4500", r: 4 }}
+                dot={{ fill: "#ff6600", r: 4 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -121,12 +158,12 @@ const DashboardPage = () => {
             Orders (Last 7 Days)
           </h3>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={stats?.ordersChart || []}>
+            <BarChart data={ordersChart}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Bar dataKey="orders" fill="#FF6B00" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="orders" fill="#ff6600" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -169,7 +206,7 @@ const DashboardPage = () => {
               {!stats?.topProducts?.length && (
                 <tr>
                   <td colSpan={3} className="py-8 text-center text-gray-400">
-                    No data yet
+                    No sales data yet
                   </td>
                 </tr>
               )}
@@ -179,13 +216,13 @@ const DashboardPage = () => {
       </div>
 
       {/* Low Stock Alerts */}
-      {(stats?.lowStockItems || []).length > 0 && (
+      {(stats?.lowStock || []).length > 0 && (
         <div className="card-admin p-5 border-l-4 border-amber-400">
           <h3 className="font-heading font-semibold text-sm text-amber-700 mb-4 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" /> Low Stock Alerts
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {stats.lowStockItems.map((item) => (
+            {stats.lowStock.map((item) => (
               <div
                 key={item._id}
                 className="flex justify-between items-center bg-amber-50 rounded-xl px-4 py-3 text-sm"

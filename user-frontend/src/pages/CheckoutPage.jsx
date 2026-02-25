@@ -5,7 +5,7 @@ import {
   CreditCard,
   Plus,
   Check,
-  ArrowRight,
+  ShoppingBag,
   Loader,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 
 const CheckoutPage = () => {
   const { cartItems, subtotal, discount, total, coupon, clearCart } = useCart();
-  const { user, refreshProfile } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [addresses, setAddresses] = useState([]);
   const [selectedAddr, setSelectedAddr] = useState(null);
@@ -119,7 +119,7 @@ const CheckoutPage = () => {
         description: "Fireworks Order",
         order_id: order.id,
         prefill: { name: user.name, email: user.email, contact: user.phone },
-        theme: { color: "#FF4500" },
+        theme: { color: "#ff6600" },
         handler: async (response) => {
           try {
             const { data: verifyData } = await api.post("/payment/verify", {
@@ -159,15 +159,61 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-surface">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-heading font-bold text-2xl text-gray-900 mb-8">
           Checkout
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Address Section */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-white rounded-2xl border border-orange-100 p-6">
+          {/* Main Column */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Order Items Section */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="font-heading font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5 text-primary" /> Review Items
+              </h2>
+              <div className="space-y-4">
+                {cartItems.map((item) => {
+                  const itemPrice = item.discountedPrice || item.price;
+                  return (
+                    <div
+                      key={item._id}
+                      className="flex items-center gap-4 p-3 rounded-xl border border-gray-50 bg-surface/30"
+                    >
+                      <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-white border border-gray-100">
+                        {item.images?.[0]?.url ? (
+                          <img
+                            src={item.images[0].url}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+                            <ShoppingBag className="w-6 h-6 text-gray-200" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-heading font-semibold text-sm text-gray-900 truncate">
+                          {item.name}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          ₹{itemPrice} × {item.quantity}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-900">
+                          ₹{itemPrice * item.quantity}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Address Section */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <h2 className="font-heading font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" /> Delivery Address
               </h2>

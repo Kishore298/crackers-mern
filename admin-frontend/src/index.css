@@ -34,10 +34,10 @@
 @layer components {
   .btn-fire {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-white text-sm transition-all duration-200 cursor-pointer;
-    background: linear-gradient(135deg, #ff4500, #ff6b00);
+    background: linear-gradient(140deg, #8b0000, #ff6600, #ffcc33);
   }
   .btn-fire:hover {
-    background: linear-gradient(135deg, #cc3700, #ff4500);
+    background: linear-gradient(140deg, #6b0000, #cc5200, #e6b800);
     @apply -translate-y-0.5 shadow-primary;
   }
   .btn-fire:disabled {
@@ -80,7 +80,7 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700;
   }
   .fire-gradient-text {
-    background: linear-gradient(135deg, #ff4500, #ff6b00);
+    background: linear-gradient(140deg, #8b0000, #ff6600, #ffcc33);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -93,6 +93,6 @@
   }
   .sidebar-link.active {
     @apply text-white;
-    background: linear-gradient(135deg, #ff4500, #ff6b00);
+    background: linear-gradient(140deg, #8b0000, #ff6600, #ffcc33);
   }
 }

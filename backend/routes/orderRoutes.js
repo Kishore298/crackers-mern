@@ -8,6 +8,7 @@ const {
 const { protect, adminOnly } = require("../middleware/auth");
 
 router.get("/", protect, getOrders);
+router.get("/admin", protect, adminOnly, getOrders); // must be before /:id
 router.get("/:id", protect, getOrderById);
 router.put("/:id/status", protect, adminOnly, updateOrderStatus);
 

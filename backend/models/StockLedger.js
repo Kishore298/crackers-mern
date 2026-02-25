@@ -13,6 +13,7 @@ const stockLedgerSchema = new mongoose.Schema(
       required: true,
     },
     quantity: { type: Number, required: true }, // negative for sales
+    stockAfter: { type: Number, default: null }, // stock level after operation
     referenceId: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,

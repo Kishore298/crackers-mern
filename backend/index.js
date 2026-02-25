@@ -15,6 +15,7 @@ const bannerRoutes = require("./routes/bannerRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const discountRoutes = require("./routes/discountRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -55,6 +56,7 @@ app.use("/api/discount", discountRoutes);
 app.use("/api/banners", bannerRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/users", userRoutes);
 
 // 404 handler
 app.use((req, res) => {

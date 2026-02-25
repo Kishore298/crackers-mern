@@ -12,7 +12,7 @@ import {
 const Footer = () => {
   return (
     <footer className="bg-gray-950 text-gray-300 pt-14 pb-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div>
@@ -20,11 +20,11 @@ const Footer = () => {
               <img
                 src="/v-crackers-logo.png"
                 alt="V Crackers"
-                className="h-10 w-auto object-contain brightness-0 invert"
+                className="h-20 w-auto object-contain"
               />
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Kovilpatti's most trusted fireworks brand. Celebrate every moment
+              Sivakasi's most trusted fireworks brand. Celebrate every moment
               with our premium quality crackers since 2005.
             </p>
             <div className="flex items-center gap-3 mt-5">

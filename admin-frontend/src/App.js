@@ -13,6 +13,7 @@ import StockPage from "./pages/StockPage";
 import DiscountPage from "./pages/DiscountPage";
 import BannersPage from "./pages/BannersPage";
 import ReportsPage from "./pages/ReportsPage";
+import UsersPage from "./pages/UsersPage";
 import "./index.css";
 
 const PrivateRoute = ({ children }) => {
@@ -45,6 +46,7 @@ function AppRoutes() {
         <Route path="discount" element={<DiscountPage />} />
         <Route path="banners" element={<BannersPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="users" element={<UsersPage />} />
       </Route>
     </Routes>
   );

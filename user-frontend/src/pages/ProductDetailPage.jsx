@@ -88,7 +88,7 @@ const ProductDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-white animate-fade-in-up">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-6">
           <Link to="/" className="hover:text-primary transition-colors">
@@ -117,7 +117,7 @@ const ProductDetailPage = () => {
                   className="w-full h-full"
                   style={{
                     background:
-                      "linear-gradient(135deg,#FFE4D0 0%,#FF6B00 100%)",
+                      "linear-gradient(135deg,#FFE4D0 0%,#ff6600 100%)",
                   }}
                 />
               )}
@@ -125,7 +125,7 @@ const ProductDetailPage = () => {
                 <span
                   className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold text-white"
                   style={{
-                    background: "linear-gradient(135deg,#FF4500,#FF6B00)",
+                    background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                   }}
                 >
                   -{displayPct}% OFF
@@ -174,7 +174,7 @@ const ProductDetailPage = () => {
                 <span
                   className="px-2 py-0.5 rounded-full text-xs font-bold text-white"
                   style={{
-                    background: "linear-gradient(135deg,#FF4500,#FF6B00)",
+                    background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                   }}
                 >
                   You save ₹{basePrice - effectivePrice}

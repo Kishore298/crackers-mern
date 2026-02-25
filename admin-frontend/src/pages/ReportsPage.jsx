@@ -19,9 +19,9 @@ import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 
 const COLORS = [
-  "#FF4500",
-  "#FF6B00",
-  "#FFB347",
+  "#ff6600",
+  "#ff6600",
+  "#ffcc33",
   "#6366F1",
   "#10B981",
   "#F59E0B",
@@ -162,7 +162,7 @@ const ReportsPage = () => {
                   <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip formatter={(v) => [`₹${v}`, "Revenue"]} />
-                  <Bar dataKey="revenue" fill="#FF4500" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="revenue" fill="#ff6600" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

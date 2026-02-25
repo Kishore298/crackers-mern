@@ -44,7 +44,7 @@ const OrderSuccessPage = () => {
 
   return (
     <div className="min-h-screen bg-surface py-10">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6">
+      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
         {/* Success Header */}
         <div className="text-center mb-8">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">

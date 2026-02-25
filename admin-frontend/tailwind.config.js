@@ -5,13 +5,13 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#FF4500",
-          dark: "#CC3700",
-          light: "#FF6B35",
+          DEFAULT: "#ff6600",
+          dark: "#8b0000",
+          light: "#ffcc33",
         },
         accent: {
-          DEFAULT: "#FF6B00",
-          light: "#FFB347",
+          DEFAULT: "#ff6600",
+          light: "#ffcc33",
         },
         surface: {
           DEFAULT: "#FFF8F5",
@@ -25,8 +25,8 @@ module.exports = {
         heading: ["Poppins", "sans-serif"],
       },
       boxShadow: {
-        primary: "0 4px 14px rgba(255, 69, 0, 0.35)",
-        "primary-lg": "0 8px 32px rgba(255, 69, 0, 0.25)",
+        primary: "0 4px 14px rgba(139, 0, 0, 0.35)",
+        "primary-lg": "0 8px 32px rgba(139, 0, 0, 0.25)",
       },
     },
   },

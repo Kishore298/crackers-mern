@@ -258,7 +258,7 @@ const ProductsPage = () => {
                 className={`w-8 h-8 rounded-lg text-sm font-semibold ${page === pg ? "text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
                 style={
                   page === pg
-                    ? { background: "linear-gradient(135deg,#FF4500,#FF6B00)" }
+                    ? { background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)" }
                     : {}
                 }
               >

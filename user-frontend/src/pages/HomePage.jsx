@@ -6,13 +6,14 @@ import "slick-carousel/slick/slick-theme.css";
 import { ArrowRight, ChevronRight, TrendingUp, Clock } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
+import { Truck, Shield, Zap, Percent } from "lucide-react";
 
 /* ─── Discount banner (uses global Discount model) ─── */
 const DiscountBanner = ({ discount }) => {
   if (!discount || !discount.isActive) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <section className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-6">
       <div
         className="relative rounded-2xl overflow-hidden min-h-[200px] flex items-stretch"
         style={{ background: "#6B0F0F" }}
@@ -84,7 +85,7 @@ const Spinner = () => (
       className="w-9 h-9 rounded-full animate-spin"
       style={{
         border: "3px solid #FFD4B8",
-        borderTopColor: "#FF4500",
+        borderTopColor: "#ff6600",
       }}
     />
   </div>
@@ -237,7 +238,7 @@ const HomePage = () => {
                   />
                   {b.title && (
                     <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center">
-                      <div className="max-w-7xl mx-auto px-8">
+                      <div className="w-full md:max-w-[90%] mx-auto px-8">
                         <h1 className="text-white font-heading font-bold text-3xl sm:text-5xl max-w-lg leading-tight">
                           {b.title}
                         </h1>
@@ -255,7 +256,7 @@ const HomePage = () => {
           className="relative overflow-hidden"
           style={{ background: "#FFF8F5", minHeight: "420px" }}
         >
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 flex items-center min-h-[420px]">
+          <div className="w-full md:max-w-[90%] mx-auto px-6 sm:px-10 flex items-center min-h-[420px]">
             {/* Left content */}
             <div className="relative z-10 flex-1 py-12 sm:py-16 max-w-lg">
               {/* Badge */}
@@ -269,10 +270,10 @@ const HomePage = () => {
               <h1 className="font-heading font-black text-5xl sm:text-6xl leading-tight mb-3">
                 <span className="text-gray-900">Celebrate with</span>
                 <br />
-                <span style={{ color: "#FF4500" }}>Luminous Joy</span>
+                <span style={{ color: "#ff6600" }}>Luminous Joy</span>
               </h1>
 
-              <p className="text-gray-500 text-base leading-relaxed mb-8 max-w-sm">
+              <p className="text-gray-500 text-base leading-relaxed mb-8 max-w-lg">
                 Experience the magic of Diwali with our premium, eco-friendly,
                 and safe crackers. Delivered straight to your doorstep with
                 festive care.
@@ -283,7 +284,8 @@ const HomePage = () => {
                   to="/products"
                   className="inline-flex items-center gap-2 font-bold px-7 py-3.5 rounded-full text-white text-sm shadow-lg"
                   style={{
-                    background: "linear-gradient(135deg,#FF4500,#FF6B00)",
+                    background:
+                      "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                   }}
                 >
                   Shop Collection <ArrowRight className="w-4 h-4" />
@@ -299,7 +301,7 @@ const HomePage = () => {
               {/* Trust badges */}
               <div className="flex flex-wrap gap-x-5 gap-y-2">
                 {[
-                  { icon: "✅", text: "Green Crackers" },
+                  { icon: "💥", text: "Premium Crackers" },
                   { icon: "🚚", text: "Fast Delivery" },
                   { icon: "🛡️", text: "Safe & Certified" },
                 ].map(({ icon, text }) => (
@@ -326,9 +328,9 @@ const HomePage = () => {
       )}
 
       {/* ══ Features strip ══ */}
-      {/* <div className="bg-surface border-y border-orange-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="bg-surface border-y border-orange-100">
+        <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-32">
             {[
               { icon: Truck, text: "Free Delivery above ₹999" },
               { icon: Shield, text: "100% Safe & Certified" },
@@ -346,7 +348,7 @@ const HomePage = () => {
             ))}
           </div>
         </div>
-      </div> */}
+      </div>
 
       {/* ══ Featured Discount Banner ══ */}
       <DiscountBanner discount={discount} />
@@ -354,7 +356,7 @@ const HomePage = () => {
       {/* ══════════════════════════════════════════
           BROWSE BY CATEGORY
       ══════════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <section className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-12">
         <SectionHead
           tag={
             <>
@@ -387,7 +389,7 @@ const HomePage = () => {
                           className="w-8 h-8 rounded-full"
                           style={{
                             background:
-                              "linear-gradient(135deg,#FF4500,#FF6B00)",
+                              "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                           }}
                         />
                       )}
@@ -420,17 +422,16 @@ const HomePage = () => {
                     <button
                       key={cat._id}
                       onClick={() => setActiveCategory(cat._id)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border-2 ${
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ring-2 ${
                         isActive
-                          ? "text-white border-transparent shadow-md"
-                          : "bg-white text-gray-600 border-gray-200 hover:border-primary hover:text-primary"
+                          ? "text-white ring-transparent shadow-md"
+                          : "bg-white text-gray-600 ring-gray-200 hover:text-primary"
                       }`}
                       style={
                         isActive
                           ? {
                               background:
-                                "linear-gradient(135deg,#FF4500,#FF6B00)",
-                              borderColor: "transparent",
+                                "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                             }
                           : {}
                       }
@@ -439,15 +440,15 @@ const HomePage = () => {
                         <img
                           src={cat.image}
                           alt={cat.name}
-                          className="w-5 h-5 rounded-full object-cover"
+                          className="w-5 h-5 rounded-full object-cover ring-2 ring-white"
                         />
                       ) : (
                         <div
-                          className="w-5 h-5 rounded-full shrink-0"
+                          className="w-5 h-5 rounded-full shrink-0 ring-2 ring-white"
                           style={{
                             background: isActive
                               ? "rgba(255,255,255,0.3)"
-                              : "linear-gradient(135deg,#FF4500,#FF6B00)",
+                              : "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                           }}
                         />
                       )}
@@ -500,7 +501,7 @@ const HomePage = () => {
       ══════════════════════════════════════════ */}
       {categories.length > 0 && (
         <section className="bg-surface border-t border-orange-100 py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
             <SectionHead
               tag="✨ Collections"
               title="Explore Our Collections"
@@ -527,7 +528,7 @@ const HomePage = () => {
                       <div
                         className="w-full h-full"
                         style={{
-                          background: "linear-gradient(135deg,#FFE4D0,#FF6B00)",
+                          background: "linear-gradient(135deg,#FFE4D0,#ff6600)",
                         }}
                       />
                     )}
@@ -560,7 +561,7 @@ const HomePage = () => {
                       className="w-full h-full"
                       style={{
                         background:
-                          "linear-gradient(135deg,#FFE4D0 0%,#FF6B00 100%)",
+                          "linear-gradient(135deg,#FFE4D0 0%,#ff6600 100%)",
                       }}
                     />
                   )}
@@ -583,7 +584,7 @@ const HomePage = () => {
       {/* ══════════════════════════════════════════
           POPULAR PRODUCTS (top 25 by sales)
       ══════════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <section className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-12">
         <SectionHead
           tag={
             <>
@@ -626,7 +627,7 @@ const HomePage = () => {
           TOP PICKS (newest)
       ══════════════════════════════════════════ */}
       <section className="bg-surface py-12 border-t border-orange-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
           <SectionHead
             tag={
               <>
@@ -668,7 +669,7 @@ const HomePage = () => {
 
       {/* ══ Safety Section ══ */}
       <section className="py-16" style={{ background: "#F5F6FA" }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left — 2×2 feature cards */}
             <div className="grid grid-cols-2 gap-4">
@@ -751,7 +752,7 @@ const HomePage = () => {
             <div>
               <p
                 className="text-sm font-bold uppercase tracking-widest mb-3"
-                style={{ color: "#FF4500" }}
+                style={{ color: "#ff6600" }}
               >
                 Safety First
               </p>
@@ -795,15 +796,6 @@ const HomePage = () => {
                   </li>
                 ))}
               </ul>
-
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-2 font-semibold text-sm hover:gap-3 transition-all"
-                style={{ color: "#FF4500" }}
-              >
-                Read Full Safety Guidelines
-                <ArrowRight className="w-4 h-4" />
-              </Link>
             </div>
           </div>
         </div>

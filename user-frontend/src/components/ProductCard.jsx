@@ -45,7 +45,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             className="w-full h-full"
             style={{
               background:
-                "linear-gradient(135deg, #FFE4D0 0%, #FFB347 60%, #FF6B00 100%)",
+                "linear-gradient(135deg, #FFE4D0 0%, #FFB347 60%, #ff6600 100%)",
             }}
           />
         )}
@@ -55,7 +55,9 @@ const ProductCard = ({ product, discountPct = 0 }) => {
           {showDiscount && displayPct > 0 && (
             <span
               className="px-2 py-0.5 rounded-full text-xs font-bold text-white shadow"
-              style={{ background: "linear-gradient(135deg,#FF4500,#FF6B00)" }}
+              style={{
+                background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+              }}
             >
               -{displayPct}%
             </span>
@@ -107,7 +109,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
           style={
             product.stock > 0
               ? {
-                  background: "linear-gradient(135deg,#FF4500,#FF6B00)",
+                  background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                   color: "#fff",
                 }
               : { background: "#f3f4f6", color: "#9ca3af" }

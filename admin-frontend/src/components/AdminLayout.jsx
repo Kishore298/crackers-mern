@@ -14,6 +14,7 @@ import {
   X,
   LogOut,
   ChevronRight,
+  Users,
 } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
 
@@ -22,6 +23,7 @@ const navItems = [
   { to: "/categories", icon: Tag, label: "Categories" },
   { to: "/products", icon: Package, label: "Products" },
   { to: "/orders", icon: ShoppingBag, label: "Orders" },
+  { to: "/users", icon: Users, label: "Customers" },
   { to: "/pos", icon: Monitor, label: "POS Billing" },
   { to: "/stock", icon: Archive, label: "Stock" },
   { to: "/discount", icon: Percent, label: "Discount" },
@@ -52,14 +54,20 @@ const AdminLayout = () => {
         style={{ background: "#1A0A00" }}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
+        <div className="flex items-center justify-between px-2 py-2 border-b border-white/10">
           <Link to="/" className="flex items-center gap-2">
             <img
               src="/v-crackers-logo.png"
               alt="V Crackers"
-              className="h-8 w-auto object-contain brightness-0 invert"
+              className="h-14 md:h-20 w-auto object-contain"
             />
+
+            {/* Admin Panel Text */}
+            <span className="text-white font-semibold text-md md:text-base tracking-wide">
+              Admin Panel
+            </span>
           </Link>
+
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-gray-400 hover:text-white"
@@ -89,7 +97,9 @@ const AdminLayout = () => {
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-              style={{ background: "linear-gradient(135deg,#FF4500,#FF6B00)" }}
+              style={{
+                background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+              }}
             >
               {admin?.name?.charAt(0)?.toUpperCase()}
             </div>
@@ -135,7 +145,7 @@ const AdminLayout = () => {
           <div className="ml-auto flex items-center gap-2">
             <span
               className="text-xs px-2.5 py-1 rounded-full font-semibold capitalize"
-              style={{ background: "#FFF0E8", color: "#FF4500" }}
+              style={{ background: "#FFF0E8", color: "#ff6600" }}
             >
               Admin
             </span>

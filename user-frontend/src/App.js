@@ -15,6 +15,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import OrderHistoryPage from "./pages/OrderHistoryPage";
 import ProfilePage from "./pages/ProfilePage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import "./index.css";
 
 function App() {
@@ -27,7 +28,7 @@ function App() {
             toastOptions={{
               duration: 3000,
               style: { borderRadius: "10px", fontFamily: "Inter, sans-serif" },
-              success: { iconTheme: { primary: "#FF4500", secondary: "#fff" } },
+              success: { iconTheme: { primary: "#ff6600", secondary: "#fff" } },
             }}
           />
           <Navbar />
@@ -43,6 +44,7 @@ function App() {
               <Route path="/order-success/:id" element={<OrderSuccessPage />} />
               <Route path="/orders" element={<OrderHistoryPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             </Routes>
           </main>
           <Footer />

@@ -5,13 +5,13 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#FF4500",
-          dark: "#CC3700",
-          light: "#FF6B35",
+          DEFAULT: "#ff6600",
+          dark: "#8b0000",
+          light: "#ffcc33",
         },
         accent: {
-          DEFAULT: "#FF6B00",
-          light: "#FFB347",
+          DEFAULT: "#ff6600",
+          light: "#ffcc33",
         },
         surface: {
           DEFAULT: "#FFF8F5",
@@ -24,12 +24,13 @@ module.exports = {
         heading: ["Playfair Display", "Georgia", "serif"],
       },
       boxShadow: {
-        primary: "0 4px 14px rgba(255, 69, 0, 0.35)",
-        "primary-lg": "0 8px 32px rgba(255, 69, 0, 0.25)",
+        primary: "0 4px 14px rgba(139, 0, 0, 0.35)",
+        "primary-lg": "0 8px 32px rgba(139, 0, 0, 0.25)",
       },
       backgroundImage: {
-        "fire-gradient": "linear-gradient(135deg, #FF4500, #FF6B00)",
-        "fire-gradient-hover": "linear-gradient(135deg, #CC3700, #FF4500)",
+        "fire-gradient": "linear-gradient(140deg, #8b0000, #ff6600, #ffcc33)",
+        "fire-gradient-hover":
+          "linear-gradient(140deg, #6b0000, #cc5200, #e6b800)",
       },
       animation: {
         "fade-in-up": "fadeInUp 0.4s ease",

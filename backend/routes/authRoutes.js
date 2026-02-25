@@ -8,6 +8,10 @@ const {
   addAddress,
   updateAddress,
   deleteAddress,
+  forgotPassword,
+  verifyOtp,
+  resetPassword,
+  changePassword,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
 
@@ -18,5 +22,11 @@ router.put("/profile", protect, updateProfile);
 router.post("/address", protect, addAddress);
 router.put("/address/:id", protect, updateAddress);
 router.delete("/address/:id", protect, deleteAddress);
+
+// Password reset (OTP via email)
+router.post("/forgot-password", forgotPassword);
+router.post("/verify-otp", verifyOtp);
+router.post("/reset-password", resetPassword);
+router.put("/change-password", protect, changePassword);
 
 module.exports = router;

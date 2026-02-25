@@ -76,7 +76,7 @@ const ProductListPage = () => {
     <div className="min-h-screen bg-white">
       {/* Page header */}
       <div className="bg-surface border-b border-orange-100 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
           <h1 className="font-heading font-bold text-2xl sm:text-3xl text-gray-900">
             All Products 🎆
           </h1>
@@ -84,7 +84,7 @@ const ProductListPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-6">
         {/* Search + controls bar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
@@ -187,7 +187,7 @@ const ProductListPage = () => {
                           filters.page === pg
                             ? {
                                 background:
-                                  "linear-gradient(135deg,#FF4500,#FF6B00)",
+                                  "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                               }
                             : {}
                         }
