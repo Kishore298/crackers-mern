@@ -7,17 +7,6 @@ import {
   Users,
   Calendar,
 } from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts";
 import { api } from "../context/AdminAuthContext";
 
 const StatCard = ({ icon: Icon, label, value, sub, color }) => (
@@ -44,7 +33,6 @@ const DashboardPage = () => {
     const fetch = async () => {
       try {
         const { data } = await api.get("/analytics/dashboard");
-        // API returns { success, stats: { ... } }
         setStats(data.stats || data);
       } catch {
       } finally {
@@ -60,16 +48,6 @@ const DashboardPage = () => {
         <div className="w-10 h-10 rounded-full border-4 border-orange-100 border-t-primary animate-spin" />
       </div>
     );
-
-  // Normalize chart data from API format { _id: { date }, revenue, orders }
-  const revenueChart = (stats?.dailySales || []).map((d) => ({
-    date: d._id?.date?.slice(5) || d.date || "", // "MM-DD"
-    revenue: d.revenue || 0,
-  }));
-  const ordersChart = (stats?.dailySales || []).map((d) => ({
-    date: d._id?.date?.slice(5) || d.date || "",
-    orders: d.orders || 0,
-  }));
 
   return (
     <div className="space-y-6">
@@ -128,45 +106,6 @@ const DashboardPage = () => {
           sub={`Offline: ₹${(stats?.offlineRevenue || 0).toLocaleString()}`}
           color="#6366F1"
         />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="card-admin p-5">
-          <h3 className="font-heading font-semibold text-sm text-gray-700 mb-5">
-            Revenue (Last 7 Days)
-          </h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={revenueChart}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip formatter={(v) => [`₹${v}`, "Revenue"]} />
-              <Line
-                type="monotone"
-                dataKey="revenue"
-                stroke="#ff6600"
-                strokeWidth={2.5}
-                dot={{ fill: "#ff6600", r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="card-admin p-5">
-          <h3 className="font-heading font-semibold text-sm text-gray-700 mb-5">
-            Orders (Last 7 Days)
-          </h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={ordersChart}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="orders" fill="#ff6600" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
       </div>
 
       {/* Top Products */}

@@ -13,7 +13,7 @@ const DiscountBanner = ({ discount }) => {
   if (!discount || !discount.isActive) return null;
 
   return (
-    <section className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-6">
+    <section className="w-full md:max-w-7xl mx-auto px-4 sm:px-6 py-6">
       <div
         className="relative rounded-2xl overflow-hidden min-h-[200px] flex items-stretch"
         style={{ background: "#6B0F0F" }}
@@ -254,35 +254,35 @@ const HomePage = () => {
         /* ── Static hero (reference image style) ── */
         <section
           className="relative overflow-hidden"
-          style={{ background: "#FFF8F5", minHeight: "420px" }}
+          style={{ background: "#FFF8F5", minHeight: "320px" }}
         >
-          <div className="w-full md:max-w-[90%] mx-auto px-6 sm:px-10 flex items-center min-h-[420px]">
+          <div className="w-full md:max-w-[90%] mx-auto px-5 sm:px-10 flex items-center min-h-[320px] sm:min-h-[420px]">
             {/* Left content */}
-            <div className="relative z-10 flex-1 py-12 sm:py-16 max-w-lg">
+            <div className="relative z-10 flex-1 py-8 sm:py-16 max-w-lg text-center md:text-left">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-white border border-orange-100 rounded-full px-4 py-1.5 mb-6 shadow-sm">
+              <div className="inline-flex items-center gap-2 bg-white border border-orange-100 rounded-full px-3 py-1 mb-4 sm:mb-6 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />
-                <span className="text-xs font-bold text-gray-600 tracking-wider uppercase">
+                <span className="text-[10px] sm:text-xs font-bold text-gray-600 tracking-wider uppercase">
                   Premium Diwali Collection 2026
                 </span>
               </div>
 
-              <h1 className="font-heading font-black text-5xl sm:text-6xl leading-tight mb-3">
-                <span className="text-gray-900">Celebrate with</span>
-                <br />
+              <h1 className="font-heading font-black text-2xl sm:text-5xl md:text-6xl leading-tight mb-2 sm:mb-3">
+                <span className="text-gray-900">Celebrate with </span>
+                <br className="hidden md:block" />
                 <span style={{ color: "#ff6600" }}>Luminous Joy</span>
               </h1>
 
-              <p className="text-gray-500 text-base leading-relaxed mb-8 max-w-lg">
+              <p className="text-gray-500 text-xs sm:text-base leading-relaxed mb-5 sm:mb-8 max-w-full md:max-w-lg">
                 Experience the magic of Diwali with our premium, eco-friendly,
                 and safe crackers. Delivered straight to your doorstep with
                 festive care.
               </p>
 
-              <div className="flex flex-wrap gap-3 mb-8">
+              <div className="flex flex-wrap gap-2 sm:gap-3 mb-5 sm:mb-8 justify-center md:justify-start">
                 <Link
                   to="/products"
-                  className="inline-flex items-center gap-2 font-bold px-7 py-3.5 rounded-full text-white text-sm shadow-lg"
+                  className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-2.5 sm:py-3.5 rounded-full text-white text-xs sm:text-sm shadow-lg"
                   style={{
                     background:
                       "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
@@ -292,14 +292,14 @@ const HomePage = () => {
                 </Link>
                 <Link
                   to="/products"
-                  className="inline-flex items-center gap-2 font-bold px-6 py-3.5 rounded-full text-gray-700 text-sm bg-white border border-gray-200 hover:border-orange-300 transition-colors"
+                  className="inline-flex items-center gap-2 font-bold px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full text-gray-700 text-xs sm:text-sm bg-white border border-gray-200 hover:border-orange-300 transition-colors"
                 >
                   🎁 View Gift Boxes
                 </Link>
               </div>
 
               {/* Trust badges */}
-              <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center md:justify-start">
                 {[
                   { icon: "💥", text: "Premium Crackers" },
                   { icon: "🚚", text: "Fast Delivery" },
@@ -332,7 +332,7 @@ const HomePage = () => {
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-32">
             {[
-              { icon: Truck, text: "Free Delivery above ₹999" },
+              { icon: Truck, text: "Free Delivery above ₹3500" },
               { icon: Shield, text: "100% Safe & Certified" },
               { icon: Zap, text: "Premium Quality" },
               { icon: Percent, text: "Discounted Prices" },
@@ -500,7 +500,7 @@ const HomePage = () => {
           COLLECTIONS (Categories visual grid)
       ══════════════════════════════════════════ */}
       {categories.length > 0 && (
-        <section className="bg-surface border-t border-orange-100 py-12">
+        <section className="bg-surface border-t border-orange-100 py-6 md:py-12">
           <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
             <SectionHead
               tag="✨ Collections"
@@ -515,9 +515,9 @@ const HomePage = () => {
                 <Link
                   key={cat._id}
                   to={`/products?category=${cat._id}`}
-                  className="snap-start shrink-0 w-36 rounded-2xl overflow-hidden border border-orange-100 bg-white hover:shadow-md transition-shadow"
+                  className="snap-start shrink-0 w-28 rounded-2xl overflow-hidden border border-orange-100 bg-white hover:shadow-md transition-shadow"
                 >
-                  <div className="aspect-square bg-surface overflow-hidden">
+                  <div className="aspect-[4/3] bg-surface overflow-hidden">
                     {cat.image ? (
                       <img
                         src={cat.image}
@@ -533,8 +533,8 @@ const HomePage = () => {
                       />
                     )}
                   </div>
-                  <div className="p-3">
-                    <p className="font-heading font-bold text-gray-900 text-sm text-center">
+                  <div className="p-2">
+                    <p className="font-heading font-bold text-gray-900 text-xs text-center">
                       {cat.name}
                     </p>
                   </div>
@@ -543,12 +543,12 @@ const HomePage = () => {
             </div>
 
             {/* Desktop: grid */}
-            <div className="hidden lg:grid grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="hidden lg:grid grid-cols-4 xl:grid-cols-5 gap-4">
               {categories.map((cat) => (
                 <Link
                   key={cat._id}
                   to={`/products?category=${cat._id}`}
-                  className="group relative rounded-2xl overflow-hidden aspect-[4/3] bg-surface border border-orange-100 hover:shadow-lg transition-shadow"
+                  className="group relative rounded-2xl overflow-hidden aspect-[3/2] bg-surface border border-orange-100 hover:shadow-lg transition-shadow"
                 >
                   {cat.image ? (
                     <img
@@ -623,50 +623,6 @@ const HomePage = () => {
         )}
       </section>
 
-      {/* ══════════════════════════════════════════
-          TOP PICKS (newest)
-      ══════════════════════════════════════════ */}
-      <section className="bg-surface py-12 border-t border-orange-100">
-        <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
-          <SectionHead
-            tag={
-              <>
-                <Clock className="w-3.5 h-3.5" /> New Arrivals
-              </>
-            }
-            title="Top Picks 🌟"
-            sub="Fresh additions to our collection"
-            to="/products?sort=newest"
-          />
-
-          {initLoading ? (
-            <Spinner />
-          ) : (
-            <>
-              {/* Mobile: horizontal scroll */}
-              <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide lg:hidden">
-                {topPicks.map((p) => (
-                  <div key={p._id} className="snap-start shrink-0 w-44 sm:w-52">
-                    <ProductCard product={p} discountPct={discountPct} />
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop: grid */}
-              <div className="hidden lg:grid grid-cols-3 xl:grid-cols-4 gap-5">
-                {topPicks.map((p) => (
-                  <ProductCard
-                    key={p._id}
-                    product={p}
-                    discountPct={discountPct}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      </section>
-
       {/* ══ Safety Section ══ */}
       <section className="py-16" style={{ background: "#F5F6FA" }}>
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
@@ -728,10 +684,10 @@ const HomePage = () => {
               ].map(({ iconBg, title, desc, customIcon }) => (
                 <div
                   key={title}
-                  className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-3"
+                  className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-1.5 md:gap-3"
                 >
                   <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center"
+                    className="w-8 h-8 md:w-11 md:h-11 rounded-xl flex items-center justify-center"
                     style={{ background: iconBg }}
                   >
                     {customIcon}
@@ -740,7 +696,7 @@ const HomePage = () => {
                     <p className="font-heading font-bold text-gray-900 text-base">
                       {title}
                     </p>
-                    <p className="text-gray-500 text-sm mt-1 leading-relaxed">
+                    <p className="text-gray-500 text-xs md:text-sm mt-1 leading-relaxed">
                       {desc}
                     </p>
                   </div>

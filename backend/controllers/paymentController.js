@@ -4,6 +4,8 @@ const Sale = require("../models/Sale");
 const Product = require("../models/Product");
 const StockLedger = require("../models/StockLedger");
 const Coupon = require("../models/Coupon");
+const User = require("../models/User");
+const { sendOrderConfirmationEmail } = require("../config/emailService");
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -64,19 +66,15 @@ const verifyPayment = async (req, res) => {
     for (const ci of cartItems) {
       const product = await Product.findById(ci.product);
       if (!product || !product.isActive)
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Product ${ci.name} not available`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `Product ${ci.name} not available`,
+        });
       if (product.stock < ci.quantity)
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Insufficient stock for ${product.name}`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient stock for ${product.name}`,
+        });
 
       const price = product.discountedPrice || product.price;
       items.push({
@@ -119,6 +117,18 @@ const verifyPayment = async (req, res) => {
         note: `Online order ${sale.invoiceNo}`,
         createdBy: req.user._id,
       });
+    }
+
+    // Send order confirmation email with PDF receipt (fire & forget)
+    const customer = await User.findById(req.user._id).select(
+      "name email phone",
+    );
+    if (customer?.email) {
+      sendOrderConfirmationEmail(customer.email, sale, {
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+      }).catch((err) => console.error("Order email failed:", err.message));
     }
 
     res

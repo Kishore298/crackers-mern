@@ -1,6 +1,7 @@
 const Sale = require("../models/Sale");
 const Product = require("../models/Product");
 const StockLedger = require("../models/StockLedger");
+const Discount = require("../models/Discount");
 
 // POST /api/pos/bill (admin only)
 const createPosBill = async (req, res) => {
@@ -15,6 +16,10 @@ const createPosBill = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Payment method required" });
 
+    // Fetch active global discount
+    const activeDiscount = await Discount.findOne({ isActive: true });
+    const discountPct = activeDiscount ? activeDiscount.percentage : 0;
+
     // Validate items and build
     const saleItems = [];
     let totalAmount = 0;
@@ -26,14 +31,19 @@ const createPosBill = async (req, res) => {
           .status(400)
           .json({ success: false, message: `Product ${ci.product} not found` });
       if (product.stock < ci.quantity)
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Insufficient stock for ${product.name}`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient stock for ${product.name}`,
+        });
 
-      const price = product.discountedPrice || product.price;
+      // Apply global discount to base price, or use product's own discountedPrice
+      let price;
+      if (discountPct > 0) {
+        price = Math.round(product.price * (1 - discountPct / 100));
+      } else {
+        price = product.discountedPrice || product.price;
+      }
+
       const subtotal = price * ci.quantity;
       totalAmount += subtotal;
       saleItems.push({
@@ -45,16 +55,32 @@ const createPosBill = async (req, res) => {
       });
     }
 
+    // Calculate original total (without discount) for discount field
+    const originalTotal = saleItems.reduce((sum, item) => {
+      const product_original_price = items.find(
+        (i) => i.product === item.product.toString(),
+      );
+      return sum + item.subtotal;
+    }, 0);
+
+    // Calculate what the total would have been at full price
+    let fullPriceTotal = 0;
+    for (const ci of items) {
+      const product = await Product.findById(ci.product);
+      fullPriceTotal += product.price * ci.quantity;
+    }
+    const discountAmount = fullPriceTotal - totalAmount;
+
     const sale = await Sale.create({
       saleType: "offline",
       customer: null,
       items: saleItems,
-      totalAmount,
-      discount: 0,
+      totalAmount: fullPriceTotal,
+      discount: discountAmount > 0 ? discountAmount : 0,
       finalPayable: totalAmount,
       paymentMethod,
       paymentStatus: "paid",
-      orderStatus: "delivered", // offline = immediately delivered
+      orderStatus: "delivered",
       billingInfo: billingInfo || { name: "Walk-in Customer", phone: "" },
       createdBy: req.user._id,
     });

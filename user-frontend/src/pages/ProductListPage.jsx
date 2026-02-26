@@ -73,7 +73,7 @@ const ProductListPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
       {/* Page header */}
       <div className="bg-surface border-b border-orange-100 py-8">
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
@@ -118,6 +118,62 @@ const ProductListPage = () => {
             <Filter className="w-4 h-4" /> Filters
           </button>
         </div>
+
+        {/* Mobile filter drawer */}
+        {showFilter && (
+          <div className="sm:hidden mb-4 bg-surface rounded-2xl border border-orange-100 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-heading font-semibold text-sm text-gray-900">
+                Categories
+              </h3>
+              <button
+                onClick={() => setShowFilter(false)}
+                className="text-xs text-gray-400 hover:text-primary"
+              >
+                Close
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  setFilter("category", "");
+                  setShowFilter(false);
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${!filters.category ? "text-white" : "bg-white text-gray-600 border border-gray-200 hover:text-primary"}`}
+                style={
+                  !filters.category
+                    ? {
+                        background:
+                          "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+                      }
+                    : {}
+                }
+              >
+                All
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat._id}
+                  onClick={() => {
+                    setFilter("category", cat._id);
+                    setShowFilter(false);
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${filters.category === cat._id ? "text-white" : "bg-white text-gray-600 border border-gray-200 hover:text-primary"}`}
+                  style={
+                    filters.category === cat._id
+                      ? {
+                          background:
+                            "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+                        }
+                      : {}
+                  }
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-6">
           {/* Sidebar filters - desktop */}

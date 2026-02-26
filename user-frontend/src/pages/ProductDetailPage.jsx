@@ -102,10 +102,10 @@ const ProductDetailPage = () => {
           <span className="text-gray-600 font-medium">{product.name}</span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
           {/* ── Images ── */}
           <div>
-            <div className="relative rounded-2xl overflow-hidden aspect-square bg-surface border border-orange-100">
+            <div className="relative rounded-2xl overflow-hidden aspect-[4/3] sm:aspect-square bg-surface border border-orange-100">
               {product.images?.[activeImg]?.url ? (
                 <img
                   src={product.images[activeImg].url}
@@ -138,7 +138,7 @@ const ProductDetailPage = () => {
                   <button
                     key={idx}
                     onClick={() => setActiveImg(idx)}
-                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${activeImg === idx ? "border-primary shadow-primary" : "border-orange-100 hover:border-primary-light"}`}
+                    className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all ${activeImg === idx ? "border-primary shadow-primary" : "border-orange-100 hover:border-primary-light"}`}
                   >
                     <img
                       src={img.url}
