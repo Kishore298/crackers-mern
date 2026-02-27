@@ -131,6 +131,25 @@ const verifyPayment = async (req, res) => {
       }).catch((err) => console.error("Order email failed:", err.message));
     }
 
+    // Emit order notification to admins
+    try {
+      const { getIO } = require("../config/socket");
+      const Notification = require("../models/Notification");
+
+      const adminNotification = await Notification.create({
+        recipientRole: "admin",
+        title: "New Order Received",
+        body: `Order ${sale.invoiceNo} placed by ${customer?.name || "Customer"}. Amount: ₹${finalPayable}`,
+        type: "order",
+        data: { saleId: sale._id, invoiceNo: sale.invoiceNo },
+      });
+
+      const io = getIO();
+      io.to("admin").emit("new_order", adminNotification);
+    } catch (err) {
+      console.error("Order notification emit failed:", err.message);
+    }
+
     res
       .status(201)
       .json({ success: true, sale, message: "Order placed successfully" });

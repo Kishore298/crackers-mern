@@ -18,6 +18,7 @@
     "react-slick": "^0.31.0",
     "recharts": "^3.7.0",
     "slick-carousel": "^1.8.1",
+    "socket.io-client": "^4.8.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

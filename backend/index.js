@@ -1,8 +1,11 @@
 require("dotenv").config();
 const express = require("express");
+const http = require("http");
 const helmet = require("helmet");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const { initSocket } = require("./config/socket");
+const { initFirebase } = require("./config/firebase");
 
 // Route imports
 const authRoutes = require("./routes/authRoutes");
@@ -16,11 +19,20 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const discountRoutes = require("./routes/discountRoutes");
 const userRoutes = require("./routes/userRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const fcmRoutes = require("./routes/fcmRoutes");
 
 // Connect to MongoDB
 connectDB();
 
+// Initialize Firebase (graceful if no config)
+initFirebase();
+
 const app = express();
+const server = http.createServer(app);
+
+// Initialize Socket.IO
+initSocket(server);
 
 // Security & parsing middleware
 app.use(helmet());
@@ -57,6 +69,8 @@ app.use("/api/banners", bannerRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/fcm", fcmRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -75,6 +89,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 V Crackers Server running on port ${PORT}`);
 });

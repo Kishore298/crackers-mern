@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import NotificationBell from "./NotificationBell";
 import api from "../services/api";
 
 const Navbar = () => {
@@ -182,6 +183,9 @@ const Navbar = () => {
                 ₹{total}
               </span>
             </Link>
+
+            {/* Notifications */}
+            {user && <NotificationBell />}
 
             {/* User */}
             {user ? (

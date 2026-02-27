@@ -15,8 +15,11 @@ import {
   LogOut,
   ChevronRight,
   Users,
+  Bell,
+  Send,
 } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
+import NotificationBell from "./NotificationBell";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -28,6 +31,7 @@ const navItems = [
   { to: "/stock", icon: Archive, label: "Stock" },
   { to: "/discount", icon: Percent, label: "Discount" },
   { to: "/banners", icon: Image, label: "Banners" },
+  { to: "/notifications", icon: Send, label: "Push Notifications" },
   { to: "/reports", icon: BarChart2, label: "Reports" },
 ];
 
@@ -142,9 +146,10 @@ const AdminLayout = () => {
               {navItems.find((n) => isActive(n.to))?.label || "Dashboard"}
             </h1>
           </div>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-3">
+            <NotificationBell />
             <span
-              className="text-xs px-2.5 py-1 rounded-full font-semibold capitalize"
+              className="text-xs px-2.5 py-1 rounded-full font-semibold capitalize hidden sm:inline-block"
               style={{ background: "#FFF0E8", color: "#ff6600" }}
             >
               Admin

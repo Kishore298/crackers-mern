@@ -36,6 +36,8 @@ const userSchema = new mongoose.Schema(
       default: "customer",
     },
     isActive: { type: Boolean, default: true },
+    // FCM push notification tokens
+    fcmTokens: [{ type: String }],
     // OTP fields for password reset
     otpCode: { type: String, select: false },
     otpExpiry: { type: Date, select: false },
