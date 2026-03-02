@@ -7,25 +7,41 @@ let firebaseInitialized = false;
 const initFirebase = () => {
   if (firebaseInitialized) return;
 
-  const serviceAccountPath =
-    process.env.FIREBASE_SERVICE_ACCOUNT ||
-    path.join(__dirname, "serviceAccountKey.json");
-
-  if (!fs.existsSync(serviceAccountPath)) {
-    console.warn(
-      "⚠️  Firebase service account JSON not found. Push notifications disabled.",
-    );
-    console.warn(`   Expected at: ${serviceAccountPath}`);
-    return;
-  }
-
   try {
+    // Prefer env vars (production-safe, no JSON file needed)
+    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          // Env vars store \n literally — convert back to real newlines
+          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+        }),
+      });
+      firebaseInitialized = true;
+      console.log("🔔 Firebase Admin initialized (env vars)");
+      return;
+    }
+
+    // Fallback: read service account JSON file
+    const serviceAccountPath =
+      process.env.FIREBASE_SERVICE_ACCOUNT ||
+      path.join(__dirname, "vcrackers-fe6ae-firebase-adminsdk-fbsvc-ec9d89c244.json");
+
+    if (!fs.existsSync(serviceAccountPath)) {
+      console.warn(
+        "⚠️  Firebase service account JSON not found. Push notifications disabled.",
+      );
+      console.warn(`   Expected at: ${serviceAccountPath}`);
+      return;
+    }
+
     const serviceAccount = require(serviceAccountPath);
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
     firebaseInitialized = true;
-    console.log("🔔 Firebase Admin initialized");
+    console.log("🔔 Firebase Admin initialized (JSON file)");
   } catch (err) {
     console.error("❌ Firebase init failed:", err.message);
   }

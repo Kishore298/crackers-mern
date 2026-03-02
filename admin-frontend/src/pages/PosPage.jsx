@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Search,
   Plus,
@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   Loader,
   Trash2,
+  User,
 } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
@@ -17,9 +18,16 @@ const PosPage = () => {
   const [cart, setCart] = useState([]);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [manualDiscount, setManualDiscount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [billing, setBilling] = useState(false);
   const [lastBill, setLastBill] = useState(null);
+
+  // Customer lookup
+  const [customerSuggestions, setCustomerSuggestions] = useState([]);
+  const [lookupField, setLookupField] = useState(""); // 'phone' | 'email'
+  const lookupTimer = useRef(null);
 
   const searchProducts = async (q) => {
     if (!q.trim()) {
@@ -59,20 +67,39 @@ const PosPage = () => {
     setCart((c) => c.map((i) => (i._id === id ? { ...i, qty } : i)));
   };
 
-  const total = cart.reduce(
+  const handleCustomerLookup = (value, field) => {
+    if (field === "phone") setCustomerPhone(value);
+    else setCustomerEmail(value);
+    setCustomerSuggestions([]);
+    if (lookupTimer.current) clearTimeout(lookupTimer.current);
+    if (value.length < 3) return;
+    lookupTimer.current = setTimeout(async () => {
+      try {
+        const params = field === "phone" ? `phone=${value}` : `email=${value}`;
+        const { data } = await api.get(`/users/lookup?${params}`);
+        setCustomerSuggestions(data.users || []);
+        setLookupField(field);
+      } catch {}
+    }, 400);
+  };
+
+  const selectCustomer = (u) => {
+    setCustomerName(u.name);
+    setCustomerPhone(u.phone || "");
+    setCustomerEmail(u.email || "");
+    setCustomerSuggestions([]);
+  };
+
+  const subtotal = cart.reduce(
     (sum, item) => sum + (item.discountedPrice || item.price) * item.qty,
     0,
   );
+  const discountAmt = Math.min(Number(manualDiscount) || 0, subtotal);
+  const total = subtotal - discountAmt;
 
   const handleBill = async () => {
-    if (cart.length === 0) {
-      toast.error("Cart is empty");
-      return;
-    }
-    if (!customerName.trim()) {
-      toast.error("Customer name is required");
-      return;
-    }
+    if (cart.length === 0) { toast.error("Cart is empty"); return; }
+    if (!customerName.trim()) { toast.error("Customer name is required"); return; }
     setBilling(true);
     try {
       const { data } = await api.post("/pos/bill", {
@@ -82,15 +109,13 @@ const PosPage = () => {
           name: i.name,
           price: i.discountedPrice || i.price,
         })),
-        customerName,
-        customerPhone,
         paymentMethod,
-        totalAmount: total,
+        billingInfo: { name: customerName, phone: customerPhone, email: customerEmail },
+        manualDiscount: discountAmt,
       });
       setLastBill(data.sale);
       setCart([]);
-      setCustomerName("");
-      setCustomerPhone("");
+      setCustomerName(""); setCustomerPhone(""); setCustomerEmail(""); setManualDiscount("");
       toast.success("Bill generated! 🎆");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Billing failed");
@@ -221,14 +246,10 @@ const PosPage = () => {
       {/* Billing Panel */}
       <div className="space-y-4">
         <div className="card-admin p-5">
-          <h3 className="font-heading font-semibold text-base text-gray-900 mb-4">
-            Customer Info
-          </h3>
+          <h3 className="font-heading font-semibold text-base text-gray-900 mb-4">Customer Info</h3>
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                Customer Name *
-              </label>
+              <label className="text-xs font-semibold text-gray-600 block mb-1.5">Customer Name *</label>
               <input
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
@@ -236,26 +257,62 @@ const PosPage = () => {
                 placeholder="Walk-in Customer"
               />
             </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                Phone (optional)
-              </label>
+            <div className="relative">
+              <label className="text-xs font-semibold text-gray-600 block mb-1.5">Phone (auto-fetch)</label>
               <input
                 value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
+                onChange={(e) => handleCustomerLookup(e.target.value, "phone")}
                 className="input-admin"
                 placeholder="9876543210"
               />
+              {customerSuggestions.length > 0 && lookupField === "phone" && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-30 divide-y divide-gray-50 mt-1 overflow-hidden">
+                  {customerSuggestions.map((u) => (
+                    <button key={u._id} onClick={() => selectCustomer(u)}
+                      className="w-full text-left px-4 py-2.5 hover:bg-surface flex items-center gap-2 text-sm">
+                      <User className="w-4 h-4 text-gray-400" />
+                      <span className="font-semibold text-gray-800">{u.name}</span>
+                      <span className="text-gray-400 text-xs ml-auto">{u.phone}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="relative">
+              <label className="text-xs font-semibold text-gray-600 block mb-1.5">Email (auto-fetch)</label>
+              <input
+                value={customerEmail}
+                onChange={(e) => handleCustomerLookup(e.target.value, "email")}
+                className="input-admin"
+                placeholder="customer@email.com"
+              />
+              {customerSuggestions.length > 0 && lookupField === "email" && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-30 divide-y divide-gray-50 mt-1 overflow-hidden">
+                  {customerSuggestions.map((u) => (
+                    <button key={u._id} onClick={() => selectCustomer(u)}
+                      className="w-full text-left px-4 py-2.5 hover:bg-surface flex items-center gap-2 text-sm">
+                      <User className="w-4 h-4 text-gray-400" />
+                      <span className="font-semibold text-gray-800">{u.name}</span>
+                      <span className="text-gray-400 text-xs ml-auto">{u.email}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                Payment Method
-              </label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+              <label className="text-xs font-semibold text-gray-600 block mb-1.5">Manual Discount (₹)</label>
+              <input
+                type="number"
+                min="0"
+                value={manualDiscount}
+                onChange={(e) => setManualDiscount(e.target.value)}
                 className="input-admin"
-              >
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1.5">Payment Method</label>
+              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="input-admin">
                 <option value="cash">Cash</option>
                 <option value="upi">UPI</option>
                 <option value="card">Card</option>
@@ -265,23 +322,18 @@ const PosPage = () => {
         </div>
 
         <div className="card-admin p-5">
-          <div className="space-y-2 text-sm mb-4">
-            {cart.map((item) => (
-              <div
-                key={item._id}
-                className="flex justify-between text-gray-600"
-              >
-                <span className="truncate max-w-[120px]">
-                  {item.name} ×{item.qty}
-                </span>
-                <span className="font-semibold">
-                  ₹{(item.discountedPrice || item.price) * item.qty}
-                </span>
+          <div className="space-y-1.5 text-sm mb-4">
+            <div className="flex justify-between text-gray-500">
+              <span>Subtotal</span><span>₹{subtotal.toLocaleString("en-IN")}</span>
+            </div>
+            {discountAmt > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Discount</span><span>-₹{discountAmt.toLocaleString("en-IN")}</span>
               </div>
-            ))}
+            )}
             <div className="border-t border-orange-100 pt-2 flex justify-between font-heading font-bold text-gray-900">
               <span>Total</span>
-              <span className="text-primary text-lg">₹{total}</span>
+              <span className="text-primary text-lg">₹{total.toLocaleString("en-IN")}</span>
             </div>
           </div>
           <button

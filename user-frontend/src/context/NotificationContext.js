@@ -17,13 +17,13 @@ const SOCKET_URL =
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const socketRef = useRef(null);
 
   useEffect(() => {
-    if (!user?.token) {
+    if (!token) {
       if (socketRef.current) socketRef.current.disconnect();
       setNotifications([]);
       setUnreadCount(0);
@@ -32,7 +32,7 @@ export const NotificationProvider = ({ children }) => {
 
     // Connect Socket.IO
     socketRef.current = io(SOCKET_URL, {
-      auth: { token: user.token },
+      auth: { token },
     });
 
     socketRef.current.on("notification", (newNotification) => {
@@ -60,13 +60,13 @@ export const NotificationProvider = ({ children }) => {
       if (socketRef.current) socketRef.current.disconnect();
       clearInterval(intervalId);
     };
-  }, [user]);
+  }, [user, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchNotifications = async () => {
-    if (!user?.token) return;
+    if (!token) return;
     try {
       const res = await fetch(`${API_URL}/notifications?limit=20`, {
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.success) setNotifications(data.notifications);
@@ -76,10 +76,10 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const fetchUnreadCount = async () => {
-    if (!user?.token) return;
+    if (!token) return;
     try {
       const res = await fetch(`${API_URL}/notifications/unread-count`, {
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.success) setUnreadCount(data.count);
@@ -97,7 +97,7 @@ export const NotificationProvider = ({ children }) => {
 
       await fetch(`${API_URL}/notifications/${id}/read`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
       console.error(err);
@@ -112,7 +112,7 @@ export const NotificationProvider = ({ children }) => {
 
       await fetch(`${API_URL}/notifications/read-all`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${user.token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
       console.error(err);

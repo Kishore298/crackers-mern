@@ -14,7 +14,7 @@ import api from "../services/api";
 import toast from "react-hot-toast";
 
 const CheckoutPage = () => {
-  const { cartItems, subtotal, discount, total, coupon, clearCart } = useCart();
+  const { cartItems, subtotal, total, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [addresses, setAddresses] = useState([]);
@@ -130,8 +130,6 @@ const CheckoutPage = () => {
                 name: i.name,
               })),
               shippingAddress: addr,
-              couponCode: coupon?.code || null,
-              discount: discount || 0,
               totalAmount: subtotal,
               finalPayable: finalAmount,
             });
@@ -174,7 +172,8 @@ const CheckoutPage = () => {
               </h2>
               <div className="space-y-4">
                 {cartItems.map((item) => {
-                  const itemPrice = item.discountedPrice || item.price;
+                  const itemPrice = item.effectivePrice ?? item.discountedPrice ?? item.price;
+                  const itemTotal = itemPrice * item.quantity;
                   return (
                     <div
                       key={item._id}
@@ -198,12 +197,12 @@ const CheckoutPage = () => {
                           {item.name}
                         </h3>
                         <p className="text-xs text-gray-500 mt-0.5">
-                          ₹{itemPrice} × {item.quantity}
+                          ₹{itemPrice.toLocaleString("en-IN")} × {item.quantity}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-gray-900">
-                          ₹{itemPrice * item.quantity}
+                          ₹{itemTotal.toLocaleString("en-IN")}
                         </p>
                       </div>
                     </div>
@@ -315,43 +314,33 @@ const CheckoutPage = () => {
               Order Summary
             </h2>
             <div className="space-y-2.5 text-sm">
-              {cartItems.map((item) => (
-                <div
-                  key={item._id}
-                  className="flex justify-between text-gray-600"
-                >
-                  <span className="truncate max-w-[150px]">
-                    {item.name} × {item.quantity}
-                  </span>
-                  <span className="font-semibold">
-                    ₹{(item.discountedPrice || item.price) * item.quantity}
-                  </span>
-                </div>
-              ))}
+              {cartItems.map((item) => {
+                const itemPrice = item.effectivePrice ?? item.discountedPrice ?? item.price;
+                return (
+                  <div key={item._id} className="flex justify-between text-gray-600">
+                    <span className="truncate max-w-[150px]">
+                      {item.name} × {item.quantity}
+                    </span>
+                    <span className="font-semibold">
+                      ₹{(itemPrice * item.quantity).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                );
+              })}
               <div className="border-t border-orange-50 my-3" />
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>₹{subtotal}</span>
+                <span>₹{subtotal.toLocaleString("en-IN")}</span>
               </div>
-              {discount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span>Coupon ({coupon?.code})</span>
-                  <span>-₹{discount}</span>
-                </div>
-              )}
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
-                <span
-                  className={
-                    shipping === 0 ? "text-green-600 font-semibold" : ""
-                  }
-                >
+                <span className={shipping === 0 ? "text-green-600 font-semibold" : ""}>
                   {shipping === 0 ? "FREE" : `₹${shipping}`}
                 </span>
               </div>
               <div className="border-t border-orange-100 pt-3 flex justify-between font-heading font-bold text-gray-900 text-base">
                 <span>Total</span>
-                <span className="text-primary">₹{finalAmount}</span>
+                <span className="text-primary">₹{finalAmount.toLocaleString("en-IN")}</span>
               </div>
             </div>
 
@@ -366,7 +355,7 @@ const CheckoutPage = () => {
                 </>
               ) : (
                 <>
-                  <CreditCard className="w-5 h-5" /> Pay ₹{finalAmount}
+                  <CreditCard className="w-5 h-5" /> Pay ₹{finalAmount.toLocaleString("en-IN")}
                 </>
               )}
             </button>

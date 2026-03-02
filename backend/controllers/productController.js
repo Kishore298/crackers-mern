@@ -60,12 +60,26 @@ const getProducts = async (req, res) => {
 // GET /api/products/admin - all including inactive (admin)
 const getAdminProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 50 } = req.query;
+    const { page = 1, limit = 50, search, category, isActive, sort } = req.query;
+    const filter = {};
+    if (search) filter.name = { $regex: search, $options: "i" };
+    if (category) filter.category = category;
+    if (isActive !== undefined && isActive !== "") filter.isActive = isActive === "true";
+
+    const sortMap = {
+      price_asc: { price: 1 },
+      price_desc: { price: -1 },
+      newest: { createdAt: -1 },
+      oldest: { createdAt: 1 },
+      name: { name: 1 },
+    };
+    const sortOption = sortMap[sort] || { createdAt: -1 };
+
     const skip = (Number(page) - 1) * Number(limit);
-    const total = await Product.countDocuments();
-    const products = await Product.find()
+    const total = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
       .populate("category", "name slug")
-      .sort({ createdAt: -1 })
+      .sort(sortOption)
       .skip(skip)
       .limit(Number(limit));
     res.json({ success: true, products, total });
@@ -289,6 +303,46 @@ const getPopularProducts = async (req, res) => {
   }
 };
 
+// PUT /api/products/:id/images/reorder (admin)
+const reorderImages = async (req, res) => {
+  try {
+    const { images } = req.body; // Array of { url, publicId } in desired order
+    if (!Array.isArray(images))
+      return res.status(400).json({ success: false, message: "images array required" });
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $set: { images } },
+      { new: true },
+    );
+    if (!product)
+      return res.status(404).json({ success: false, message: "Product not found" });
+
+    res.json({ success: true, product });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// DELETE /api/products/:id/images/:publicId (admin)
+const deleteProductImage = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product)
+      return res.status(404).json({ success: false, message: "Product not found" });
+
+    const { publicId } = req.params;
+    // Remove from Cloudinary
+    try { await cloudinary.uploader.destroy(publicId); } catch (e) {}
+
+    product.images = product.images.filter((img) => img.publicId !== publicId);
+    await product.save();
+    res.json({ success: true, product });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   getProducts,
   getAdminProducts,
@@ -299,4 +353,6 @@ module.exports = {
   deleteProduct,
   getLowStock,
   getPopularProducts,
+  reorderImages,
+  deleteProductImage,
 };

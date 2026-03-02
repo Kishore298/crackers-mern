@@ -2,15 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import api from "../services/api";
 
-// ⚠️ IMPORTANT: Replace these placeholders with actual values from Firebase Console
-// Project Settings -> General -> Your Apps -> Web App
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
 let messaging = null;
@@ -30,7 +28,7 @@ export const requestFirebaseToken = async () => {
     if (permission === "granted") {
       // ⚠️ IMPORTANT: Need VAPID key from Firebase Console -> Cloud Messaging -> Web Push certificates
       const token = await getToken(messaging, {
-        vapidKey: "YOUR_VAPID_KEY_HERE",
+        vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
       });
 
       if (token) {

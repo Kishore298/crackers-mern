@@ -77,6 +77,13 @@ const saleSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    cancellationRequest: {
+      requested: { type: Boolean, default: false },
+      requestedAt: { type: Date, default: null },
+      requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+      reason: { type: String, default: "" },
+      adminNote: { type: String, default: "" },
+    },
   },
   { timestamps: true },
 );

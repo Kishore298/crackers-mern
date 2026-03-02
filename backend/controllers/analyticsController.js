@@ -193,4 +193,174 @@ const getReports = async (req, res) => {
   }
 };
 
-module.exports = { getDashboardStats, getReports };
+// GET /api/analytics/product-performance
+const getProductPerformance = async (req, res) => {
+  try {
+    const {
+      dateFrom,
+      dateTo,
+      category,
+      search,
+      sort = "revenue",
+      page = 1,
+      limit = 50,
+    } = req.query;
+
+    // Build date match for sales
+    const dateMatch = {};
+    if (dateFrom || dateTo) {
+      dateMatch.createdAt = {};
+      if (dateFrom) dateMatch.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        dateMatch.createdAt.$lte = end;
+      }
+    }
+
+    // Aggregate sales by product
+    const salesAgg = await Sale.aggregate([
+      { $match: { orderStatus: { $ne: "cancelled" }, ...dateMatch } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.product",
+          totalQtySold: { $sum: "$items.quantity" },
+          totalRevenue: { $sum: "$items.subtotal" },
+          orderCount: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Map agg results by productId
+    const salesMap = {};
+    salesAgg.forEach((s) => {
+      if (s._id) salesMap[s._id.toString()] = s;
+    });
+
+    // Build product filter
+    const productFilter = { isActive: { $in: [true, false] } };
+    if (category) productFilter.category = category;
+    if (search) productFilter.name = { $regex: search, $options: "i" };
+
+    const products = await Product.find(productFilter)
+      .populate("category", "name")
+      .select("name category stock isActive images price discountedPrice")
+      .lean();
+
+    // Merge sales data
+    let enriched = products.map((p) => {
+      const s = salesMap[p._id.toString()] || {};
+      return {
+        ...p,
+        totalQtySold: s.totalQtySold || 0,
+        totalRevenue: s.totalRevenue || 0,
+        orderCount: s.orderCount || 0,
+      };
+    });
+
+    // Sort
+    const sortFn =
+      sort === "qty"
+        ? (a, b) => b.totalQtySold - a.totalQtySold
+        : sort === "name"
+          ? (a, b) => a.name.localeCompare(b.name)
+          : (a, b) => b.totalRevenue - a.totalRevenue;
+
+    enriched.sort(sortFn);
+
+    const total = enriched.length;
+    const paginated = enriched.slice((page - 1) * limit, page * limit);
+
+    res.json({
+      success: true,
+      products: paginated,
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// GET /api/analytics/report?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+const getReport = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const matchFilter = { paymentStatus: "paid" };
+    if (startDate || endDate) {
+      matchFilter.createdAt = {};
+      if (startDate) matchFilter.createdAt.$gte = new Date(startDate);
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        matchFilter.createdAt.$lte = end;
+      }
+    }
+
+    const [byType, dailyAgg, topProductsAgg] = await Promise.all([
+      // Group by saleType: online / offline
+      Sale.aggregate([
+        { $match: matchFilter },
+        {
+          $group: {
+            _id: "$saleType",
+            count: { $sum: 1 },
+            revenue: { $sum: "$finalPayable" },
+          },
+        },
+      ]),
+
+      // Daily revenue for chart
+      Sale.aggregate([
+        { $match: matchFilter },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            revenue: { $sum: "$finalPayable" },
+            orders: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+        { $project: { _id: 0, date: "$_id", revenue: 1, orders: 1 } },
+      ]),
+
+      // Top 10 products in the date range
+      Sale.aggregate([
+        { $match: matchFilter },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.product",
+            name: { $first: "$items.name" },
+            totalQty: { $sum: "$items.quantity" },
+            totalRevenue: { $sum: "$items.subtotal" },
+          },
+        },
+        { $sort: { totalRevenue: -1 } },
+        { $limit: 10 },
+      ]),
+    ]);
+
+    const online = byType.find((r) => r._id === "online") || { count: 0, revenue: 0 };
+    const offline = byType.find((r) => r._id === "offline") || { count: 0, revenue: 0 };
+
+    res.json({
+      success: true,
+      totalRevenue: online.revenue + offline.revenue,
+      totalOrders: online.count + offline.count,
+      onlineOrders: online.count,
+      offlineOrders: offline.count,
+      onlineRevenue: online.revenue,
+      offlineRevenue: offline.revenue,
+      dailyData: dailyAgg,
+      topProducts: topProductsAgg,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getDashboardStats, getReports, getProductPerformance, getReport };

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Bell, Send, Image as ImageIcon, Link2 } from "lucide-react";
-import { useAdminAuth } from "../context/AdminAuthContext";
+import { useAdminAuth, api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 const NotificationsPage = () => {
   const { admin } = useAdminAuth();
@@ -24,13 +22,8 @@ const NotificationsPage = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch(`${API_URL}/notifications/history?limit=10`, {
-        headers: { Authorization: `Bearer ${admin.token}` },
-      });
-      const data = await res.json();
-      if (data.success) {
-        setHistory(data.notifications);
-      }
+      const { data } = await api.get("/notifications/history?limit=10");
+      if (data.success) setHistory(data.notifications);
     } catch (err) {
       console.error(err);
     } finally {
@@ -46,16 +39,7 @@ const NotificationsPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/notifications/send`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${admin.token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
+      const { data } = await api.post("/notifications/send", formData);
       if (data.success) {
         toast.success(`Sent via In-App! Push sent to ${data.pushSent} devices`);
         setFormData({ title: "", body: "", imageUrl: "", actionUrl: "" });
@@ -64,7 +48,7 @@ const NotificationsPage = () => {
         toast.error(data.message || "Failed to send notification");
       }
     } catch (err) {
-      toast.error("Network error");
+      toast.error(err?.response?.data?.message || "Network error");
     } finally {
       setLoading(false);
     }

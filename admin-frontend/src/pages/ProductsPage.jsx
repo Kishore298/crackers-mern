@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Plus, Pencil, Trash2, X, Upload, Search } from "lucide-react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { Plus, Pencil, Trash2, X, Upload, Search, GripVertical } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 
@@ -21,26 +21,33 @@ const ProductsPage = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [activeFilter, setActiveFilter] = useState("");
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [imageFiles, setImageFiles] = useState([]);
+  // Existing images for reordering
+  const [editingImages, setEditingImages] = useState([]);
   const [saving, setSaving] = useState(false);
+  const dragIdx = useRef(null);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page, limit: 20 });
       if (search) params.set("search", search);
-      const { data } = await api.get(`/products?${params}`);
+      if (categoryFilter) params.set("category", categoryFilter);
+      if (activeFilter !== "") params.set("isActive", activeFilter);
+      const { data } = await api.get(`/products/admin?${params}`);
       setProducts(data.products || []);
       setTotal(data.total || 0);
     } catch {
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, search, categoryFilter, activeFilter]);
 
   useEffect(() => {
     fetchProducts();
@@ -52,12 +59,6 @@ const ProductsPage = () => {
       .catch(() => {});
   }, []);
 
-  const openAdd = () => {
-    setEditing(null);
-    setForm(EMPTY_FORM);
-    setImageFiles([]);
-    setShowModal(true);
-  };
   const openEdit = (p) => {
     setEditing(p);
     setForm({
@@ -72,7 +73,40 @@ const ProductsPage = () => {
       isActive: p.isActive,
     });
     setImageFiles([]);
+    setEditingImages(p.images ? [...p.images] : []);
     setShowModal(true);
+  };
+
+  // Drag-and-drop reorder for existing images
+  const handleDragStart = (i) => { dragIdx.current = i; };
+  const handleDragOver = (e, i) => {
+    e.preventDefault();
+    if (dragIdx.current === null || dragIdx.current === i) return;
+    const reordered = [...editingImages];
+    const [moved] = reordered.splice(dragIdx.current, 1);
+    reordered.splice(i, 0, moved);
+    dragIdx.current = i;
+    setEditingImages(reordered);
+  };
+  const handleDrop = async () => {
+    if (!editing) return;
+    try {
+      await api.put(`/products/${editing._id}/images/reorder`, { images: editingImages });
+      toast.success("Image order saved!");
+    } catch {
+      toast.error("Failed to save image order");
+    }
+    dragIdx.current = null;
+  };
+  const deleteExistingImage = async (publicId) => {
+    if (!editing) return;
+    try {
+      await api.delete(`/products/${editing._id}/images/${encodeURIComponent(publicId)}`);
+      setEditingImages((imgs) => imgs.filter((img) => img.publicId !== publicId));
+      toast.success("Image removed!");
+    } catch {
+      toast.error("Failed to remove image");
+    }
   };
 
   const handleSave = async () => {
@@ -117,29 +151,54 @@ const ProductsPage = () => {
 
   const totalPages = Math.ceil(total / 20);
 
+  const openAdd = () => {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setImageFiles([]);
+    setEditingImages([]);
+    setShowModal(true);
+  };
+
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h2 className="font-heading font-bold text-xl text-gray-900">
-          Products{" "}
-          <span className="text-gray-400 font-normal text-base">({total})</span>
+          Products <span className="text-gray-400 font-normal text-base">({total})</span>
         </h2>
-        <div className="flex gap-3">
-          <div className="relative">
+        <button onClick={openAdd} className="btn-fire text-sm px-4 py-2">
+          <Plus className="w-4 h-4" /> Add Product
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="card-admin p-4 mb-4">
+        <div className="flex flex-wrap gap-3">
+          <div className="relative flex-1 min-w-[160px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Search..."
-              className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary w-52"
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Search by name..."
+              className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary w-full"
             />
           </div>
-          <button onClick={openAdd} className="btn-fire text-sm px-4 py-2">
-            <Plus className="w-4 h-4" /> Add Product
-          </button>
+          <select
+            value={categoryFilter}
+            onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary bg-white"
+          >
+            <option value="">All Categories</option>
+            {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+          </select>
+          <select
+            value={activeFilter}
+            onChange={(e) => { setActiveFilter(e.target.value); setPage(1); }}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary bg-white"
+          >
+            <option value="">All Status</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
         </div>
       </div>
 
@@ -414,9 +473,45 @@ const ProductsPage = () => {
                     Active (visible on store)
                   </label>
                 </div>
+                {/* Existing image reordering section */}
+                {editing && editingImages.length > 0 && (
+                  <div className="col-span-2">
+                    <label className="text-xs font-semibold text-gray-600 block mb-1.5">
+                      Current Images — drag to reorder (first = main display image)
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {editingImages.map((img, i) => (
+                        <div
+                          key={img.publicId}
+                          draggable
+                          onDragStart={() => handleDragStart(i)}
+                          onDragOver={(e) => handleDragOver(e, i)}
+                          onDrop={handleDrop}
+                          className="relative group w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 cursor-grab active:cursor-grabbing"
+                        >
+                          <img src={img.url} alt="" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <GripVertical className="w-5 h-5 text-white" />
+                          </div>
+                          {i === 0 && (
+                            <span className="absolute top-1 left-1 bg-primary text-white text-[9px] font-bold px-1 py-0.5 rounded">Main</span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => deleteExistingImage(img.publicId)}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">↑ Drag thumbnails to reorder. Changes save on drop.</p>
+                  </div>
+                )}
                 <div className="col-span-2">
                   <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                    Product Images
+                    {editing ? "Add More Images" : "Product Images"}
                   </label>
                   <label className="flex items-center gap-3 border-2 border-dashed border-gray-200 rounded-xl p-3 cursor-pointer hover:border-primary transition-colors">
                     <Upload className="w-5 h-5 text-gray-300" />

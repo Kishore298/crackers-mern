@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+dist/
+build/
+.npm
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Firebase secrets
+*.json
+!package.json
+!package-lock.json
+!composer.json
+!jsconfig.json
+!tsconfig.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

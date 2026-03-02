@@ -15,6 +15,7 @@ import BannersPage from "./pages/BannersPage";
 import ReportsPage from "./pages/ReportsPage";
 import UsersPage from "./pages/UsersPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import ProductPerformancePage from "./pages/ProductPerformancePage";
 import "./index.css";
 
 const PrivateRoute = ({ children }) => {
@@ -45,8 +46,9 @@ function AppRoutes() {
         <Route path="pos" element={<PosPage />} />
         <Route path="stock" element={<StockPage />} />
         <Route path="discount" element={<DiscountPage />} />
-        <Route path="banners" element={<BannersPage />} />
+        {/* <Route path="banners" element={<BannersPage />} /> */}
         <Route path="notifications" element={<NotificationsPage />} />
+        <Route path="product-analytics" element={<ProductPerformancePage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="users" element={<UsersPage />} />
       </Route>

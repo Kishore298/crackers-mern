@@ -9,14 +9,13 @@ importScripts(
   "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging-compat.js",
 );
 
-// ⚠️ IMPORTANT: These must match the config in src/config/firebase.js
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyA4nw3YMwf1F5PABhr4-SGqxhziSTB2NZI",
+  authDomain: "vcrackers-fe6ae.firebaseapp.com",
+  projectId: "vcrackers-fe6ae",
+  storageBucket: "vcrackers-fe6ae.firebasestorage.app",
+  messagingSenderId: "441338173414",
+  appId: "1:441338173414:web:32d1ae1250aa55201ee827",
 };
 
 try {

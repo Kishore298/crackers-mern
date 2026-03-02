@@ -63,11 +63,16 @@ const login = async (req, res) => {
       ? { phone: raw.replace(/\s/g, "") } // normalise spaces
       : { email: raw.toLowerCase() };
 
-    const user = await User.findOne(query).select("+password");
-    if (!user || !user.isActive)
+    const user = await User.findOne(query).select("+password +isActive");
+    if (!user)
       return res
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
+
+    if (user.isActive === false)
+      return res
+        .status(403)
+        .json({ success: false, message: "Your account has been blocked. Please contact support." });
 
     const match = await bcrypt.compare(password, user.password);
     if (!match)

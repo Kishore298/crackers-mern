@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import api from "../services/api";
+import { requestFirebaseToken } from "../config/firebase";
 
 const AuthContext = createContext(null);
 
@@ -16,6 +17,8 @@ export const AuthProvider = ({ children }) => {
     setToken(authToken);
     localStorage.setItem("lash_user", JSON.stringify(userData));
     localStorage.setItem("lash_token", authToken);
+    // Request push notification permission after login
+    setTimeout(() => requestFirebaseToken(), 1500);
   };
 
   const logout = () => {
