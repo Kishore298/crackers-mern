@@ -222,6 +222,10 @@ const HomePage = () => {
 
   const discountPct = discount?.isActive ? discount.percentage : 0;
 
+  const giftCategory = categories.find((c) =>
+    c.name.toLowerCase().includes("gift"),
+  );
+
   return (
     <div className="animate-fade-in-up">
       {/* ══ Hero Banner ══ */}
@@ -291,7 +295,7 @@ const HomePage = () => {
                   Shop Collection <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
-                  to="/products"
+                  to={giftCategory ? `/products?category=${giftCategory._id}` : "/products"}
                   className="inline-flex items-center gap-2 font-bold px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full text-gray-700 text-xs sm:text-sm bg-white border border-gray-200 hover:border-orange-300 transition-colors"
                 >
                   🎁 View Gift Boxes
