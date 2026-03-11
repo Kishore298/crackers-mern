@@ -165,6 +165,121 @@ const deleteAddress = async (req, res) => {
   }
 };
 
+// ─── WhatsApp OTP Login ─────────────────────────────────────────────
+
+// POST /api/auth/send-otp-whatsapp
+const sendOtpWhatsApp = async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone)
+      return res
+        .status(400)
+        .json({ success: false, message: "Phone number is required" });
+
+    // Normalise phone (remove spaces, ensure it has country code if needed)
+    const normalizedPhone = phone.replace(/\s/g, "");
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Find or create user
+    let user = await User.findOne({ phone: normalizedPhone });
+    
+    // If user doesn't exist, we might want to create a draft user or just store OTP
+    // For this implementation, we'll allow OTP send for existing users
+    // If it's a new user, they might need to register first or we create them now
+    // Let's assume registration is separate for now, or we can auto-register.
+    // Given the prompt "make him login", we'll check if exists.
+    
+    if (!user) {
+      // Auto-register minimal user if not found? 
+      // Or just return error. Usually for OTP login, auto-registration is common.
+      // But we need a name and maybe email. Let's return error for now to be safe.
+      return res.status(404).json({
+        success: false,
+        message: "Phone number not registered. Please create an account first.",
+      });
+    }
+
+    // Hash OTP before storing
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+    // Store on user document
+    user.whatsappOtpCode = hashedOtp;
+    user.whatsappOtpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    user.whatsappOtpVerified = false;
+    await user.save({ validateBeforeSave: false });
+
+    // Send WhatsApp
+    const { sendOTP } = require("../config/whatsappService");
+    await sendOTP(normalizedPhone, otp);
+
+    res.json({
+      success: true,
+      message: "OTP sent to your WhatsApp. Valid for 5 minutes.",
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// POST /api/auth/login-otp
+const loginWithOtp = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || !otp)
+      return res
+        .status(400)
+        .json({ success: false, message: "Phone and OTP are required" });
+
+    const normalizedPhone = phone.replace(/\s/g, "");
+    const user = await User.findOne({
+      phone: normalizedPhone,
+    }).select("+whatsappOtpCode +whatsappOtpExpiry +whatsappOtpVerified +isActive");
+
+    if (!user || !user.whatsappOtpCode)
+      return res
+        .status(400)
+        .json({ success: false, message: "OTP not requested or user not found" });
+
+    if (user.isActive === false)
+      return res
+        .status(403)
+        .json({ success: false, message: "Your account has been blocked." });
+
+    if (user.whatsappOtpExpiry < new Date())
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Request a new one.",
+      });
+
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+    if (hashedOtp !== user.whatsappOtpCode)
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+
+    // Clear OTP fields
+    user.whatsappOtpCode = undefined;
+    user.whatsappOtpExpiry = undefined;
+    user.whatsappOtpVerified = false;
+    await user.save({ validateBeforeSave: false });
+
+    const token = signToken(user._id);
+    res.json({
+      success: true,
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // ─── Password Reset (OTP via Email) ─────────────────────────────────────────
 
 // POST /api/auth/forgot-password
@@ -335,4 +450,6 @@ module.exports = {
   verifyOtp,
   resetPassword,
   changePassword,
+  sendOtpWhatsApp,
+  loginWithOtp,
 };

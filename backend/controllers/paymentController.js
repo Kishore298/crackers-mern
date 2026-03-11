@@ -131,6 +131,18 @@ const verifyPayment = async (req, res) => {
       }).catch((err) => console.error("Order email failed:", err.message));
     }
 
+    // Send WhatsApp order notification (fire & forget)
+    if (customer?.phone) {
+      const { sendOrderNotification } = require("../config/whatsappService");
+      const trackingLink = `${process.env.FRONTEND_URL || "http://localhost:3000"}/orders`; 
+      sendOrderNotification(customer.phone, {
+        name: customer.name,
+        orderId: sale.invoiceNo,
+        amount: finalPayable,
+        trackingLink,
+      }).catch((err) => console.error("Order WhatsApp failed:", err.message));
+    }
+
     // Emit order notification to admins
     try {
       const { getIO } = require("../config/socket");

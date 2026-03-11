@@ -188,6 +188,35 @@ const updateOrderStatus = async (req, res) => {
           orderStatus,
         ).catch((e) => console.error("Status email failed:", e.message));
       }
+
+      // Send WhatsApp status update
+      if (order.customer?.phone) {
+        const { sendMessage } = require("../config/whatsappService");
+        const statusMeta = {
+          processing: "Preparing",
+          packed: "Packed",
+          shipped: "Shipped",
+          delivered: "Delivered",
+          cancelled: "Cancelled"
+        };
+        const statusText = statusMeta[orderStatus] || orderStatus;
+        
+        // Assuming a generic status update template: "Hello {{1}}, your order {{2}} is now {{3}}. Track here: {{4}}"
+        const trackingLink = `${process.env.FRONTEND_URL || "http://localhost:3000"}/orders`;
+        const components = [
+          {
+            type: "body",
+            parameters: [
+              { type: "text", text: order.customer.name },
+              { type: "text", text: order.invoiceNo },
+              { type: "text", text: statusText },
+              { type: "text", text: trackingLink }
+            ]
+          }
+        ];
+        sendMessage(order.customer.phone, "order_status_update", components)
+          .catch((err) => console.error("Status WhatsApp failed:", err.message));
+      }
     }
 
     res.json({ success: true, order });

@@ -12,11 +12,15 @@ const {
   verifyOtp,
   resetPassword,
   changePassword,
+  sendOtpWhatsApp,
+  loginWithOtp,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/send-otp-whatsapp", sendOtpWhatsApp);
+router.post("/login-otp", loginWithOtp);
 router.get("/profile", protect, getProfile);
 router.put("/profile", protect, updateProfile);
 router.post("/address", protect, addAddress);

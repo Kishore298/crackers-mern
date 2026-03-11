@@ -42,6 +42,10 @@ const userSchema = new mongoose.Schema(
     otpCode: { type: String, select: false },
     otpExpiry: { type: Date, select: false },
     otpVerified: { type: Boolean, default: false, select: false },
+    // WhatsApp OTP fields for Login
+    whatsappOtpCode: { type: String, select: false },
+    whatsappOtpExpiry: { type: Date, select: false },
+    whatsappOtpVerified: { type: Boolean, default: false, select: false },
   },
   { timestamps: true },
 );
