@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { BarChart2, Search, Download, TrendingUp, Package, AlertTriangle } from "lucide-react";
-import { useAdminAuth } from "../context/AdminAuthContext";
+import { useAdminAuth, api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
-
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 const ProductPerformancePage = () => {
   const { admin } = useAdminAuth();
@@ -27,33 +25,27 @@ const ProductPerformancePage = () => {
       Object.entries(filters).forEach(([k, v]) => v && params.set(k, v));
       params.set("limit", "100");
 
-      const res = await fetch(`${API_URL}/analytics/product-performance?${params}`, {
-        headers: { Authorization: `Bearer ${admin.token}` },
-      });
-      const json = await res.json();
-      if (json.success) {
-        setData(json.products);
-        setTotal(json.total);
+      const { data } = await api.get(`/analytics/product-performance?${params}`);
+      if (data.success) {
+        setData(data.products);
+        setTotal(data.total);
       }
     } catch (err) {
       toast.error("Failed to load report");
     } finally {
       setLoading(false);
     }
-  }, [admin, filters]);
+  }, [filters]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   useEffect(() => {
-    fetch(`${API_URL}/categories`, {
-      headers: { Authorization: `Bearer ${admin.token}` },
-    })
-      .then((r) => r.json())
-      .then((d) => d.success && setCategories(d.categories || []))
+    api.get("/categories")
+      .then((r) => r.data.success && setCategories(r.data.categories || []))
       .catch(() => {});
-  }, [admin]);
+  }, []);
 
   const exportCsv = () => {
     const headers = ["#", "Product", "Category", "Qty Sold", "Revenue (₹)", "Stock Left", "Status"];

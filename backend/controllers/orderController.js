@@ -191,7 +191,7 @@ const updateOrderStatus = async (req, res) => {
 
       // Send WhatsApp status update
       if (order.customer?.phone) {
-        const { sendMessage } = require("../config/whatsappService");
+        const whatsapp = require("../config/whatsappService");
         const statusMeta = {
           processing: "Preparing",
           packed: "Packed",
@@ -214,7 +214,7 @@ const updateOrderStatus = async (req, res) => {
             ]
           }
         ];
-        sendMessage(order.customer.phone, "order_status_update", components)
+        whatsapp.sendMessage(order.customer.phone, "order_status_update", components)
           .catch((err) => console.error("Status WhatsApp failed:", err.message));
       }
     }

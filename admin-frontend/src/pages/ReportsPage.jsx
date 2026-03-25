@@ -20,9 +20,8 @@ import toast from "react-hot-toast";
 
 const COLORS = [
   "#ff6600",
-  "#ff6600",
-  "#ffcc33",
   "#6366F1",
+  "#ffcc33",
   "#10B981",
   "#F59E0B",
 ];
@@ -157,13 +156,13 @@ const ReportsPage = () => {
                 Daily Revenue
               </h3>
               <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={report.dailyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={(v) => [`₹${v}`, "Revenue"]} />
-                  <Bar dataKey="revenue" fill="#ff6600" radius={[4, 4, 0, 0]} />
-                </BarChart>
+                <LineChart data={report.dailyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <Tooltip formatter={(v) => [`₹${v}`, "Revenue"]} contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
+                  <Line type="monotone" dataKey="revenue" stroke="#ff6600" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6, stroke: "#ff6600", strokeWidth: 2 }} />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           )}

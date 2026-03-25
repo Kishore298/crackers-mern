@@ -211,8 +211,8 @@ const sendOtpWhatsApp = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Send WhatsApp
-    const { sendOTP } = require("../config/whatsappService");
-    await sendOTP(normalizedPhone, otp);
+    const whatsapp = require("../config/whatsappService");
+    await whatsapp.sendOTP(normalizedPhone, otp);
 
     res.json({
       success: true,
