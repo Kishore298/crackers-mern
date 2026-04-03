@@ -6,6 +6,8 @@ import {
   MapPin,
   Receipt,
   ArrowRight,
+  CreditCard,
+  ExternalLink,
 } from "lucide-react";
 import api from "../services/api";
 
@@ -333,6 +335,46 @@ const OrderSuccessPage = () => {
               </div>
             )}
 
+            {/* Payment Method */}
+            <div className="px-6 py-4 border-b border-orange-50">
+              <h3 className="font-semibold text-sm text-gray-700 mb-2 flex items-center gap-1.5">
+                <CreditCard className="w-4 h-4 text-primary" /> Payment Method
+              </h3>
+              <p className="text-sm text-gray-600 capitalize">
+                {order.paymentMethod === "cod"
+                  ? "Cash on Delivery"
+                  : order.paymentMethod === "upi"
+                  ? "UPI"
+                  : "Online (Razorpay)"}
+              </p>
+              {order.paymentMethod === "cod" && order.paymentStatus === "pending" && (
+                <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                  <p className="text-xs text-blue-700 font-medium">
+                    Want to pay online instead?
+                  </p>
+                  {order.razorpayPaymentLinkUrl ? (
+                    <a
+                      href={order.razorpayPaymentLinkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:underline"
+                    >
+                      Pay Online Now <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  ) : (
+                    <p className="text-[10px] text-blue-500 mt-1">
+                      Payment link will be sent to your WhatsApp shortly.
+                    </p>
+                  )}
+                </div>
+              )}
+              {order.paymentStatus === "paid" && (
+                <p className="text-xs text-green-600 font-bold mt-1 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" /> Payment Received
+                </p>
+              )}
+            </div>
+
             {/* Totals */}
             <div className="px-6 py-4 space-y-2 text-sm">
               {order.discount > 0 && (
@@ -342,8 +384,8 @@ const OrderSuccessPage = () => {
                 </div>
               )}
               <div className="flex justify-between font-heading font-bold text-base text-gray-900 border-t border-orange-50 pt-3">
-                <span>Total Paid</span>
-                <span className="text-primary">₹{order.finalPayable}</span>
+                <span>{order.paymentStatus === "paid" ? "Total Paid" : "Total Payable"}</span>
+                <span className="text-primary">₹{order.finalPayable.toLocaleString("en-IN")}</span>
               </div>
             </div>
           </div>

@@ -43,13 +43,24 @@ const Footer = () => {
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed">
               Sivakasi's most trusted fireworks brand. Celebrate every moment
-              with our premium quality crackers since 2005.
+              with our premium quality crackers.
             </p>
             <div className="flex items-center gap-3 mt-5">
-              {[Facebook, Instagram, Youtube].map((Icon, i) => (
+              {[
+                {
+                  Icon: Youtube,
+                  href: "https://youtube.com/@vcrackerssivakasi?si=tRhvgMfJgpWxoJB6",
+                },
+                {
+                  Icon: Instagram,
+                  href: "https://www.instagram.com/v_crackers001?igsh=MzBydDUxMzhrM2hv",
+                },
+              ].map(({ Icon, href }, i) => (
                 <a
                   key={i}
-                  href="#"
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-9 h-9 rounded-full bg-white/10 hover:bg-primary flex items-center justify-center transition-colors duration-200"
                 >
                   <Icon className="w-4 h-4 text-white" />
@@ -121,26 +132,24 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm text-gray-400">
                 <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <span>
-                  No. 45, Main Bazaar, Kovilpatti, Tamil Nadu – 628501
-                </span>
+                <span>Sivakasi, Tamil Nadu – 626128</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Phone className="w-4 h-4 text-primary shrink-0" />
                 <a
-                  href="tel:+919876543210"
+                  href="tel:+917824907916"
                   className="hover:text-primary transition-colors"
                 >
-                  +91 98765 43210
+                  +91 78249 07916
                 </a>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Mail className="w-4 h-4 text-primary shrink-0" />
                 <a
-                  href="mailto:info@vcrackers.com"
+                  href="mailto:vcrackerssivakasi@gmail.com"
                   className="hover:text-primary transition-colors"
                 >
-                  info@vcrackers.com
+                vcrackerssivakasi@gmail.com
                 </a>
               </li>
             </ul>

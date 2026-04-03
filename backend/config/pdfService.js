@@ -86,7 +86,13 @@ const generateReceiptPDF = (sale, customer) => {
 
     y += 18;
     doc.text(`Customer: ${customer.name || "N/A"}`, 50, y);
-    doc.text(`Payment: Online (Razorpay)`, 350, y, { align: "right" });
+    const paymentLabel =
+      sale.paymentMethod === "cash" || sale.paymentMethod === "cod"
+        ? "Cash on Delivery"
+        : sale.paymentMethod === "upi"
+        ? "UPI"
+        : "Online (Razorpay)";
+    doc.text(`Payment: ${paymentLabel}`, 350, y, { align: "right" });
 
     y += 15;
     doc.text(`Email: ${customer.email || "N/A"}`, 50, y);

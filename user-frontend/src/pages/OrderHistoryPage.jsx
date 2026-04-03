@@ -9,6 +9,8 @@ import {
   Clock,
   AlertTriangle,
   X,
+  CreditCard,
+  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -172,6 +174,16 @@ const OrderHistoryPage = () => {
                     >
                       View Details →
                     </Link>
+                    {order.paymentMethod === "cod" && order.paymentStatus === "pending" && order.razorpayPaymentLinkUrl && (
+                      <a
+                        href={order.razorpayPaymentLinkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 font-bold flex items-center gap-1 hover:underline"
+                      >
+                        <CreditCard className="w-3 h-3" /> Pay Online Now <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
                     {canRequest && (
                       <button
                         onClick={() => setCancelModal(order._id)}

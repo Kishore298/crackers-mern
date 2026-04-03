@@ -34,6 +34,11 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 initSocket(server);
 
+// ── Razorpay webhook needs raw body for HMAC verification ──
+// Mount BEFORE express.json() so the body is not parsed
+const { razorpayWebhook } = require("./controllers/paymentController");
+app.post("/api/payment/webhook", express.raw({ type: "*/*" }), razorpayWebhook);
+
 // Security & parsing middleware
 app.use(helmet());
 app.use(

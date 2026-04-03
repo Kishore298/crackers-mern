@@ -7,6 +7,7 @@ import {
   Check,
   ShoppingBag,
   Loader,
+  Truck,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -21,6 +22,7 @@ const CheckoutPage = () => {
   const [selectedAddr, setSelectedAddr] = useState(null);
   const [showAddAddr, setShowAddAddr] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
+  const [payMethod, setPayMethod] = useState("online");
   const [newAddr, setNewAddr] = useState({
     fullName: "",
     phone: "",
@@ -86,14 +88,35 @@ const CheckoutPage = () => {
     }
     const addr = addresses.find((a) => a._id === selectedAddr);
     setPayLoading(true);
+
     try {
-      // 1. Create Razorpay order
+      if (payMethod === "cod") {
+        // --- COD Flow ---
+        const { data: codData } = await api.post("/payment/place-cod", {
+          cartItems: cartItems.map((i) => ({
+            product: i._id,
+            quantity: i.quantity,
+            name: i.name,
+          })),
+          shippingAddress: addr,
+          totalAmount: subtotal,
+          finalPayable: finalAmount,
+        });
+
+        if (codData.success) {
+          clearCart();
+          toast.success("COD Order placed! 🎆 Check WhatsApp for receipt.");
+          navigate(`/order-success/${codData.sale._id}`);
+        }
+        return;
+      }
+
+      // --- Online Flow (Razorpay) ---
       const { data: orderData } = await api.post("/payment/create-order", {
         amount: finalAmount,
       });
       const { order, key } = orderData;
 
-      // 2. Load Razorpay script dynamically
       const loadScript = () =>
         new Promise((resolve) => {
           if (window.Razorpay) return resolve(true);
@@ -103,6 +126,7 @@ const CheckoutPage = () => {
           s.onerror = () => resolve(false);
           document.body.appendChild(s);
         });
+
       const loaded = await loadScript();
       if (!loaded) {
         toast.error("Payment gateway unavailable");
@@ -110,7 +134,6 @@ const CheckoutPage = () => {
         return;
       }
 
-      // 3. Open Razorpay modal
       const options = {
         key,
         amount: order.amount,
@@ -306,6 +329,52 @@ const CheckoutPage = () => {
                 </div>
               )}
             </div>
+
+            {/* Payment Method Selection */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="font-heading font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-primary" /> Payment Method
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label
+                  className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${payMethod === "online" ? "border-primary bg-surface" : "border-orange-100 hover:border-primary-light"}`}
+                >
+                  <input
+                    type="radio"
+                    name="payMethod"
+                    value="online"
+                    checked={payMethod === "online"}
+                    onChange={() => setPayMethod("online")}
+                    className="accent-primary"
+                  />
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm text-gray-900">
+                      Online Payment
+                    </p>
+                    <p className="text-xs text-gray-400">Cards, UPI, Netbanking</p>
+                  </div>
+                </label>
+
+                <label
+                  className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${payMethod === "cod" ? "border-primary bg-surface" : "border-orange-100 hover:border-primary-light"}`}
+                >
+                  <input
+                    type="radio"
+                    name="payMethod"
+                    value="cod"
+                    checked={payMethod === "cod"}
+                    onChange={() => setPayMethod("cod")}
+                    className="accent-primary"
+                  />
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm text-gray-900">
+                      Cash on Delivery
+                    </p>
+                    <p className="text-xs text-gray-400">Pay when you receive</p>
+                  </div>
+                </label>
+              </div>
+            </div>
           </div>
 
           {/* Summary & Pay */}
@@ -353,6 +422,10 @@ const CheckoutPage = () => {
                 <>
                   <Loader className="w-4 h-4 animate-spin" /> Processing...
                 </>
+              ) : payMethod === "cod" ? (
+                <>
+                  <Truck className="w-5 h-5" /> Place COD Order
+                </>
               ) : (
                 <>
                   <CreditCard className="w-5 h-5" /> Pay ₹{finalAmount.toLocaleString("en-IN")}
@@ -360,7 +433,7 @@ const CheckoutPage = () => {
               )}
             </button>
             <p className="text-xs text-gray-400 text-center mt-3 flex items-center justify-center gap-1">
-              🔒 Secured by Razorpay
+              {payMethod === "online" ? "🔒 Secured by Razorpay" : "🚚 Cash on Delivery Available"}
             </p>
           </div>
         </div>

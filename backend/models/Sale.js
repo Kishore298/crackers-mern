@@ -54,7 +54,7 @@ const saleSchema = new mongoose.Schema(
     finalPayable: { type: Number, required: true },
     paymentMethod: {
       type: String,
-      enum: ["online", "cash", "upi"],
+      enum: ["online", "cash", "cod", "upi"],
       required: true,
     },
     paymentStatus: {
@@ -72,6 +72,9 @@ const saleSchema = new mongoose.Schema(
     razorpayOrderId: { type: String, default: null },
     razorpayPaymentId: { type: String, default: null },
     razorpaySignature: { type: String, default: null },
+    // COD pay-later fields
+    razorpayPaymentLinkId: { type: String, default: null },
+    razorpayPaymentLinkUrl: { type: String, default: null },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

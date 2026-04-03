@@ -8,6 +8,8 @@ const {
 } = require("../config/emailService");
 const { getIO } = require("../config/socket");
 const Notification = require("../models/Notification");
+const whatsapp = require("../config/whatsappService");
+const { generateReceiptPDF } = require("../config/pdfService");
 
 // ─── Shared cancel helper ─────────────────────────────────────────
 const performCancellation = async (order, adminNote = "") => {
@@ -167,7 +169,7 @@ const updateOrderStatus = async (req, res) => {
 
     const order = await Sale.findById(req.params.id).populate(
       "customer",
-      "name email",
+      "name email phone",
     );
     if (!order)
       return res.status(404).json({ success: false, message: "Order not found" });
@@ -179,43 +181,49 @@ const updateOrderStatus = async (req, res) => {
       order.orderStatus = orderStatus;
       await order.save();
 
-      // Send status update email to customer
+      const frontendUrl    = process.env.FRONTEND_URL || "http://localhost:3000";
+      const trackingLink   = `${frontendUrl}/orders/${order._id}`;
+      const customerPhone  = order.customer?.phone;
+      const customerName   = order.customer?.name || "Customer";
+
+      // Send status update email
       if (order.customer?.email) {
         sendOrderStatusEmail(
           order.customer.email,
           order,
-          order.customer.name,
+          customerName,
           orderStatus,
-        ).catch((e) => console.error("Status email failed:", e.message));
+        ).catch((e) => console.error("[Email] Status update failed:", e.message));
       }
 
-      // Send WhatsApp status update
-      if (order.customer?.phone) {
-        const whatsapp = require("../config/whatsappService");
-        const statusMeta = {
-          processing: "Preparing",
-          packed: "Packed",
-          shipped: "Shipped",
-          delivered: "Delivered",
-          cancelled: "Cancelled"
-        };
-        const statusText = statusMeta[orderStatus] || orderStatus;
-        
-        // Assuming a generic status update template: "Hello {{1}}, your order {{2}} is now {{3}}. Track here: {{4}}"
-        const trackingLink = `${process.env.FRONTEND_URL || "http://localhost:3000"}/orders`;
-        const components = [
-          {
-            type: "body",
-            parameters: [
-              { type: "text", text: order.customer.name },
-              { type: "text", text: order.invoiceNo },
-              { type: "text", text: statusText },
-              { type: "text", text: trackingLink }
-            ]
-          }
-        ];
-        whatsapp.sendMessage(order.customer.phone, "order_status_update", components)
-          .catch((err) => console.error("Status WhatsApp failed:", err.message));
+      // WhatsApp: status update message (all statuses)
+      if (customerPhone) {
+        whatsapp.sendOrderStatusUpdate(customerPhone, {
+          name        : customerName,
+          orderId     : order.invoiceNo,
+          status      : orderStatus,
+          trackingLink,
+        }).catch((e) => console.error("[WhatsApp] Status update failed:", e.message));
+      }
+
+      // WhatsApp: send PDF receipt on DELIVERED
+      if (orderStatus === "delivered" && customerPhone) {
+        try {
+          const customer   = order.customer;
+          const pdfBuffer  = await generateReceiptPDF(order, {
+            name : customerName,
+            email: customer.email || "",
+            phone: customerPhone,
+          });
+          whatsapp.sendOrderReceipt(customerPhone, {
+            name     : customerName,
+            orderId  : order.invoiceNo,
+            pdfBuffer,
+            filename : `Receipt-${order.invoiceNo}.pdf`,
+          }).catch((e) => console.error("[WhatsApp] Delivery receipt failed:", e.message));
+        } catch (e) {
+          console.error("[WhatsApp] PDF generation on delivery failed:", e.message);
+        }
       }
     }
 
