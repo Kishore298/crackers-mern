@@ -11,6 +11,7 @@ import {
 import api from "../services/api";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
+import SEO from "../components/SEO";
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -86,11 +87,36 @@ const ProductDetailPage = () => {
         : 0;
   const inStock = product.stock > 0;
 
+  const productSchema = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images?.[0]?.url,
+    "description": product.description || `Buy ${product.name} at V Crackers. Quality fireworks from Sivakasi.`,
+    "brand": {
+      "@type": "Brand",
+      "name": "V Crackers"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": window.location.href,
+      "priceCurrency": "INR",
+      "price": effectivePrice,
+      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white animate-fade-in-up">
+      <SEO 
+        title={product.name} 
+        description={product.description || `Buy ${product.name} online at V Crackers. Premium quality fireworks from Sivakasi.`}
+        schemaMarkup={productSchema}
+        ogImage={product.images?.[0]?.url}
+      />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-400 mb-6">
+        <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link to="/" className="hover:text-primary transition-colors">
             Home
           </Link>
@@ -99,7 +125,7 @@ const ProductDetailPage = () => {
             Products
           </Link>
           <ChevronLeft className="w-4 h-4 rotate-180" />
-          <span className="text-gray-600 font-medium">{product.name}</span>
+          <span className="text-gray-900 font-medium">{product.name}</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
@@ -110,6 +136,10 @@ const ProductDetailPage = () => {
                 <img
                   src={product.images[activeImg].url}
                   alt={product.name}
+                  width={600}
+                  height={600}
+                  decoding="async"
+                  fetchpriority="high"
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -142,7 +172,10 @@ const ProductDetailPage = () => {
                   >
                     <img
                       src={img.url}
-                      alt=""
+                      alt={`View ${product.name} image ${idx + 1}`}
+                      width={64}
+                      height={64}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -166,7 +199,7 @@ const ProductDetailPage = () => {
                 ₹{effectivePrice}
               </span>
               {showDiscount && (
-                <span className="text-lg text-gray-400 line-through self-end pb-0.5">
+                <span className="text-lg text-gray-500 line-through self-end pb-0.5">
                   ₹{basePrice}
                 </span>
               )}
@@ -206,6 +239,7 @@ const ProductDetailPage = () => {
                 <div className="flex items-center border-2 border-orange-100 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
+                    aria-label="Decrease quantity"
                     className="px-4 py-3 hover:bg-surface transition-colors text-gray-600"
                   >
                     <Minus className="w-4 h-4" />
@@ -215,6 +249,7 @@ const ProductDetailPage = () => {
                   </span>
                   <button
                     onClick={() => setQty(Math.min(product.stock, qty + 1))}
+                    aria-label="Increase quantity"
                     className="px-4 py-3 hover:bg-surface transition-colors text-gray-600"
                   >
                     <Plus className="w-4 h-4" />

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 import toast from "react-hot-toast";
+import SEO from "../components/SEO";
 
 const STEPS = ["Email", "OTP", "New Password"];
 
@@ -76,6 +77,7 @@ const ForgotPasswordPage = () => {
   if (done) {
     return (
       <div className="min-h-[calc(100vh-120px)] flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 px-4">
+        <SEO title="Password Reset Success" />
         <div className="bg-white rounded-3xl shadow-xl p-10 max-w-md w-full text-center">
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
@@ -105,6 +107,7 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="min-h-[calc(100vh-120px)] flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 px-4 py-10">
+      <SEO title="Forgot Password" />
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">

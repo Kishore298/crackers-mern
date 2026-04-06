@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
+import SEO from "../components/SEO";
 
 const STATUS_STEPS = ["processing", "packed", "shipped", "delivered"];
 
@@ -74,6 +75,7 @@ const OrderHistoryPage = () => {
 
   return (
     <div className="min-h-screen bg-surface py-8">
+      <SEO title="My Orders" />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
         <h1 className="font-heading font-bold text-2xl text-gray-900 mb-6">My Orders</h1>
 

@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { ArrowRight, ChevronRight, TrendingUp, Clock } from "lucide-react";
+import { ArrowRight, ChevronRight, TrendingUp } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
 import { Truck, Shield, Zap, Percent } from "lucide-react";
+import SEO from "../components/SEO";
 
 /* ─── Discount banner (uses global Discount model) ─── */
 const DiscountBanner = ({ discount }) => {
@@ -57,7 +58,11 @@ const DiscountBanner = ({ discount }) => {
         <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-2/5">
           <img
             src="/family-celeb-crackers.png"
-            alt="Celebration"
+            alt="V Crackers Celebration Family"
+            width={400}
+            height={200}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover object-center"
             style={{
               maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
@@ -135,6 +140,30 @@ const ProductRow = ({ products, loading, discountPct }) => {
 /* ═══════════════════════════════════════════════════════════
    HOME PAGE
 ═══════════════════════════════════════════════════════════ */
+const CustomPrevArrow = (props) => {
+  const { className, style, onClick } = props;
+  return (
+    <button
+      className={className}
+      style={{ ...style, display: "block", zIndex: 2, left: "20px" }}
+      onClick={onClick}
+      aria-label="Previous Slide"
+    />
+  );
+};
+
+const CustomNextArrow = (props) => {
+  const { className, style, onClick } = props;
+  return (
+    <button
+      className={className}
+      style={{ ...style, display: "block", zIndex: 2, right: "20px" }}
+      onClick={onClick}
+      aria-label="Next Slide"
+    />
+  );
+};
+
 const HomePage = () => {
   const [banners, setBanners] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -143,19 +172,17 @@ const HomePage = () => {
   const [categoryLoading, setCategoryLoading] = useState({});
   const [discount, setDiscount] = useState(null);
   const [popularProducts, setPopularProducts] = useState([]);
-  const [topPicks, setTopPicks] = useState([]);
   const [initLoading, setInitLoading] = useState(true);
 
   /* ── initial fetch ── */
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [bannerRes, catRes, popRes, topRes, discountRes] =
+        const [bannerRes, catRes, popRes, discountRes] =
           await Promise.all([
             api.get("/banners"),
             api.get("/categories"),
             api.get("/products/popular?limit=25"),
-            api.get("/products?limit=8&sort=-createdAt"),
             api.get("/discount"),
           ]);
         setBanners(bannerRes.data.banners || []);
@@ -163,7 +190,6 @@ const HomePage = () => {
         setCategories(cats);
         if (cats.length) setActiveCategory(cats[0]._id);
         setPopularProducts(popRes.data.products || []);
-        setTopPicks(topRes.data.products || []);
         setDiscount(discountRes.data.discount || null);
       } catch (e) {
         console.error(e);
@@ -218,6 +244,8 @@ const HomePage = () => {
     slidesToScroll: 1,
     pauseOnHover: true,
     arrows: banners.length > 1,
+    prevArrow: <CustomPrevArrow />,
+    nextArrow: <CustomNextArrow />,
   };
 
   const discountPct = discount?.isActive ? discount.percentage : 0;
@@ -228,16 +256,25 @@ const HomePage = () => {
 
   return (
     <div className="animate-fade-in-up">
+      <SEO 
+        title="Buy Premium Sivakasi Crackers & Fireworks Online"
+        description="V Crackers offers the best selection of Sivakasi crackers, gift boxes, and festive fireworks at competitive prices. Celebration starts here."
+      />
       {/* ══ Hero Banner ══ */}
       {banners.length > 0 ? (
         <div className="relative">
           <Slider {...sliderSettings}>
-            {banners.map((b) => (
+            {banners.map((b, index) => (
               <div key={b._id} className="relative">
                 <a href={b.link || "#"}>
                   <img
                     src={b.imageUrl}
-                    alt={b.title || "Banner"}
+                    alt={b.title || "V Crackers Banner"}
+                    width={1200}
+                    height={500}
+                    fetchpriority={index === 0 ? "high" : "auto"}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    decoding="async"
                     className="w-full h-[240px] sm:h-[380px] lg:h-[500px] object-cover"
                   />
                   {b.title && (
@@ -323,7 +360,12 @@ const HomePage = () => {
             <div className="hidden md:flex flex-1 items-center justify-center">
               <img
                 src="/crackers-banner.png"
-                alt="Premium Crackers"
+                alt="Premium Sivakasi Crackers Collection"
+                width={600}
+                height={600}
+                fetchpriority="high"
+                loading="eager"
+                decoding="async"
                 className="max-h-[600px] w-auto object-contain drop-shadow-xl"
               />
             </div>
@@ -386,6 +428,9 @@ const HomePage = () => {
                         <img
                           src={cat.image}
                           alt={cat.name}
+                          width={32}
+                          height={32}
+                          loading="lazy"
                           className="w-8 h-8 rounded-full object-cover"
                         />
                       ) : (
@@ -700,7 +745,7 @@ const HomePage = () => {
                     <p className="font-heading font-bold text-gray-900 text-base">
                       {title}
                     </p>
-                    <p className="text-gray-500 text-xs md:text-sm mt-1 leading-relaxed">
+                    <p className="text-gray-600 text-xs md:text-sm mt-1 leading-relaxed">
                       {desc}
                     </p>
                   </div>
@@ -719,7 +764,7 @@ const HomePage = () => {
               <h2 className="font-heading font-black text-gray-900 text-3xl sm:text-4xl leading-tight mb-4">
                 Celebrate Responsibly with V Crackers 🔥
               </h2>
-              <p className="text-gray-500 text-base leading-relaxed mb-6">
+              <p className="text-gray-600 text-base leading-relaxed mb-6">
                 Diwali is a festival of joy, and safety is our utmost priority.
                 We ensure all our products meet the highest safety standards.
                 Here are a few tips to ensure a safe celebration:

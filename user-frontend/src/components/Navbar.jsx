@@ -61,10 +61,16 @@ const Navbar = () => {
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-[70px] md:h-[100px]">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Link
+            to="/"
+            className="flex items-center gap-2 shrink-0"
+            aria-label="V Crackers - Return to Home"
+          >
             <img
               src="/v-crackers-logo.png"
-              alt="V Crackers"
+              alt="V Crackers Logo"
+              width={60}
+              height={60}
               className="h-[60px] md:h-[90px] w-auto object-contain"
             />
           </Link>
@@ -86,6 +92,7 @@ const Navbar = () => {
             >
               <button
                 onClick={() => setCatOpen(!catOpen)}
+                aria-label="Toggle Categories Menu"
                 className="flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-primary transition-colors"
               >
                 All Categories
@@ -192,6 +199,7 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
+                  aria-label="Open User Menu"
                   className="flex items-center gap-1.5 px-2 py-2 rounded-lg hover:bg-surface transition-colors text-sm font-medium text-gray-700"
                 >
                   <User className="w-5 h-5" />
@@ -235,6 +243,7 @@ const Navbar = () => {
             {/* Mobile menu toggle */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? "Close Menu" : "Open Menu"}
               className="md:hidden p-2 rounded-lg hover:bg-surface transition-colors"
             >
               {menuOpen ? (
@@ -266,7 +275,7 @@ const Navbar = () => {
 
             {/* Mobile categories — collapsible */}
             <div className="px-3 pt-2">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1 mb-2">
+              <p className="text-xs font-bold text-gray-600 uppercase tracking-wider px-1 mb-2">
                 Categories
               </p>
               <div className="space-y-0.5">

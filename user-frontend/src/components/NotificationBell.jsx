@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Bell, ShieldAlert, Sparkles, ExternalLink } from "lucide-react";
+import { Bell, Sparkles, ExternalLink } from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const NotificationBell = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
@@ -37,6 +37,7 @@ const NotificationBell = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen(!open)}
+        aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
         className="relative p-1.5 hover:bg-surface rounded-xl transition-colors flex flex-col items-center min-w-[44px]"
       >
         <Bell className="w-6 h-6 text-gray-700" />
@@ -61,6 +62,7 @@ const NotificationBell = () => {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
+                aria-label="Mark all notifications as read"
                 className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
               >
                 Mark all read

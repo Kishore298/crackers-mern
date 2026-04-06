@@ -34,10 +34,17 @@ const Footer = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-10">
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 mb-4"
+              aria-label="V Crackers Home"
+            >
               <img
                 src="/v-crackers-logo.png"
-                alt="V Crackers"
+                alt="V Crackers Logo"
+                width={64}
+                height={64}
+                loading="lazy"
                 className="h-16 w-auto object-contain"
               />
             </Link>
@@ -50,24 +57,28 @@ const Footer = () => {
                 {
                   Icon: Facebook,
                   href: "https://www.facebook.com/share/18UMiW1MRr/",
-                  color: "#316FF6", // Facebook Blue
+                  color: "#316FF6",
+                  label: "Facebook",
                 },
                 {
                   Icon: Instagram,
                   href: "https://www.instagram.com/v_crackers001?igsh=MzBydDUxMzhrM2hv",
-                  color: "#E1306C", // Instagram Pink
+                  color: "#E1306C",
+                  label: "Instagram",
                 },
                 {
                   Icon: Youtube,
                   href: "https://youtube.com/@vcrackerssivakasi?si=tRhvgMfJgpWxoJB6",
-                  color: "#FF0000", // YouTube Red
+                  color: "#FF0000",
+                  label: "YouTube",
                 },
-              ].map(({ Icon, href, color }, i) => (
+              ].map(({ Icon, href, color, label }, i) => (
                 <a
                   key={i}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={label}
                   className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
                   style={{ backgroundColor: color }}
                 >
@@ -153,6 +164,13 @@ const Footer = () => {
                   className="hover:text-primary transition-colors"
                 >
                   +91 78249 07916
+                </a>
+                ,
+                <a
+                  href="tel:+918838696953"
+                  className="hover:text-primary transition-colors"
+                >
+                  +91 88386 96953
                 </a>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">

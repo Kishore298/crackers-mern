@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import SEO from "../components/SEO";
 
 const CartPage = () => {
   const { cartItems, updateQty, removeFromCart, subtotal, total, itemCount } =
@@ -21,6 +22,7 @@ const CartPage = () => {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center py-20 text-center px-4">
+        <SEO title="Cart is Empty" />
         <ShoppingBag className="w-20 h-20 text-orange-200 mb-6" />
         <h2 className="font-heading font-bold text-2xl text-gray-800 mb-2">
           Your cart is empty
@@ -37,6 +39,10 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen bg-surface">
+      <SEO 
+        title="Your Shopping Cart" 
+        description="Review your selected crackers and fireworks before proceeding to checkout. Secure your celebration with V Crackers."
+      />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-heading font-bold text-2xl text-gray-900 mb-8">
           Shopping Cart{" "}

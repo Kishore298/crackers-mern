@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Filter, Search } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
+import SEO from "../components/SEO";
 
 const ProductListPage = () => {
   const [searchParams] = useSearchParams();
@@ -72,8 +73,15 @@ const ProductListPage = () => {
     { value: "newest", label: "Newest First" },
   ];
 
+  const activeCatName = categories.find((c) => c._id === filters.category)?.name;
+  const seoTitle = activeCatName ? `Buy ${activeCatName} Online` : "All Products";
+  const seoDesc = activeCatName
+    ? `Explore our wide range of premium ${activeCatName}. Best quality fireworks from Sivakasi at V Crackers.`
+    : "Browse the complete collection of V Crackers fireworks, gift boxes, and festive sparks.";
+
   return (
     <div className="min-h-screen bg-white relative">
+      <SEO title={seoTitle} description={seoDesc} />
       {/* Page header */}
       <div className="bg-surface border-b border-orange-100 py-8">
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
@@ -94,6 +102,7 @@ const ProductListPage = () => {
               placeholder="Search crackers..."
               value={filters.search}
               onChange={(e) => setFilter("search", e.target.value)}
+              aria-label="Search crackers by name"
               className="w-full pl-10 pr-4 py-2.5 border-2 rounded-xl text-sm outline-none transition-all border-orange-100 focus:border-primary"
               style={{
                 "&:focus": { boxShadow: "0 0 0 3px rgba(255,69,0,0.12)" },
@@ -103,6 +112,7 @@ const ProductListPage = () => {
           <select
             value={filters.sort}
             onChange={(e) => setFilter("sort", e.target.value)}
+            aria-label="Sort products"
             className="px-4 py-2.5 border-2 border-orange-100 rounded-xl text-sm outline-none focus:border-primary bg-white"
           >
             {sortOptions.map((o) => (
@@ -238,6 +248,7 @@ const ProductListPage = () => {
                       <button
                         key={pg}
                         onClick={() => setFilters((f) => ({ ...f, page: pg }))}
+                        aria-label={`Go to page ${pg}`}
                         className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${filters.page === pg ? "text-white" : "bg-surface text-gray-600 hover:bg-surface-2"}`}
                         style={
                           filters.page === pg

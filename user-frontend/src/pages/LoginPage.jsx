@@ -6,6 +6,7 @@ import api from "../services/api";
 import toast from "react-hot-toast";
 import AuthCard from "../components/AuthCard";
 import AuthBanner from "../components/AuthBanner";
+import SEO from "../components/SEO";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -256,13 +257,16 @@ const LoginPage = () => {
   );
 
   return (
-    <AuthCard
-      pageKey="login"
-      direction={-1}
-      formSide="left"
-      formPanel={formPanel}
-      bannerPanel={bannerPanel}
-    />
+    <>
+      <SEO title="Login" description="Log in to your V Crackers account to track orders and manage your profile." />
+      <AuthCard
+        pageKey="login"
+        direction={-1}
+        formSide="left"
+        formPanel={formPanel}
+        bannerPanel={bannerPanel}
+      />
+    </>
   );
 };
 

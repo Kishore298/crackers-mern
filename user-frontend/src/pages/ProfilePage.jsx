@@ -13,6 +13,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import toast from "react-hot-toast";
+import SEO from "../components/SEO";
 
 const ProfilePage = () => {
   const { user, refreshProfile, logout } = useAuth();
@@ -119,6 +120,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-surface py-8">
+      <SEO title="My Profile" />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 space-y-6">
         {/* Profile */}
         <div className="bg-white rounded-2xl border border-orange-100 p-6">

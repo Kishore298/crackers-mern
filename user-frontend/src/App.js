@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
@@ -7,66 +7,82 @@ import { NotificationProvider } from "./context/NotificationContext";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import HomePage from "./pages/HomePage";
-import ProductListPage from "./pages/ProductListPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
-import CartPage from "./pages/CartPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import OrderSuccessPage from "./pages/OrderSuccessPage";
-import OrderHistoryPage from "./pages/OrderHistoryPage";
-import ProfilePage from "./pages/ProfilePage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
+
+// Lazy loading pages for better performance
+const HomePage = lazy(() => import("./pages/HomePage"));
+const ProductListPage = lazy(() => import("./pages/ProductListPage"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
+const CartPage = lazy(() => import("./pages/CartPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const OrderSuccessPage = lazy(() => import("./pages/OrderSuccessPage"));
+const OrderHistoryPage = lazy(() => import("./pages/OrderHistoryPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 
 function App() {
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <AuthProvider>
-        <CartProvider>
-          <NotificationProvider>
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 3000,
-                style: {
-                  borderRadius: "10px",
-                  fontFamily: "Inter, sans-serif",
-                },
-                success: {
-                  iconTheme: { primary: "#ff6600", secondary: "#fff" },
-                },
-              }}
-            />
-            <Navbar />
-            <main className="min-h-screen bg-white">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/products" element={<ProductListPage />} />
-                <Route path="/products/:slug" element={<ProductDetailPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route
-                  path="/order-success/:id"
-                  element={<OrderSuccessPage />}
-                />
-                <Route path="/orders" element={<OrderHistoryPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route
-                  path="/forgot-password"
-                  element={<ForgotPasswordPage />}
-                />
-              </Routes>
-            </main>
-            <Footer />
-          </NotificationProvider>
-        </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <AuthProvider>
+          <CartProvider>
+            <NotificationProvider>
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 3000,
+                  style: {
+                    borderRadius: "10px",
+                    fontFamily: "Inter, sans-serif",
+                  },
+                  success: {
+                    iconTheme: { primary: "#ff6600", secondary: "#fff" },
+                  },
+                }}
+              />
+              <Navbar />
+              <main className="min-h-screen bg-white">
+                <Suspense
+                  fallback={
+                    <div className="flex justify-center items-center h-[50vh]">
+                      <div className="w-10 h-10 rounded-full border-4 border-orange-100 border-t-primary animate-spin" />
+                    </div>
+                  }
+                >
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/products" element={<ProductListPage />} />
+                    <Route
+                      path="/products/:slug"
+                      element={<ProductDetailPage />}
+                    />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route
+                      path="/order-success/:id"
+                      element={<OrderSuccessPage />}
+                    />
+                    <Route path="/orders" element={<OrderHistoryPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route
+                      path="/forgot-password"
+                      element={<ForgotPasswordPage />}
+                    />
+                  </Routes>
+                </Suspense>
+              </main>
+              <Footer />
+            </NotificationProvider>
+          </CartProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }
 

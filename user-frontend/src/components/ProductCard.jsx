@@ -49,6 +49,9 @@ const ProductCard = ({ product, discountPct = 0 }) => {
           <img
             src={product.images[0].url}
             alt={product.name}
+            width={240}
+            height={180}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
@@ -85,7 +88,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
         </Link>
 
         {product.category?.name && (
-          <span className="text-xs text-gray-400 font-medium">
+          <span className="text-xs text-gray-600 font-medium">
             {product.category.name}
           </span>
         )}
@@ -96,7 +99,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             ₹{effectivePrice}
           </span>
           {showDiscount && (
-            <span className="text-xs text-gray-400 line-through">
+            <span className="text-xs text-gray-500 line-through">
               ₹{basePrice}
             </span>
           )}
@@ -120,6 +123,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
               <button
                 type="button"
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
+                aria-label="Decrease quantity"
                 className="w-6 h-8 md:w-8 md:h-9 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
               >
                 <Minus className="w-3 h-3 md:w-3.5 md:h-3.5" />
@@ -132,6 +136,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
               <button
                 type="button"
                 onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
+                aria-label="Increase quantity"
                 className="w-6 h-8 md:w-8 md:h-9 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
               >
                 <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
@@ -141,6 +146,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             {/* Add to Cart */}
             <button
               onClick={handleAdd}
+              aria-label={`Add ${product.name} to cart`}
               className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-white"
               style={{
                 background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",

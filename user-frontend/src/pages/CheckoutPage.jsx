@@ -13,6 +13,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import toast from "react-hot-toast";
+import SEO from "../components/SEO";
 
 const CheckoutPage = () => {
   const { cartItems, subtotal, total, clearCart } = useCart();
@@ -180,6 +181,7 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-surface">
+      <SEO title="Checkout" />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-heading font-bold text-2xl text-gray-900 mb-8">
           Checkout

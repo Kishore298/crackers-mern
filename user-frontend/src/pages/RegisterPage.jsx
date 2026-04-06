@@ -6,6 +6,7 @@ import api from "../services/api";
 import toast from "react-hot-toast";
 import AuthCard from "../components/AuthCard";
 import AuthBanner from "../components/AuthBanner";
+import SEO from "../components/SEO";
 
 const RegisterPage = () => {
   const { login } = useAuth();
@@ -164,13 +165,16 @@ const RegisterPage = () => {
   );
 
   return (
-    <AuthCard
-      pageKey="register"
-      direction={1}
-      formSide="right"
-      formPanel={formPanel}
-      bannerPanel={bannerPanel}
-    />
+    <>
+      <SEO title="Register" description="Create a V Crackers account to start shopping for premium Sivakasi fireworks online." />
+      <AuthCard
+        pageKey="register"
+        direction={1}
+        formSide="right"
+        formPanel={formPanel}
+        bannerPanel={bannerPanel}
+      />
+    </>
   );
 };
 
