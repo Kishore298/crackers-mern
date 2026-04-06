@@ -48,22 +48,30 @@ const Footer = () => {
             <div className="flex items-center gap-3 mt-5">
               {[
                 {
-                  Icon: Youtube,
-                  href: "https://youtube.com/@vcrackerssivakasi?si=tRhvgMfJgpWxoJB6",
+                  Icon: Facebook,
+                  href: "https://www.facebook.com/share/18UMiW1MRr/",
+                  color: "#316FF6", // Facebook Blue
                 },
                 {
                   Icon: Instagram,
                   href: "https://www.instagram.com/v_crackers001?igsh=MzBydDUxMzhrM2hv",
+                  color: "#E1306C", // Instagram Pink
                 },
-              ].map(({ Icon, href }, i) => (
+                {
+                  Icon: Youtube,
+                  href: "https://youtube.com/@vcrackerssivakasi?si=tRhvgMfJgpWxoJB6",
+                  color: "#FF0000", // YouTube Red
+                },
+              ].map(({ Icon, href, color }, i) => (
                 <a
                   key={i}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-white/10 hover:bg-primary flex items-center justify-center transition-colors duration-200"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg"
+                  style={{ backgroundColor: color }}
                 >
-                  <Icon className="w-4 h-4 text-white" />
+                  <Icon className="w-5 h-5 text-white" />
                 </a>
               ))}
             </div>
@@ -131,8 +139,12 @@ const Footer = () => {
             </h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm text-gray-400">
-                <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                <span>Sivakasi, Tamil Nadu – 626128</span>
+                <MapPin className="w-5 h-5 text-primary mt-1 shrink-0" />
+                <span className="leading-relaxed">
+                  V Crackers <br />
+                  4/468-G, Sithalakshmi Nagar, <br />
+                  Kongalapuram, Sivakasi - 626123
+                </span>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Phone className="w-4 h-4 text-primary shrink-0" />
