@@ -5,10 +5,58 @@
     <link rel="icon" href="%PUBLIC_URL%/v-crackers-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#ff6600" />
-    <meta
-      name="description"
-      content="Buy high-quality Sivakasi crackers, fireworks, and gift boxes online at V Crackers. The most trusted brand for all your festive celebrations."
-    />
+    <meta name="description" content="Buy high-quality Sivakasi crackers, fireworks, and gift boxes online at V Crackers. The most trusted brand for all your festive celebrations." />
+    
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vcrackers.in/" />
+    <meta property="og:title" content="V Crackers | Buy Premium Sivakasi Crackers Online" />
+    <meta property="og:description" content="Premium Sivakasi crackers, fireworks, and gift boxes at best prices. Order online for safe and grand celebrations." />
+    <meta property="og:image" content="%PUBLIC_URL%/v-crackers-logo.png" />
+    <meta property="og:site_name" content="V Crackers" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://vcrackers.in/" />
+    <meta property="twitter:title" content="V Crackers | Buy Premium Sivakasi Crackers Online" />
+    <meta property="twitter:description" content="Premium Sivakasi crackers, fireworks, and gift boxes at best prices. Order online for safe and grand celebrations." />
+    <meta property="twitter:image" content="%PUBLIC_URL%/v-crackers-logo.png" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "V Crackers",
+        "image": "https://vcrackers.in/v-crackers-logo.png",
+        "@id": "https://vcrackers.in/",
+        "url": "https://vcrackers.in/",
+        "telephone": "+91 00000 00000",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Sivakasi Main Road",
+          "addressLocality": "Sivakasi",
+          "addressRegion": "Tamil Nadu",
+          "postalCode": "626123",
+          "addressCountry": "IN"
+        },
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ],
+          "opens": "00:00",
+          "closes": "23:59"
+        }
+      }
+    </script>
+
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -17,7 +65,15 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static content for crawlers and slow connections -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; color: #333; padding: 20px;">
+        <img src="%PUBLIC_URL%/v-crackers-logo.png" alt="V Crackers Logo" style="width: 150px; margin-bottom: 20px;" />
+        <h1>V Crackers</h1>
+        <p>Buy High-Quality Sivakasi Crackers & Fireworks Online</p>
+        <p style="color: #666; font-size: 0.9rem;">Loading the best experience for your celebrations...</p>
+      </div>
+    </div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
