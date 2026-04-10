@@ -31,7 +31,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-950 text-gray-300 pt-14 pb-6">
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-10">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 mb-10">
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
             <Link
@@ -95,10 +95,11 @@ const Footer = () => {
             </h4>
             <ul className="space-y-2">
               {[
-                { label: "Home", to: "/" },
+                { label: "About Us", to: "/about" },
                 { label: "All Products", to: "/products" },
                 { label: "My Orders", to: "/orders" },
                 { label: "Cart", to: "/cart" },
+                { label: "Contact Us", to: "/contact" },
               ].map(({ label, to }) => (
                 <li key={label}>
                   <Link
@@ -140,6 +141,31 @@ const Footer = () => {
                   </Link>
                 </li>
               )}
+            </ul>
+          </div>
+
+          {/* Policies (New) */}
+          <div>
+            <h4 className="font-heading font-semibold text-white text-sm mb-4">
+              Policies
+            </h4>
+            <ul className="space-y-2">
+              {[
+                { label: "Privacy Policy", to: "/privacy-policy" },
+                { label: "Terms & Conditions", to: "/terms" },
+                { label: "Shipping Policy", to: "/shipping-policy" },
+                { label: "Cancellation & Refund", to: "/refund-policy" },
+                { label: "Safety Guidelines ★", to: "/safety-guidelines" },
+              ].map(({ label, to }) => (
+                <li key={label}>
+                  <Link
+                    to={to}
+                    className="text-sm text-gray-400 hover:text-primary transition-colors"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

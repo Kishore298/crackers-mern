@@ -23,6 +23,15 @@ const OrderHistoryPage = lazy(() => import("./pages/OrderHistoryPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 
+// Static Trust Pages
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const ShippingPolicyPage = lazy(() => import("./pages/ShippingPolicyPage"));
+const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage"));
+const SafetyPolicyPage = lazy(() => import("./pages/SafetyPolicyPage"));
+
 function App() {
   return (
     <HelmetProvider>
@@ -74,6 +83,15 @@ function App() {
                       path="/forgot-password"
                       element={<ForgotPasswordPage />}
                     />
+                    
+                    {/* Trust / Static Pages */}
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                    <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+                    <Route path="/refund-policy" element={<RefundPolicyPage />} />
+                    <Route path="/safety-guidelines" element={<SafetyPolicyPage />} />
                   </Routes>
                 </Suspense>
               </main>
