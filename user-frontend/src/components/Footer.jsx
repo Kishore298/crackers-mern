@@ -31,9 +31,9 @@ const Footer = () => {
   return (
     <footer className="bg-gray-950 text-gray-300 pt-14 pb-6">
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 mb-10">
           {/* Brand */}
-          <div className="col-span-2 lg:col-span-1">
+          <div className="sm:col-span-2 lg:col-span-1">
             <Link
               to="/"
               className="flex items-center gap-2 mb-4"
@@ -145,7 +145,7 @@ const Footer = () => {
           </div>
 
           {/* Policies (New) */}
-          <div>
+          <div className="col-span-1">
             <h4 className="font-heading font-semibold text-white text-sm mb-4">
               Policies
             </h4>
@@ -170,7 +170,7 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className="col-span-1">
             <h4 className="font-heading font-semibold text-white text-sm mb-4">
               Contact Us
             </h4>
@@ -183,27 +183,28 @@ const Footer = () => {
                   Kongalapuram, Sivakasi - 626123
                 </span>
               </li>
-              <li className="flex items-center gap-3 text-sm text-gray-400">
-                <Phone className="w-4 h-4 text-primary shrink-0" />
-                <a
-                  href="tel:+917824907916"
-                  className="hover:text-primary transition-colors"
-                >
-                  +91 78249 07916
-                </a>
-                ,
-                <a
-                  href="tel:+918838696953"
-                  className="hover:text-primary transition-colors"
-                >
-                  +91 88386 96953
-                </a>
+              <li className="flex items-start md:items-center gap-3 text-sm text-gray-400">
+                <Phone className="w-4 h-4 text-primary shrink-0 mt-1 md:mt-0" />
+                <div className="flex flex-wrap items-center gap-1">
+                  <a
+                    href="tel:+917824907916"
+                    className="hover:text-primary transition-colors whitespace-nowrap"
+                  >
+                    +91 78249 07916,
+                  </a>
+                  <a
+                    href="tel:+918838696953"
+                    className="hover:text-primary transition-colors whitespace-nowrap"
+                  >
+                    +91 88386 96953
+                  </a>
+                </div>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Mail className="w-4 h-4 text-primary shrink-0" />
                 <a
                   href="mailto:vcrackerssivakasi@gmail.com"
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-primary transition-colors break-all"
                 >
                 vcrackerssivakasi@gmail.com
                 </a>
