@@ -11,14 +11,14 @@ const ShippingPolicyPage = () => {
           <h1 className="font-heading font-black text-3xl md:text-5xl text-gray-900 mb-4">
             Shipping & Delivery Policy
           </h1>
-          <p className="text-gray-600">Information on how we get your festive sparks delivered safely.</p>
+          <p className="text-gray-600">Information on how we get your festive items delivered safely.</p>
         </div>
       </div>
 
       <div className="w-full md:max-w-[70%] mx-auto px-4 sm:px-6 py-12 space-y-8 text-gray-700 leading-relaxed">
         <section>
           <p>
-            Because fireworks are categorized as highly flammable/explosive materials, standard courier services (like DTDC, BlueDart, Postal Service) cannot be used for delivery. All crackers are dispatched strictly through registered <strong>Lorry Transport Services (Parcel Services)</strong> specializing in fireworks transport.
+            Due to the nature of our products, standard courier services (like DTDC, BlueDart, Postal Service) cannot be used for delivery. All products are dispatched strictly through registered <strong>Lorry Transport Services (Parcel Services)</strong>.
           </p>
         </section>
 
@@ -33,7 +33,7 @@ const ShippingPolicyPage = () => {
 
         <section>
           <h2 className="font-heading font-bold text-2xl text-gray-900 mb-4">2. Collection from Destination</h2>
-          <p className="mb-2">Because door-delivery of fireworks is rarely supported due to safety regulations, <strong>customers must collect their parcels from the corresponding transport office branch in their city.</strong></p>
+          <p className="mb-2">Because door-delivery is rarely supported, <strong>customers must collect their parcels from the corresponding transport office branch in their city.</strong></p>
           <ul className="list-disc pl-6 space-y-2">
             <li>When the parcel arrives at your city, the transport agency will usually call your registered mobile number.</li>
             <li>You will need to present an ID proof and the pending transport freight charges (if not pre-paid) to collect the boxes.</li>

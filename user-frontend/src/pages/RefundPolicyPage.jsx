@@ -4,7 +4,7 @@ import SEO from "../components/SEO";
 const RefundPolicyPage = () => {
   return (
     <div className="min-h-screen bg-white">
-      <SEO title="Refund & Cancellation Policy" description="Refund and cancellation rules for V Crackers fireworks." />
+      <SEO title="Refund & Cancellation Policy" description="Refund and cancellation rules for V Crackers festive products." />
       
       <div className="bg-surface border-b border-orange-100 py-10 md:py-16">
         <div className="w-full md:max-w-[70%] mx-auto px-4 sm:px-6 text-center">
@@ -18,7 +18,7 @@ const RefundPolicyPage = () => {
       <div className="w-full md:max-w-[70%] mx-auto px-4 sm:px-6 py-12 space-y-8 text-gray-700 leading-relaxed">
         <section>
           <p className="font-semibold text-red-600">
-            Due to the hazardous and highly regulated nature of fireworks, all sales are considered final once the parcel is handed over to the transport agency.
+            Due to the regulated nature of our festive products, all sales are considered final once the parcel is handed over to the transport agency.
           </p>
         </section>
 

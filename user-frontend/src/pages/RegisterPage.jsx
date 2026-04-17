@@ -78,7 +78,7 @@ const RegisterPage = () => {
         </h1>
         <p className="text-gray-500 text-sm">
           Join <span className="text-primary font-semibold">V Crackers</span> –
-          India's finest crackers.
+          India's finest festive collections.
         </p>
       </div>
 
@@ -86,13 +86,13 @@ const RegisterPage = () => {
         {fields.map(({ id, label, type, icon: Icon, placeholder }) => (
           <div key={id}>
             <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
-              {label}
+              {label} {id !== "email" && <span className="text-red-500">*</span>}
             </label>
             <div className="relative group">
               <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
               <input
                 type={type}
-                required
+                required={id !== "email"}
                 value={form[id]}
                 onChange={(e) => setForm({ ...form, [id]: e.target.value })}
                 placeholder={placeholder}
@@ -166,7 +166,7 @@ const RegisterPage = () => {
 
   return (
     <>
-      <SEO title="Register" description="Create a V Crackers account to start shopping for premium Sivakasi fireworks online." />
+      <SEO title="Register" description="Create a V Crackers account to start shopping for premium Sivakasi festive products online." />
       <AuthCard
         pageKey="register"
         direction={1}

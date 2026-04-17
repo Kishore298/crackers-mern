@@ -7,15 +7,15 @@ const SEO = ({
   canonical, 
   ogImage, 
   ogType = "website",
-  keywords = "crackers, fireworks, diwali, buy crackers online, sivakasi crackers, v crackers",
+  keywords = "festive products, diwali gifts, buy celebration packs, sivakasi products, v crackers",
   schemaMarkup 
 }) => {
   const siteName = "V Crackers";
   const fullTitle = title ? `${title} | ${siteName}` : siteName;
-  const defaultDescription = "V Crackers - Sivakasi's most trusted fireworks brand. Buy premium quality crackers, gift boxes, and fireworks online at the best prices.";
+  const defaultDescription = "V Crackers - Sivakasi's most trusted festive brand. Buy premium quality celebration packs, gift boxes, and festive items online at the best prices.";
   const metaDescription = description || defaultDescription;
   const url = window.location.href;
-  const image = ogImage || `${window.location.origin}/crackers-banner.png`;
+  const image = ogImage || `${window.location.origin}/festive-banner.png`;
 
   return (
     <Helmet>

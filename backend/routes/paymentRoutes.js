@@ -13,12 +13,6 @@ const { protect, adminOnly } = require("../middleware/auth");
 router.post("/create-order", protect, createPaymentOrder);
 router.post("/verify",       protect, verifyPayment);
 
-// ── COD order ─────────────────────────────────────────────────────
-router.post("/place-cod",    protect, placeCODOrder);
-
-// ── Admin: resend payment link for a COD order ────────────────────
-router.post("/resend-payment-link/:orderId", protect, adminOnly, resendCODPaymentLink);
-
 // ── Razorpay webhook (no auth – verified via HMAC signature) ──────
 // Register this URL in Razorpay Dashboard → Webhooks
 // Events: payment_link.paid

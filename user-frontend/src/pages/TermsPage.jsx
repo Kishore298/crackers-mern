@@ -26,7 +26,7 @@ const TermsPage = () => {
         <section>
           <h2 className="font-heading font-bold text-2xl text-gray-900 mb-4">2. Legal Age Requirement</h2>
           <p>
-            You must be at least 18 years of age to purchase fireworks from our website. By placing an order, you certify that you are legally permitted to purchase, receive, and possess fireworks in your respective city and state.
+            You must be at least 18 years of age to purchase from our website. By placing an order, you certify that you are legally permitted to purchase, receive, and possess our products in your respective city and state.
           </p>
         </section>
 
@@ -49,7 +49,7 @@ const TermsPage = () => {
         <section>
           <h2 className="font-heading font-bold text-2xl text-gray-900 mb-4">5. Transport and Liability</h2>
           <p>
-            Fireworks are strictly regulated goods. We dispatch materials through licensed, third-party logistics/transport agencies (Lorry Sheds). Once the consignment is handed over to the transport agency, V Crackers is not directly liable for transport delays or damages, though we will assist in resolving any issues with the transporter to the best of our ability.
+            Our products are strictly regulated goods. We dispatch materials through licensed, third-party logistics/transport agencies (Lorry Sheds). Once the consignment is handed over to the transport agency, V Crackers is not directly liable for transport delays or damages, though we will assist in resolving any issues with the transporter to the best of our ability.
           </p>
         </section>
 

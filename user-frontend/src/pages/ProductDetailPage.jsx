@@ -92,7 +92,7 @@ const ProductDetailPage = () => {
     "@type": "Product",
     "name": product.name,
     "image": product.images?.[0]?.url,
-    "description": product.description || `Buy ${product.name} at V Crackers. Quality fireworks from Sivakasi.`,
+    "description": product.description || `Buy ${product.name} at V Crackers. Quality products from Sivakasi.`,
     "brand": {
       "@type": "Brand",
       "name": "V Crackers"
@@ -110,7 +110,7 @@ const ProductDetailPage = () => {
     <div className="min-h-screen bg-white animate-fade-in-up">
       <SEO 
         title={product.name} 
-        description={product.description || `Buy ${product.name} online at V Crackers. Premium quality fireworks from Sivakasi.`}
+        description={product.description || `Buy ${product.name} online at V Crackers. Premium quality products from Sivakasi.`}
         schemaMarkup={productSchema}
         ogImage={product.images?.[0]?.url}
       />

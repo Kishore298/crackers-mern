@@ -13,19 +13,23 @@ const signToken = (id) =>
 const register = async (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
-    if (!name || !email || !phone || !password)
+    if (!name || !phone || !password)
       return res
         .status(400)
-        .json({ success: false, message: "All fields are required" });
+        .json({ success: false, message: "Name, phone, and password are required" });
 
-    const exists = await User.findOne({ email: email.toLowerCase() });
-    if (exists)
-      return res
-        .status(409)
-        .json({ success: false, message: "Email already registered" });
+    if (email) {
+      const exists = await User.findOne({ email: email.toLowerCase() });
+      if (exists)
+        return res
+          .status(409)
+          .json({ success: false, message: "Email already registered" });
+    }
 
     const hashed = await bcrypt.hash(password, 12);
-    const user = await User.create({ name, email, phone, password: hashed });
+    const userData = { name, phone, password: hashed };
+    if (email) userData.email = email;
+    const user = await User.create(userData);
 
     const token = signToken(user._id);
     res.status(201).json({

@@ -49,8 +49,8 @@ const Footer = () => {
               />
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Sivakasi's most trusted fireworks brand. Celebrate every moment
-              with our premium quality crackers.
+              Sivakasi's most trusted festive brand. Celebrate every moment
+              with our premium quality celebration packs.
             </p>
             <div className="flex items-center gap-3 mt-5">
               {[
@@ -193,10 +193,10 @@ const Footer = () => {
                     +91 78249 07916,
                   </a>
                   <a
-                    href="tel:+918838696953"
+                    href="tel:+918778468360"
                     className="hover:text-primary transition-colors whitespace-nowrap"
                   >
-                    +91 88386 96953
+                    +91 87784 68360
                   </a>
                 </div>
               </li>
@@ -215,7 +215,7 @@ const Footer = () => {
 
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <p>© {new Date().getFullYear()} V Crackers. All rights reserved.</p>
-          <p>🎆 Celebrate responsibly. Keep crackers away from children.</p>
+          <p>🎆 Celebrate responsibly. Keep products away from children.</p>
         </div>
       </div>
     </footer>

@@ -269,7 +269,7 @@ const OrderSuccessPage = () => {
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
             Order Placed! 🎆
           </h1>
-          <p className="text-gray-500">Your crackers are on their way!</p>
+          <p className="text-gray-500">Your products are on their way!</p>
           {order?.invoiceNo && (
             <p className="text-xs text-gray-400 mt-1 font-mono">
               Invoice: {order.invoiceNo}

@@ -76,8 +76,8 @@ const ProductListPage = () => {
   const activeCatName = categories.find((c) => c._id === filters.category)?.name;
   const seoTitle = activeCatName ? `Buy ${activeCatName} Online` : "All Products";
   const seoDesc = activeCatName
-    ? `Explore our wide range of premium ${activeCatName}. Best quality fireworks from Sivakasi at V Crackers.`
-    : "Browse the complete collection of V Crackers fireworks, gift boxes, and festive sparks.";
+    ? `Explore our wide range of premium ${activeCatName}. Best quality festive products from Sivakasi at V Crackers.`
+    : "Browse the complete collection of V Crackers celebration packs, gift boxes, and festive items.";
 
   return (
     <div className="min-h-screen bg-white relative">
@@ -99,10 +99,10 @@ const ProductListPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search crackers..."
+              placeholder="Search products..."
               value={filters.search}
               onChange={(e) => setFilter("search", e.target.value)}
-              aria-label="Search crackers by name"
+              aria-label="Search products by name"
               className="w-full pl-10 pr-4 py-2.5 border-2 rounded-xl text-sm outline-none transition-all border-orange-100 focus:border-primary"
               style={{
                 "&:focus": { boxShadow: "0 0 0 3px rgba(255,69,0,0.12)" },

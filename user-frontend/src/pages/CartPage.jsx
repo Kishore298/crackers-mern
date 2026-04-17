@@ -28,7 +28,7 @@ const CartPage = () => {
           Your cart is empty
         </h2>
         <p className="text-gray-400 mb-8">
-          Start adding some amazing crackers to your cart!
+          Start adding some amazing festive products to your cart!
         </p>
         <Link to="/products" className="btn-fire px-8 py-3.5">
           Shop Now 🎆
@@ -41,7 +41,7 @@ const CartPage = () => {
     <div className="min-h-screen bg-surface">
       <SEO 
         title="Your Shopping Cart" 
-        description="Review your selected crackers and fireworks before proceeding to checkout. Secure your celebration with V Crackers."
+        description="Review your selected products before proceeding to checkout. Secure your celebration with V Crackers."
       />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-heading font-bold text-2xl text-gray-900 mb-8">

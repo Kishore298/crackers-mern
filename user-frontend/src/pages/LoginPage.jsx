@@ -231,7 +231,7 @@ const LoginPage = () => {
         <p className="text-gray-500 text-sm">
           {step === 4 
             ? `We've sent a code to ${identifier}`
-            : "Sign in to your account with India's most loved crackers brand."}
+            : "Sign in to your account with India's most loved festive brand."}
         </p>
       </div>
 

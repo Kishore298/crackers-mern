@@ -55,15 +55,15 @@ const DiscountBanner = ({ discount }) => {
         </div>
 
         {/* Right image */}
-        <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-2/5">
+        <div className="absolute right-0 top-0 bottom-0 w-full sm:w-2/5 opacity-20 sm:opacity-100 pointer-events-none">
           <img
-            src="/family-celeb-crackers.png"
+            src="/family-celeb-festive.png"
             alt="V Crackers Celebration Family"
             width={400}
             height={200}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-right sm:object-center"
             style={{
               maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
               WebkitMaskImage:
@@ -257,8 +257,8 @@ const HomePage = () => {
   return (
     <div className="animate-fade-in-up">
       <SEO 
-        title="Buy Premium Sivakasi Crackers & Fireworks Online"
-        description="V Crackers offers the best selection of Sivakasi crackers, gift boxes, and festive fireworks at competitive prices. Celebration starts here."
+        title="Buy Premium Sivakasi Festive Products Online"
+        description="V Crackers offers the best selection of celebration packs, gift boxes, and festive products at competitive prices. Celebration starts here."
       />
       {/* ══ Hero Banner ══ */}
       {banners.length > 0 ? (
@@ -316,7 +316,7 @@ const HomePage = () => {
 
               <p className="text-gray-500 text-xs sm:text-base leading-relaxed mb-5 sm:mb-8 max-w-full md:max-w-lg">
                 Experience the magic of Diwali with our premium, eco-friendly,
-                and safe crackers. Delivered straight to your doorstep with
+                and safe celebration products. Delivered straight to your doorstep with
                 festive care.
               </p>
 
@@ -338,29 +338,13 @@ const HomePage = () => {
                   🎁 View Gift Boxes
                 </Link>
               </div>
-
-              {/* Trust badges */}
-              <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center md:justify-start">
-                {[
-                  { icon: "💥", text: "Premium Crackers" },
-                  { icon: "🚚", text: "Fast Delivery" },
-                  { icon: "🛡️", text: "Safe & Certified" },
-                ].map(({ icon, text }) => (
-                  <span
-                    key={text}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-500"
-                  >
-                    {icon} {text}
-                  </span>
-                ))}
-              </div>
             </div>
 
             {/* Right image */}
             <div className="hidden md:flex flex-1 items-center justify-center">
               <img
-                src="/crackers-banner.png"
-                alt="Premium Sivakasi Crackers Collection"
+                src="/festive-banner.png"
+                alt="Premium Sivakasi Festive Collection"
                 width={600}
                 height={600}
                 fetchpriority="high"
@@ -554,7 +538,7 @@ const HomePage = () => {
             <SectionHead
               tag="✨ Collections"
               title="Explore Our Collections"
-              sub="Browse by your favourite cracker type"
+              sub="Browse by your favourite festive collection"
               to="/products"
             />
 
@@ -695,7 +679,7 @@ const HomePage = () => {
                   iconBg: "#E8F5E9",
                   iconColor: "#4CAF50",
                   title: "Eco-Friendly",
-                  desc: "Certified green crackers with reduced emissions.",
+                  desc: "Certified green products with reduced emissions.",
                   customIcon: (
                     <span style={{ color: "#4CAF50", fontSize: 22 }}>🌿</span>
                   ),
@@ -715,7 +699,7 @@ const HomePage = () => {
                   iconBg: "#E8EAF6",
                   iconColor: "#5C6BC0",
                   title: "Pet Friendly",
-                  desc: "Low decibel crackers safe for your furry friends.",
+                  desc: "Low decibel products safe for your furry friends.",
                   customIcon: (
                     <span style={{ color: "#5C6BC0", fontSize: 22 }}>🛡️</span>
                   ),
@@ -772,9 +756,9 @@ const HomePage = () => {
 
               <ul className="space-y-3 mb-8">
                 {[
-                  "Always light crackers in an open area.",
+                  "Always use products in an open area.",
                   "Keep a bucket of water and sand nearby.",
-                  "Maintain a safe distance while lighting aerial shots.",
+                  "Maintain a safe distance at all times.",
                   "Supervise children at all times.",
                 ].map((tip) => (
                   <li key={tip} className="flex items-start gap-3">
