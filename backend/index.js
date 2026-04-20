@@ -67,12 +67,20 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // METHOD OVERRIDE (correct placement)
-app.use(methodOverride("X-HTTP-Method-Override")); // header-based
-app.use(methodOverride("_method")); // optional query support
+app.use(
+  methodOverride((req) => {
+    if (req.body && req.body._method) {
+      return req.body._method.toUpperCase();
+    }
+  })
+);
 
 // Debug (optional - remove later)
 app.use((req, res, next) => {
   console.log("FINAL METHOD:", req.method);
+  if (req.method !== "GET") {
+    console.log("BODY:", req.body);
+  }
   next();
 });
 

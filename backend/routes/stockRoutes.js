@@ -28,4 +28,10 @@ router.post("/:productId/restock", protect, adminOnly, restockByProductId);
 // PUT /api/stock/:productId/correct  — what StockPage modal calls
 router.put("/:productId/correct", protect, adminOnly, correctByProductId);
 
+// MILESWEB FALLBACKS
+router.post("/:productId/correct", protect, adminOnly, (req, res, next) => {
+  if (req.body._method === "PUT") return correctByProductId(req, res, next);
+  next();
+});
+
 module.exports = router;

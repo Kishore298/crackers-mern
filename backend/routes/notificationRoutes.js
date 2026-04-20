@@ -14,6 +14,17 @@ router.get("/", protect, getMyNotifications);
 router.get("/unread-count", protect, getUnreadCount);
 router.patch("/read-all", protect, markAllAsRead);
 router.patch("/:id/read", protect, markAsRead);
+
+// MILESWEB FALLBACKS
+router.post("/read-all", protect, (req, res, next) => {
+  if (req.body._method === "PATCH") return markAllAsRead(req, res, next);
+  next();
+});
+
+router.post("/:id/read", protect, (req, res, next) => {
+  if (req.body._method === "PATCH") return markAsRead(req, res, next);
+  next();
+});
 router.post("/send", protect, adminOnly, sendCustomNotification);
 router.get("/history", protect, adminOnly, getSentHistory);
 

@@ -12,11 +12,17 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem("lash_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
 
-  // Milesweb Workaround: Override PUT/DELETE with POST to bypass server-level 403 blocks
+  // Milesweb Workaround: Override PUT/DELETE with POST to bypass server-level blocks
   const method = config.method?.toLowerCase();
-  if (method === "put" || method === "delete") {
-    config.headers["X-HTTP-Method-Override"] = method.toUpperCase();
-    config.params = { ...config.params, _method: method.toUpperCase() };
+  if (method === "put" || method === "delete" || method === "patch") {
+    if (config.data instanceof FormData) {
+      config.data.append("_method", method.toUpperCase());
+    } else {
+      config.data = {
+        ...(config.data || {}),
+        _method: method.toUpperCase(),
+      };
+    }
     config.method = "post";
   }
 

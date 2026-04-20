@@ -34,4 +34,10 @@ router.get("/", protect, adminOnly, getAllUsers);
 router.get("/:id", protect, adminOnly, getUserDetail);
 router.patch("/:id/toggle-status", protect, adminOnly, toggleUserStatus);
 
+// MILESWEB FALLBACKS
+router.post("/:id/toggle-status", protect, adminOnly, (req, res, next) => {
+  if (req.body._method === "PATCH") return toggleUserStatus(req, res, next);
+  next();
+});
+
 module.exports = router;

@@ -24,9 +24,28 @@ router.get("/id/:id", getProductById);
 router.get("/:slug", getProductBySlug);
 
 router.post("/", protect, adminOnly, uploadProduct.array("images", 5), createProduct);
+
+// ORIGINAL ROUTES
 router.put("/:id", protect, adminOnly, uploadProduct.array("images", 5), updateProduct);
 router.put("/:id/images/reorder", protect, adminOnly, reorderImages);
 router.delete("/:id/images/:publicId", protect, adminOnly, deleteProductImage);
 router.delete("/:id", protect, adminOnly, deleteProduct);
+
+// MILESWEB FALLBACKS
+router.post("/:id", protect, adminOnly, uploadProduct.array("images", 5), (req, res, next) => {
+  if (req.body._method === "PUT") return updateProduct(req, res, next);
+  if (req.body._method === "DELETE") return deleteProduct(req, res, next);
+  next();
+});
+
+router.post("/:id/images/reorder", protect, adminOnly, (req, res, next) => {
+  if (req.body._method === "PUT") return reorderImages(req, res, next);
+  next();
+});
+
+router.post("/:id/images/:publicId", protect, adminOnly, (req, res, next) => {
+  if (req.body._method === "DELETE") return deleteProductImage(req, res, next);
+  next();
+});
 
 module.exports = router;

@@ -33,4 +33,21 @@ router.post("/verify-otp", verifyOtp);
 router.post("/reset-password", resetPassword);
 router.put("/change-password", protect, changePassword);
 
+// MILESWEB FALLBACKS
+router.post("/profile", protect, (req, res, next) => {
+  if (req.body._method === "PUT") return updateProfile(req, res, next);
+  next();
+});
+
+router.post("/address/:id", protect, (req, res, next) => {
+  if (req.body._method === "PUT") return updateAddress(req, res, next);
+  if (req.body._method === "DELETE") return deleteAddress(req, res, next);
+  next();
+});
+
+router.post("/change-password", protect, (req, res, next) => {
+  if (req.body._method === "PUT") return changePassword(req, res, next);
+  next();
+});
+
 module.exports = router;

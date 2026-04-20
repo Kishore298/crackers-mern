@@ -19,6 +19,8 @@ router.post(
   uploadBanner.single("image"),
   createBanner,
 );
+
+// ORIGINAL ROUTES
 router.put(
   "/:id",
   protect,
@@ -27,5 +29,18 @@ router.put(
   updateBanner,
 );
 router.delete("/:id", protect, adminOnly, deleteBanner);
+
+// MILESWEB FALLBACKS
+router.post(
+  "/:id",
+  protect,
+  adminOnly,
+  uploadBanner.single("image"),
+  (req, res, next) => {
+    if (req.body._method === "PUT") return updateBanner(req, res, next);
+    if (req.body._method === "DELETE") return deleteBanner(req, res, next);
+    next();
+  }
+);
 
 module.exports = router;
