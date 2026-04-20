@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X, Tag, Calendar, Layout } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
+import ConfirmModal from "../components/ConfirmModal";
 
 const EMPTY_FORM = {
   code: "",
@@ -24,6 +25,7 @@ const CouponsPage = () => {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, loading: false });
 
   const fetchCoupons = async () => {
     try {
@@ -97,14 +99,18 @@ const CouponsPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete coupon?")) return;
+  const handleDelete = async () => {
+    const { id } = confirmDelete;
+    if (!id) return;
+    setConfirmDelete({ ...confirmDelete, loading: true });
     try {
       await api.delete(`/coupons/${id}`);
       toast.success("Deleted!");
       fetchCoupons();
+      setConfirmDelete({ open: false, id: null, loading: false });
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed");
+      setConfirmDelete({ ...confirmDelete, loading: false });
     }
   };
 
@@ -161,7 +167,7 @@ const CouponsPage = () => {
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(c._id)}
+                    onClick={() => setConfirmDelete({ open: true, id: c._id, loading: false })}
                     className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -428,6 +434,15 @@ const CouponsPage = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmDelete.open}
+        onClose={() => setConfirmDelete({ open: false, id: null, loading: false })}
+        onConfirm={handleDelete}
+        title="Delete Coupon"
+        message="Are you sure you want to delete this coupon? Users will no longer be able to use this code for discounts."
+        confirmText="Delete"
+        loading={confirmDelete.loading}
+      />
     </div>
   );
 };

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
+import ConfirmModal from "../components/ConfirmModal";
 
 /* ─── Helpers ─────────────────────────────────────────── */
 const fmt = (n) => (n || 0).toLocaleString("en-IN");
@@ -45,6 +46,7 @@ const UserDetailPanel = ({ userId, onClose, onStatusToggle }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
+  const [confirmToggle, setConfirmToggle] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -58,6 +60,7 @@ const UserDetailPanel = ({ userId, onClose, onStatusToggle }) => {
 
   const handleToggle = async () => {
     setToggling(true);
+    setConfirmToggle(false);
     try {
       const res = await api.patch(`/users/${userId}/toggle-status`);
       toast.success(res.data.message);
@@ -169,7 +172,7 @@ const UserDetailPanel = ({ userId, onClose, onStatusToggle }) => {
 
               {/* Block / Unblock */}
               <button
-                onClick={handleToggle}
+                onClick={() => setConfirmToggle(true)}
                 disabled={toggling}
                 className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   data?.user?.isActive
@@ -288,6 +291,16 @@ const UserDetailPanel = ({ userId, onClose, onStatusToggle }) => {
             </div>
           </div>
         )}
+        <ConfirmModal
+          isOpen={confirmToggle}
+          onClose={() => setConfirmToggle(false)}
+          onConfirm={handleToggle}
+          title={data?.user?.isActive ? "Block Customer" : "Unblock Customer"}
+          message={`Are you sure you want to ${data?.user?.isActive ? "block" : "unblock"} ${data?.user?.name}? ${data?.user?.isActive ? "They will no longer be able to log in or place orders." : "They will be able to access their account again."}`}
+          confirmText={data?.user?.isActive ? "Block" : "Unblock"}
+          type={data?.user?.isActive ? "danger" : "info"}
+          loading={toggling}
+        />
       </div>
     </div>
   );

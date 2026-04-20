@@ -14,6 +14,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import toast from "react-hot-toast";
 import SEO from "../components/SEO";
+import ConfirmModal from "../components/ConfirmModal";
 
 const ProfilePage = () => {
   const { user, refreshProfile, logout } = useAuth();
@@ -40,6 +41,7 @@ const ProfilePage = () => {
   });
   const [showPwd, setShowPwd] = useState(false);
   const [savingPwd, setSavingPwd] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, loading: false });
 
   useEffect(() => {
     if (!user) {
@@ -107,14 +109,18 @@ const ProfilePage = () => {
     }
   };
 
-  const deleteAddress = async (id) => {
-    if (!window.confirm("Delete this address?")) return;
+  const deleteAddress = async () => {
+    const { id } = confirmDelete;
+    if (!id) return;
+    setConfirmDelete({ ...confirmDelete, loading: true });
     try {
       const { data } = await api.delete(`/auth/address/${id}`);
       setAddresses(data.addresses);
       toast.success("Address deleted");
+      setConfirmDelete({ open: false, id: null, loading: false });
     } catch {
       toast.error("Failed to delete");
+      setConfirmDelete({ ...confirmDelete, loading: false });
     }
   };
 
@@ -256,7 +262,7 @@ const ProfilePage = () => {
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => deleteAddress(addr._id)}
+                    onClick={() => setConfirmDelete({ open: true, id: addr._id, loading: false })}
                     className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -434,6 +440,16 @@ const ProfilePage = () => {
           </form>
         </div>
       </div>
+      
+      <ConfirmModal
+        isOpen={confirmDelete.open}
+        onClose={() => setConfirmDelete({ open: false, id: null, loading: false })}
+        onConfirm={deleteAddress}
+        title="Delete Address"
+        message="Are you sure you want to delete this address? It will be removed from your saved list."
+        confirmText="Delete"
+        loading={confirmDelete.loading}
+      />
     </div>
   );
 };

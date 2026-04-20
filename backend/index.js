@@ -41,15 +41,35 @@ app.post("/api/payment/webhook", express.raw({ type: "*/*" }), razorpayWebhook);
 
 // Security & parsing middleware
 app.use(helmet());
+
+// CORS Configuration
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:3000",
+  process.env.ADMIN_FRONTEND_URL || "http://localhost:3001",
+  "https://www.vcrackers.in",
+];
+
 app.use(
   cors({
-    origin: [
-      process.env.FRONTEND_URL || "http://localhost:3000",
-      process.env.ADMIN_FRONTEND_URL || "http://localhost:3001",
-    ],
-    credentials: true,
-  }),
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
+    allowedHeaders: ["Content-Type", "Authorization", "X-HTTP-Method-Override"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
 );
+
+// Method Override Middleware for Milesweb (Handling 403 on PUT/DELETE)
+app.use((req, res, next) => {
+  if (req.method === "POST" && req.headers["x-http-method-override"]) {
+    req.method = req.headers["x-http-method-override"].toUpperCase();
+  }
+  next();
+});
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 

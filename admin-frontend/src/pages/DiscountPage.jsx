@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Percent, Save, Trash2, CheckCircle } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
+import ConfirmModal from "../components/ConfirmModal";
 
 const DiscountPage = () => {
   const [discount, setDiscount] = useState(null);
@@ -9,6 +10,7 @@ const DiscountPage = () => {
   const [percentage, setPercentage] = useState("");
   const [label, setLabel] = useState("");
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const fetchDiscount = async () => {
     try {
@@ -51,7 +53,7 @@ const DiscountPage = () => {
   };
 
   const handleDisable = async () => {
-    if (!window.confirm("Remove the sitewide discount?")) return;
+    setConfirmDelete(false);
     try {
       await api.delete("/discount");
       setDiscount(null);
@@ -62,7 +64,7 @@ const DiscountPage = () => {
       toast.error(err?.response?.data?.message || "Failed");
     }
   };
-
+    
   if (loading)
     return (
       <div className="flex justify-center py-20">
@@ -171,7 +173,7 @@ const DiscountPage = () => {
           </button>
           {discount?.isActive && (
             <button
-              onClick={handleDisable}
+               onClick={() => setConfirmDelete(true)}
               className="px-4 py-2.5 bg-red-50 text-red-600 rounded-xl font-semibold text-sm hover:bg-red-100 transition-colors flex items-center gap-1.5"
             >
               <Trash2 className="w-4 h-4" /> Remove
@@ -179,6 +181,14 @@ const DiscountPage = () => {
           )}
         </div>
       </div>
+      <ConfirmModal
+        isOpen={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={handleDisable}
+        title="Remove Discount"
+        message="Are you sure you want to remove the sitewide discount? All products will return to their original prices."
+        confirmText="Remove"
+      />
     </div>
   );
 };

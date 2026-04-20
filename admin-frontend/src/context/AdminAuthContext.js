@@ -12,6 +12,14 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("adminToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  // Milesweb Workaround: Override PUT/DELETE with POST to bypass server-level 403 blocks
+  const method = config.method?.toLowerCase();
+  if (method === "put" || method === "delete") {
+    config.headers["X-HTTP-Method-Override"] = method.toUpperCase();
+    config.method = "post";
+  }
+
   return config;
 });
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X, Upload } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
+import ConfirmModal from "../components/ConfirmModal";
 
 const CategoriesPage = () => {
   const [categories, setCategories] = useState([]);
@@ -11,6 +12,7 @@ const CategoriesPage = () => {
   const [form, setForm] = useState({ name: "", description: "" });
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, loading: false });
 
   const fetchCategories = async () => {
     try {
@@ -71,14 +73,18 @@ const CategoriesPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this category?")) return;
+  const handleDelete = async () => {
+    const { id } = confirmDelete;
+    if (!id) return;
+    setConfirmDelete({ ...confirmDelete, loading: true });
     try {
       await api.delete(`/categories/${id}`);
       toast.success("Deleted!");
       fetchCategories();
+      setConfirmDelete({ open: false, id: null, loading: false });
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed");
+      setConfirmDelete({ ...confirmDelete, loading: false });
     }
   };
 
@@ -139,7 +145,7 @@ const CategoriesPage = () => {
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  onClick={() => handleDelete(cat._id)}
+                  onClick={() => setConfirmDelete({ open: true, id: cat._id, loading: false })}
                   className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -263,6 +269,15 @@ const CategoriesPage = () => {
           </div>
         </div>
       )}
+       <ConfirmModal
+        isOpen={confirmDelete.open}
+        onClose={() => setConfirmDelete({ open: false, id: null })}
+        onConfirm={handleDelete}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? All products linked to it will remain but will lose their category reference."
+        confirmText="Delete"
+        loading={confirmDelete.loading}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Plus, Pencil, Trash2, X, Upload, Search, GripVertical } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
+import ConfirmModal from "../components/ConfirmModal";
 
 const EMPTY_FORM = {
   name: "",
@@ -31,6 +32,7 @@ const ProductsPage = () => {
   // Existing images for reordering
   const [editingImages, setEditingImages] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, type: "product", loading: false });
   const dragIdx = useRef(null);
 
   const fetchProducts = useCallback(async () => {
@@ -98,14 +100,23 @@ const ProductsPage = () => {
     }
     dragIdx.current = null;
   };
-  const deleteExistingImage = async (publicId) => {
+  const deleteExistingImage = (publicId) => {
     if (!editing) return;
+    setConfirmDelete({ open: true, id: publicId, type: "image", loading: false });
+  };
+
+  const confirmDeleteImage = async () => {
+    const publicId = confirmDelete.id;
+    if (!publicId || !editing) return;
+    setConfirmDelete({ ...confirmDelete, loading: true });
     try {
       await api.delete(`/products/${editing._id}/images/${encodeURIComponent(publicId)}`);
       setEditingImages((imgs) => imgs.filter((img) => img.publicId !== publicId));
       toast.success("Image removed!");
+      setConfirmDelete({ open: false, id: null, type: "product", loading: false });
     } catch {
       toast.error("Failed to remove image");
+      setConfirmDelete({ ...confirmDelete, loading: false });
     }
   };
 
@@ -138,14 +149,18 @@ const ProductsPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
+  const handleDeleteProduct = async () => {
+    const { id } = confirmDelete;
+    if (!id) return;
+    setConfirmDelete({ ...confirmDelete, loading: true });
     try {
       await api.delete(`/products/${id}`);
       toast.success("Deleted!");
       fetchProducts();
+      setConfirmDelete({ open: false, id: null, type: "product", loading: false });
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed");
+      setConfirmDelete({ ...confirmDelete, loading: false });
     }
   };
 
@@ -287,7 +302,7 @@ const ProductsPage = () => {
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(p._id)}
+                        onClick={() => setConfirmDelete({ open: true, id: p._id, type: "product", loading: false })}
                         className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -553,6 +568,19 @@ const ProductsPage = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmDelete.open}
+        onClose={() => setConfirmDelete({ open: false, id: null, type: "product", loading: false })}
+        onConfirm={confirmDelete.type === "product" ? handleDeleteProduct : confirmDeleteImage}
+        title={confirmDelete.type === "product" ? "Delete Product" : "Remove Image"}
+        message={
+          confirmDelete.type === "product"
+            ? "Are you sure you want to delete this product? This action cannot be undone."
+            : "Are you sure you want to remove this image from the product?"
+        }
+        confirmText="Confirm"
+        loading={confirmDelete.loading}
+      />
     </div>
   );
 };

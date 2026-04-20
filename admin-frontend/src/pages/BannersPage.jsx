@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X, Upload, GripVertical } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
+import ConfirmModal from "../components/ConfirmModal";
 
 const EMPTY_FORM = { title: "", link: "", order: 0, isActive: true };
 
@@ -13,6 +14,7 @@ const BannersPage = () => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, loading: false });
 
   const fetchBanners = async () => {
     try {
@@ -77,14 +79,18 @@ const BannersPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete banner?")) return;
+  const handleDelete = async () => {
+    const { id } = confirmDelete;
+    if (!id) return;
+    setConfirmDelete({ ...confirmDelete, loading: true });
     try {
       await api.delete(`/banners/${id}`);
       toast.success("Deleted!");
       fetchBanners();
+      setConfirmDelete({ open: false, id: null, loading: false });
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed");
+      setConfirmDelete({ ...confirmDelete, loading: false });
     }
   };
 
@@ -158,7 +164,7 @@ const BannersPage = () => {
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  onClick={() => handleDelete(b._id)}
+                  onClick={() => setConfirmDelete({ open: true, id: b._id, loading: false })}
                   className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -309,6 +315,15 @@ const BannersPage = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmDelete.open}
+        onClose={() => setConfirmDelete({ open: false, id: null, loading: false })}
+        onConfirm={handleDelete}
+        title="Delete Banner"
+        message="Are you sure you want to delete this banner? This will remove it from the homepage carousel."
+        confirmText="Delete"
+        loading={confirmDelete.loading}
+      />
     </div>
   );
 };
