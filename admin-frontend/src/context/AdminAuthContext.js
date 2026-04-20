@@ -17,6 +17,7 @@ api.interceptors.request.use((config) => {
   const method = config.method?.toLowerCase();
   if (method === "put" || method === "delete") {
     config.headers["X-HTTP-Method-Override"] = method.toUpperCase();
+    config.params = { ...config.params, _method: method.toUpperCase() };
     config.method = "post";
   }
 
