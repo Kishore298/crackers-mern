@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { protect, adminOnly } = require("../middleware/auth");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 const {
   getMyNotifications,
   getUnreadCount,
@@ -16,15 +17,13 @@ router.patch("/read-all", protect, markAllAsRead);
 router.patch("/:id/read", protect, markAsRead);
 
 // MILESWEB FALLBACKS
-router.post("/read-all", protect, (req, res, next) => {
-  if (req.body._method === "PATCH") return markAllAsRead(req, res, next);
-  next();
-});
+router.post("/read-all", protect, handleMethodOverride({
+  PATCH: markAllAsRead,
+}));
 
-router.post("/:id/read", protect, (req, res, next) => {
-  if (req.body._method === "PATCH") return markAsRead(req, res, next);
-  next();
-});
+router.post("/:id/read", protect, handleMethodOverride({
+  PATCH: markAsRead,
+}));
 router.post("/send", protect, adminOnly, sendCustomNotification);
 router.get("/history", protect, adminOnly, getSentHistory);
 

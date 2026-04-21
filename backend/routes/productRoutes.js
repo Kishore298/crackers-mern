@@ -15,6 +15,7 @@ const {
 } = require("../controllers/productController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { uploadProduct } = require("../config/cloudinary");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.get("/", getProducts);
 router.get("/popular", getPopularProducts);
@@ -32,20 +33,17 @@ router.delete("/:id/images/:publicId", protect, adminOnly, deleteProductImage);
 router.delete("/:id", protect, adminOnly, deleteProduct);
 
 // MILESWEB FALLBACKS
-router.post("/:id", protect, adminOnly, uploadProduct.array("images", 5), (req, res, next) => {
-  if (req.body._method === "PUT") return updateProduct(req, res, next);
-  if (req.body._method === "DELETE") return deleteProduct(req, res, next);
-  next();
-});
+router.post("/:id", protect, adminOnly, uploadProduct.array("images", 5), handleMethodOverride({
+  PUT: updateProduct,
+  DELETE: deleteProduct,
+}));
 
-router.post("/:id/images/reorder", protect, adminOnly, (req, res, next) => {
-  if (req.body._method === "PUT") return reorderImages(req, res, next);
-  next();
-});
+router.post("/:id/images/reorder", protect, adminOnly, handleMethodOverride({
+  PUT: reorderImages,
+}));
 
-router.post("/:id/images/:publicId", protect, adminOnly, (req, res, next) => {
-  if (req.body._method === "DELETE") return deleteProductImage(req, res, next);
-  next();
-});
+router.post("/:id/images/:publicId", protect, adminOnly, handleMethodOverride({
+  DELETE: deleteProductImage,
+}));
 
 module.exports = router;

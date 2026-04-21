@@ -140,7 +140,7 @@ const ProductDetailPage = () => {
                   height={600}
                   decoding="async"
                   fetchpriority="high"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               ) : (
                 <div
@@ -176,7 +176,7 @@ const ProductDetailPage = () => {
                       width={64}
                       height={64}
                       loading="lazy"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   </button>
                 ))}

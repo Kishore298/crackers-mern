@@ -9,6 +9,7 @@ const {
 } = require("../controllers/bannerController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { uploadBanner } = require("../config/cloudinary");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.get("/", getActiveBanners);
 router.get("/all", protect, adminOnly, getAllBanners);
@@ -36,11 +37,10 @@ router.post(
   protect,
   adminOnly,
   uploadBanner.single("image"),
-  (req, res, next) => {
-    if (req.body._method === "PUT") return updateBanner(req, res, next);
-    if (req.body._method === "DELETE") return deleteBanner(req, res, next);
-    next();
-  }
+  handleMethodOverride({
+    PUT: updateBanner,
+    DELETE: deleteBanner,
+  })
 );
 
 module.exports = router;

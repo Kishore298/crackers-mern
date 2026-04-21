@@ -253,7 +253,7 @@ const ProductsPage = () => {
                           <img
                             src={p.images[0].url}
                             alt=""
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-lg">
@@ -504,7 +504,7 @@ const ProductsPage = () => {
                           onDrop={handleDrop}
                           className="relative group w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-200 cursor-grab active:cursor-grabbing"
                         >
-                          <img src={img.url} alt="" className="w-full h-full object-cover" />
+                          <img src={img.url} alt="" className="w-full h-full object-contain" />
                           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                             <GripVertical className="w-5 h-5 text-white" />
                           </div>

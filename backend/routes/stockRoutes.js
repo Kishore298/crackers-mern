@@ -9,6 +9,7 @@ const {
   correctByProductId,
 } = require("../controllers/stockController");
 const { protect, adminOnly } = require("../middleware/auth");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 
 // GET /api/stock?page=1&limit=20  — paginated ledger (what StockPage.jsx calls)
 router.get("/", protect, adminOnly, getStockList);
@@ -29,9 +30,8 @@ router.post("/:productId/restock", protect, adminOnly, restockByProductId);
 router.put("/:productId/correct", protect, adminOnly, correctByProductId);
 
 // MILESWEB FALLBACKS
-router.post("/:productId/correct", protect, adminOnly, (req, res, next) => {
-  if (req.body._method === "PUT") return correctByProductId(req, res, next);
-  next();
-});
+router.post("/:productId/correct", protect, adminOnly, handleMethodOverride({
+  PUT: correctByProductId,
+}));
 
 module.exports = router;

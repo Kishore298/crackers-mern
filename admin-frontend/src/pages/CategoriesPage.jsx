@@ -118,7 +118,7 @@ const CategoriesPage = () => {
                   <img
                     src={cat.image}
                     alt={cat.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
                   "🎆"
@@ -217,7 +217,7 @@ const CategoriesPage = () => {
                       <img
                         src={URL.createObjectURL(imageFile)}
                         alt=""
-                        className="w-16 h-16 rounded-xl object-cover"
+                        className="w-16 h-16 rounded-xl object-contain"
                       />
                       <span className="text-xs text-gray-500">
                         {imageFile.name}
@@ -228,7 +228,7 @@ const CategoriesPage = () => {
                       <img
                         src={editing.image}
                         alt=""
-                        className="w-16 h-16 rounded-xl object-cover"
+                        className="w-16 h-16 rounded-xl object-contain"
                       />
                       <span className="text-xs text-gray-400">
                         Click to change

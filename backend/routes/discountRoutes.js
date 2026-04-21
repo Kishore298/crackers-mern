@@ -6,16 +6,16 @@ const {
   disableDiscount,
 } = require("../controllers/discountController");
 const { protect, adminOnly } = require("../middleware/auth");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.get("/", getDiscount); // public
 router.put("/", protect, adminOnly, setDiscount); // admin — set/update
 router.delete("/", protect, adminOnly, disableDiscount); // admin — disable
 
 // MILESWEB FALLBACKS
-router.post("/", protect, adminOnly, (req, res, next) => {
-  if (req.body._method === "PUT") return setDiscount(req, res, next);
-  if (req.body._method === "DELETE") return disableDiscount(req, res, next);
-  next();
-});
+router.post("/", protect, adminOnly, handleMethodOverride({
+  PUT: setDiscount,
+  DELETE: disableDiscount,
+}));
 
 module.exports = router;

@@ -6,6 +6,7 @@ const {
   toggleUserStatus,
 } = require("../controllers/userController");
 const { protect, adminOnly } = require("../middleware/auth");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 const User = require("../models/User");
 
 // Customer lookup for POS auto-fetch (must be before /:id)
@@ -35,9 +36,8 @@ router.get("/:id", protect, adminOnly, getUserDetail);
 router.patch("/:id/toggle-status", protect, adminOnly, toggleUserStatus);
 
 // MILESWEB FALLBACKS
-router.post("/:id/toggle-status", protect, adminOnly, (req, res, next) => {
-  if (req.body._method === "PATCH") return toggleUserStatus(req, res, next);
-  next();
-});
+router.post("/:id/toggle-status", protect, adminOnly, handleMethodOverride({
+  PATCH: toggleUserStatus,
+}));
 
 module.exports = router;

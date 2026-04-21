@@ -16,6 +16,7 @@ const {
   loginWithOtp,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.post("/register", register);
 router.post("/login", login);
@@ -34,20 +35,17 @@ router.post("/reset-password", resetPassword);
 router.put("/change-password", protect, changePassword);
 
 // MILESWEB FALLBACKS
-router.post("/profile", protect, (req, res, next) => {
-  if (req.body._method === "PUT") return updateProfile(req, res, next);
-  next();
-});
+router.post("/profile", protect, handleMethodOverride({
+  PUT: updateProfile,
+}));
 
-router.post("/address/:id", protect, (req, res, next) => {
-  if (req.body._method === "PUT") return updateAddress(req, res, next);
-  if (req.body._method === "DELETE") return deleteAddress(req, res, next);
-  next();
-});
+router.post("/address/:id", protect, handleMethodOverride({
+  PUT: updateAddress,
+  DELETE: deleteAddress,
+}));
 
-router.post("/change-password", protect, (req, res, next) => {
-  if (req.body._method === "PUT") return changePassword(req, res, next);
-  next();
-});
+router.post("/change-password", protect, handleMethodOverride({
+  PUT: changePassword,
+}));
 
 module.exports = router;

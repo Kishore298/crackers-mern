@@ -9,6 +9,7 @@ const {
   rejectCancellationRequest,
 } = require("../controllers/orderController");
 const { protect, adminOnly } = require("../middleware/auth");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.get("/", protect, getOrders);
 router.get("/admin", protect, adminOnly, getOrders);   // must be before /:id
@@ -18,10 +19,9 @@ router.get("/:id", protect, getOrderById);
 router.put("/:id/status", protect, adminOnly, updateOrderStatus);
 
 // MILESWEB FALLBACKS
-router.post("/:id/status", protect, adminOnly, (req, res, next) => {
-  if (req.body._method === "PUT") return updateOrderStatus(req, res, next);
-  next();
-});
+router.post("/:id/status", protect, adminOnly, handleMethodOverride({
+  PUT: updateOrderStatus,
+}));
 
 // Cancellation
 router.post("/:id/cancel-request", protect, requestCancellation);       // user

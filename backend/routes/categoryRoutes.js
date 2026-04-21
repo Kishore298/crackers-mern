@@ -11,6 +11,7 @@ const {
 
 const { protect, adminOnly } = require("../middleware/auth");
 const { uploadCategory } = require("../config/cloudinary");
+const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.get("/", getCategories);
 router.get("/:id", getCategoryById);
@@ -32,21 +33,16 @@ router.put(
   updateCategory
 );
 
-// ADDED THIS (fallback for MilesWeb tunneling)
+// MILESWEB FALLBACK (Systematic version)
 router.post(
   "/:id",
   protect,
   adminOnly,
   uploadCategory.single("image"),
-  (req, res, next) => {
-    if (req.body._method === "PUT") {
-      return updateCategory(req, res, next);
-    }
-    if (req.body._method === "DELETE") {
-      return deleteCategory(req, res, next);
-    }
-    next();
-  }
+  handleMethodOverride({
+    PUT: updateCategory,
+    DELETE: deleteCategory,
+  })
 );
 
 router.delete("/:id", protect, adminOnly, deleteCategory);
