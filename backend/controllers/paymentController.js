@@ -8,6 +8,7 @@ const User     = require("../models/User");
 const { sendOrderConfirmationEmail } = require("../config/emailService");
 const { generateReceiptPDF }        = require("../config/pdfService");
 const whatsapp = require("../config/whatsappService");
+const { MIN_CART_VALUE, calculateSlabDiscount } = require("../config/discountSlabs");
 
 const razorpay = new Razorpay({
   key_id    : process.env.RAZORPAY_KEY_ID,
@@ -159,15 +160,32 @@ const verifyPayment = async (req, res) => {
       return res.status(e.status || 400).json({ success: false, message: e.message });
     }
 
+    // ─── Server-side subtotal & validations ─────────────────────────
+    const serverSubtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
+
+    // Minimum cart value check
+    if (serverSubtotal < MIN_CART_VALUE) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum order value is ₹${MIN_CART_VALUE.toLocaleString("en-IN")} to proceed with checkout.`,
+      });
+    }
+
+    // Server-side slab discount (never trust frontend discount value)
+    const { discount: serverSlabDiscount, label: slabLabel } = calculateSlabDiscount(serverSubtotal);
+    const serverFinalPayable = serverSubtotal - serverSlabDiscount;
+
     // Create sale
     const sale = await Sale.create({
       saleType         : "online",
       customer         : req.user._id,
       items,
-      totalAmount,
-      discount         : discount || 0,
+      totalAmount      : serverSubtotal,
+      discount         : serverSlabDiscount,
+      slabDiscount     : serverSlabDiscount,
+      slabLabel,
       couponCode       : couponCode || null,
-      finalPayable,
+      finalPayable     : serverFinalPayable,
       paymentMethod    : "online",
       paymentStatus    : "paid",
       orderStatus      : "processing",
@@ -192,7 +210,7 @@ const verifyPayment = async (req, res) => {
       whatsapp.sendOrderConfirmation(customer.phone, {
         name        : customer.name,
         orderId     : sale.invoiceNo,
-        amount      : finalPayable,
+        amount      : serverFinalPayable,
         trackingLink,
       }).catch((e) => console.error("[WhatsApp] Order confirmation failed:", e.message));
     }
@@ -204,7 +222,7 @@ const verifyPayment = async (req, res) => {
       const adminNotif = await Notification.create({
         recipientRole: "admin",
         title        : "New Online Order",
-        body         : `Order ${sale.invoiceNo} placed by ${customer?.name || "Customer"}. Amount: Rs.${finalPayable}`,
+        body         : `Order ${sale.invoiceNo} placed by ${customer?.name || "Customer"}. Amount: Rs.${serverFinalPayable}`,
         type         : "order",
         data         : { saleId: sale._id, invoiceNo: sale.invoiceNo },
       });
@@ -253,15 +271,32 @@ const placeCODOrder = async (req, res) => {
       return res.status(e.status || 400).json({ success: false, message: e.message });
     }
 
+    // ─── Server-side subtotal & validations ─────────────────────────
+    const serverSubtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
+
+    // Minimum cart value check
+    if (serverSubtotal < MIN_CART_VALUE) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum order value is ₹${MIN_CART_VALUE.toLocaleString("en-IN")} to proceed with checkout.`,
+      });
+    }
+
+    // Server-side slab discount (never trust frontend discount value)
+    const { discount: serverSlabDiscount, label: slabLabel } = calculateSlabDiscount(serverSubtotal);
+    const serverFinalPayable = serverSubtotal - serverSlabDiscount;
+
     // Create COD sale record
     const sale = await Sale.create({
       saleType     : "online",
       customer     : req.user._id,
       items,
-      totalAmount,
-      discount     : discount || 0,
+      totalAmount  : serverSubtotal,
+      discount     : serverSlabDiscount,
+      slabDiscount : serverSlabDiscount,
+      slabLabel,
       couponCode   : couponCode || null,
-      finalPayable,
+      finalPayable : serverFinalPayable,
       paymentMethod: "cod",
       paymentStatus: "pending",
       orderStatus  : "processing",
@@ -295,7 +330,7 @@ const placeCODOrder = async (req, res) => {
             await whatsapp.sendCODPaymentLink(customer.phone, {
               name       : customer.name,
               orderId    : sale.invoiceNo,
-              amount     : finalPayable,
+              amount     : serverFinalPayable,
               paymentLink: linkData.shortUrl,
             });
           }
@@ -312,7 +347,7 @@ const placeCODOrder = async (req, res) => {
       const adminNotif   = await Notification.create({
         recipientRole: "admin",
         title        : "New COD Order",
-        body         : `COD Order ${sale.invoiceNo} placed by ${customer?.name || "Customer"}. Amount: Rs.${finalPayable}`,
+        body         : `COD Order ${sale.invoiceNo} placed by ${customer?.name || "Customer"}. Amount: Rs.${serverFinalPayable}`,
         type         : "order",
         data         : { saleId: sale._id, invoiceNo: sale.invoiceNo },
       });

@@ -9,6 +9,35 @@ const slugify = (text) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
+/**
+ * Extract the 11-char YouTube video ID from various URL formats.
+ * Supports:
+ *   - youtube.com/watch?v=VIDEO_ID
+ *   - youtube.com/shorts/VIDEO_ID
+ *   - youtu.be/VIDEO_ID
+ *   - Already-extracted plain video IDs
+ * Returns empty string if input is invalid.
+ */
+const extractYouTubeId = (input) => {
+  if (!input) return "";
+  const trimmed = input.trim();
+  if (!trimmed) return "";
+  // Already a plain ID (11 chars, alphanumeric + _ + -)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+  try {
+    // youtube.com/shorts/VIDEO_ID
+    const shortsMatch = trimmed.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+    if (shortsMatch) return shortsMatch[1];
+    // youtube.com/watch?v=VIDEO_ID or youtube.com/embed/VIDEO_ID
+    const watchMatch = trimmed.match(/youtube\.com\/(?:watch\?.*v=|embed\/)([a-zA-Z0-9_-]{11})/);
+    if (watchMatch) return watchMatch[1];
+    // youtu.be/VIDEO_ID
+    const shortMatch = trimmed.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+    if (shortMatch) return shortMatch[1];
+  } catch (_) {}
+  return ""; // invalid or unrecognized format
+};
+
 // GET /api/products
 const getProducts = async (req, res) => {
   try {
@@ -160,7 +189,7 @@ const createProduct = async (req, res) => {
       stock: Number(stock),
       category,
       images,
-      video: { youtubeId: youtubeId || "" },
+      video: { youtubeId: extractYouTubeId(youtubeId) },
       safetyInstructions,
     });
 
@@ -193,7 +222,7 @@ const updateProduct = async (req, res) => {
       if (req.body[f] !== undefined) product[f] = req.body[f];
     });
     if (req.body.youtubeId !== undefined)
-      product.video.youtubeId = req.body.youtubeId;
+      product.video.youtubeId = extractYouTubeId(req.body.youtubeId);
 
     if (req.files && req.files.length > 0) {
       product.images = req.files.map((f) => ({

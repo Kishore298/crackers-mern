@@ -136,6 +136,11 @@ const OrderHistoryPage = () => {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-heading font-bold text-primary text-lg">₹{order.finalPayable?.toLocaleString("en-IN")}</p>
+                      {order.slabDiscount > 0 && (
+                        <p className="text-xs text-green-600 font-semibold">
+                          Saved ₹{order.slabDiscount?.toLocaleString("en-IN")}
+                        </p>
+                      )}
                     </div>
                   </div>
 

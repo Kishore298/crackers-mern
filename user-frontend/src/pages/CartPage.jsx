@@ -1,17 +1,21 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, AlertCircle, Sparkles, TrendingUp } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
 
 const CartPage = () => {
-  const { cartItems, updateQty, removeFromCart, subtotal, total, itemCount } =
-    useCart();
+  const {
+    cartItems, updateQty, removeFromCart, subtotal, total, itemCount,
+    slabDiscount, slabLabel, nextSlabHint, canCheckout, minCartShortfall,
+    MIN_CART_VALUE, DISCOUNT_SLABS,
+  } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleCheckout = () => {
+    if (!canCheckout) return;
     if (!user) {
       navigate("/login?redirect=/checkout");
       return;
@@ -36,6 +40,9 @@ const CartPage = () => {
       </div>
     );
   }
+
+  // Progress toward minimum cart value
+  const minProgress = Math.min((subtotal / MIN_CART_VALUE) * 100, 100);
 
   return (
     <div className="min-h-screen bg-surface">
@@ -120,7 +127,7 @@ const CartPage = () => {
 
                   <div className="text-right shrink-0">
                     <p className="font-bold text-gray-900">
-                      ₹{price * item.quantity}
+                      ₹{(price * item.quantity).toLocaleString("en-IN")}
                     </p>
                   </div>
                 </div>
@@ -138,38 +145,121 @@ const CartPage = () => {
               <div className="space-y-3 border-t border-orange-50 pt-4">
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Subtotal ({itemCount} items)</span>
-                  <span className="font-semibold">₹{subtotal}</span>
+                  <span className="font-semibold">₹{subtotal.toLocaleString("en-IN")}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Shipping</span>
-                  <span
-                    className={`font-semibold ${total >= 999 ? "text-green-600" : ""}`}
-                  >
-                    {total >= 999 ? "FREE" : "₹99"}
-                  </span>
-                </div>
-                {total < 999 && (
-                  <p className="text-xs text-gray-400">
-                    Add ₹{999 - total} more for free delivery
-                  </p>
+
+                {/* Slab Discount */}
+                {slabDiscount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5" /> Slab Discount
+                    </span>
+                    <span className="font-bold text-green-600">
+                      −₹{slabDiscount.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                )}
+
+                {/* Next slab hint */}
+                {nextSlabHint && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-800 flex items-start gap-2">
+                    <TrendingUp className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+                    <span>
+                      Add <strong>₹{nextSlabHint.addMore.toLocaleString("en-IN")}</strong> more to save{" "}
+                      <strong>₹{nextSlabHint.savings.toLocaleString("en-IN")}</strong>!
+                    </span>
+                  </div>
                 )}
               </div>
 
+              {/* Total */}
               <div className="border-t border-orange-100 mt-4 pt-4 flex justify-between items-center">
                 <span className="font-heading font-bold text-gray-900">
                   Total
                 </span>
-                <span className="font-heading font-bold text-xl text-primary">
-                  ₹{total + (total >= 999 ? 0 : 99)}
-                </span>
+                <div className="text-right">
+                  <span className="font-heading font-bold text-xl text-primary">
+                    ₹{total.toLocaleString("en-IN")}
+                  </span>
+                  {slabDiscount > 0 && (
+                    <p className="text-xs text-green-600 font-semibold">
+                      You save ₹{slabDiscount.toLocaleString("en-IN")}!
+                    </p>
+                  )}
+                </div>
               </div>
+
+              {/* Minimum cart value warning */}
+              {!canCheckout && (
+                <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-3">
+                  <div className="flex items-start gap-2 text-xs text-red-700">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold mb-1">
+                        Minimum order value is ₹{MIN_CART_VALUE.toLocaleString("en-IN")}
+                      </p>
+                      <p className="text-red-600">
+                        Add ₹{minCartShortfall.toLocaleString("en-IN")} more to proceed with checkout.
+                      </p>
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="mt-2 h-2 bg-red-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${minProgress}%`,
+                        background: "linear-gradient(90deg, #ef4444, #f97316)",
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-red-500 mt-1 text-right">
+                    {Math.round(minProgress)}% of ₹{MIN_CART_VALUE.toLocaleString("en-IN")}
+                  </p>
+                </div>
+              )}
 
               <button
                 onClick={handleCheckout}
-                className="btn-fire w-full justify-center mt-5 py-3.5 text-base rounded-xl"
+                disabled={!canCheckout}
+                className={`w-full flex items-center justify-center gap-2 mt-5 py-3.5 text-base rounded-xl font-bold transition-all ${
+                  canCheckout
+                    ? "btn-fire"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
               >
-                Proceed to Checkout <ArrowRight className="w-5 h-5" />
+                {canCheckout ? (
+                  <>Proceed to Checkout <ArrowRight className="w-5 h-5" /></>
+                ) : (
+                  <>Minimum ₹{MIN_CART_VALUE.toLocaleString("en-IN")} required</>
+                )}
               </button>
+
+              {/* Discount Slab Table */}
+              <div className="mt-5 pt-4 border-t border-orange-50">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">
+                  Discount Slabs
+                </p>
+                <div className="space-y-1">
+                  {DISCOUNT_SLABS.map((slab, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex justify-between text-xs px-2.5 py-1.5 rounded-lg transition-colors ${
+                        subtotal >= slab.min && subtotal <= slab.max
+                          ? "bg-green-50 text-green-700 font-bold"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      <span>{slab.label}</span>
+                      <span>
+                        {slab.discount > 0
+                          ? `₹${slab.discount.toLocaleString("en-IN")} OFF`
+                          : "No discount"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

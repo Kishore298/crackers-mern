@@ -280,22 +280,33 @@ const ProductDetailPage = () => {
             )}
 
             {/* Video */}
-            {product.video?.youtubeId && (
-              <div>
-                <h3 className="font-heading font-semibold text-sm text-gray-900 mb-3 flex items-center gap-2">
-                  <Youtube className="w-4 h-4 text-red-600" /> Product Video
-                </h3>
-                <div className="aspect-video rounded-xl overflow-hidden border border-orange-100">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${product.video.youtubeId}`}
-                    title="Product Video"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
+            {product.video?.youtubeId && (() => {
+              // Client-side fallback: extract ID from full URL if backend hasn't migrated yet
+              const raw = product.video.youtubeId;
+              let vid = raw;
+              if (!/^[a-zA-Z0-9_-]{11}$/.test(raw)) {
+                const m = raw.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)
+                  || raw.match(/youtube\.com\/(?:watch\?.*v=|embed\/)([a-zA-Z0-9_-]{11})/)
+                  || raw.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+                vid = m ? m[1] : raw;
+              }
+              return (
+                <div>
+                  <h3 className="font-heading font-semibold text-sm text-gray-900 mb-3 flex items-center gap-2">
+                    <Youtube className="w-4 h-4 text-red-600" /> Product Video
+                  </h3>
+                  <div className="aspect-video rounded-xl overflow-hidden border border-orange-100">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${vid}`}
+                      title="Product Video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </div>
 

@@ -8,6 +8,8 @@ import {
   ShoppingBag,
   Loader,
   Truck,
+  Sparkles,
+  AlertCircle,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -16,7 +18,7 @@ import toast from "react-hot-toast";
 import SEO from "../components/SEO";
 
 const CheckoutPage = () => {
-  const { cartItems, subtotal, total, clearCart } = useCart();
+  const { cartItems, subtotal, total, clearCart, slabDiscount, canCheckout, MIN_CART_VALUE } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [addresses, setAddresses] = useState([]);
@@ -35,8 +37,8 @@ const CheckoutPage = () => {
     isDefault: false,
   });
 
-  const shipping = total >= 999 ? 0 : 99;
-  const finalAmount = total + shipping;
+  const shipping = 0; // Shipping is always free (min order ₹4,000 > free shipping threshold)
+  const finalAmount = total; // total already has slab discount applied
 
   useEffect(() => {
     if (!user) {
@@ -44,6 +46,12 @@ const CheckoutPage = () => {
       return;
     }
     if (cartItems.length === 0) {
+      navigate("/cart");
+      return;
+    }
+    // Redirect to cart if below minimum order value
+    if (!canCheckout) {
+      toast.error(`Minimum order value is ₹${MIN_CART_VALUE.toLocaleString("en-IN")} to proceed.`);
       navigate("/cart");
       return;
     }
@@ -363,21 +371,44 @@ const CheckoutPage = () => {
                 <span>Subtotal</span>
                 <span>₹{subtotal.toLocaleString("en-IN")}</span>
               </div>
+              {slabDiscount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-green-600 flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5" /> Slab Discount
+                  </span>
+                  <span className="font-bold text-green-600">
+                    −₹{slabDiscount.toLocaleString("en-IN")}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
-                <span className={shipping === 0 ? "text-green-600 font-semibold" : ""}>
-                  {shipping === 0 ? "FREE" : `₹${shipping}`}
-                </span>
+                <span className="text-green-600 font-semibold">FREE</span>
               </div>
               <div className="border-t border-orange-100 pt-3 flex justify-between font-heading font-bold text-gray-900 text-base">
                 <span>Total</span>
-                <span className="text-primary">₹{finalAmount.toLocaleString("en-IN")}</span>
+                <div className="text-right">
+                  <span className="text-primary">₹{finalAmount.toLocaleString("en-IN")}</span>
+                  {slabDiscount > 0 && (
+                    <p className="text-xs text-green-600 font-semibold">
+                      You save ₹{slabDiscount.toLocaleString("en-IN")}!
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
+            {/* Minimum cart warning (safety - should have been caught on cart page) */}
+            {!canCheckout && (
+              <div className="mt-3 bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2 text-xs text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <p>Minimum order value is ₹{MIN_CART_VALUE.toLocaleString("en-IN")} to proceed with checkout.</p>
+              </div>
+            )}
+
             <button
               onClick={handlePayment}
-              disabled={payLoading}
+              disabled={payLoading || !canCheckout}
               className="btn-fire w-full justify-center mt-5 py-3.5 text-base rounded-xl disabled:opacity-50"
             >
               {payLoading ? (

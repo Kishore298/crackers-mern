@@ -234,6 +234,23 @@ const OrdersPage = () => {
                                 <span className="font-semibold">₹{item.subtotal}</span>
                               </div>
                             ))}
+                            {/* Pricing Breakdown */}
+                            <div className="mt-2 pt-2 border-t border-orange-200 space-y-1">
+                              <div className="flex justify-between text-gray-600">
+                                <span>Subtotal</span>
+                                <span className="font-semibold">₹{order.totalAmount?.toLocaleString("en-IN")}</span>
+                              </div>
+                              {order.slabDiscount > 0 && (
+                                <div className="flex justify-between text-green-600">
+                                  <span>Slab Discount {order.slabLabel && <span className="text-gray-400">({order.slabLabel})</span>}</span>
+                                  <span className="font-bold">−₹{order.slabDiscount?.toLocaleString("en-IN")}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between font-bold text-gray-800">
+                                <span>Final Payable</span>
+                                <span>₹{order.finalPayable?.toLocaleString("en-IN")}</span>
+                              </div>
+                            </div>
                           </div>
 
                           {/* Shipping */}

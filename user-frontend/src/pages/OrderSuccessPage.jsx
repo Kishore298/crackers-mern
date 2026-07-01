@@ -377,7 +377,22 @@ const OrderSuccessPage = () => {
 
             {/* Totals */}
             <div className="px-6 py-4 space-y-2 text-sm">
-              {order.discount > 0 && (
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal</span>
+                <span>₹{order.totalAmount?.toLocaleString("en-IN")}</span>
+              </div>
+              {order.slabDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="flex items-center gap-1">
+                    Slab Discount
+                    {order.slabLabel && (
+                      <span className="text-gray-400 text-xs">({order.slabLabel})</span>
+                    )}
+                  </span>
+                  <span className="font-bold">−₹{order.slabDiscount?.toLocaleString("en-IN")}</span>
+                </div>
+              )}
+              {order.discount > 0 && !order.slabDiscount && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>
                   <span>-₹{order.discount}</span>
@@ -385,7 +400,14 @@ const OrderSuccessPage = () => {
               )}
               <div className="flex justify-between font-heading font-bold text-base text-gray-900 border-t border-orange-50 pt-3">
                 <span>{order.paymentStatus === "paid" ? "Total Paid" : "Total Payable"}</span>
-                <span className="text-primary">₹{order.finalPayable.toLocaleString("en-IN")}</span>
+                <div className="text-right">
+                  <span className="text-primary">₹{order.finalPayable?.toLocaleString("en-IN")}</span>
+                  {order.slabDiscount > 0 && (
+                    <p className="text-xs text-green-600 font-semibold">
+                      You saved ₹{order.slabDiscount?.toLocaleString("en-IN")}!
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
