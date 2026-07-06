@@ -7,7 +7,6 @@ import {
   Check,
   ShoppingBag,
   Loader,
-  Truck,
   Sparkles,
   AlertCircle,
 } from "lucide-react";
@@ -25,7 +24,7 @@ const CheckoutPage = () => {
   const [selectedAddr, setSelectedAddr] = useState(null);
   const [showAddAddr, setShowAddAddr] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
-  const payMethod = "online"; // Forced to online
+
   const [newAddr, setNewAddr] = useState({
     fullName: "",
     phone: "",
@@ -37,7 +36,7 @@ const CheckoutPage = () => {
     isDefault: false,
   });
 
-  const shipping = 0; // Shipping is always free (min order ₹4,000 > free shipping threshold)
+
   const finalAmount = total; // total already has slab discount applied
 
   useEffect(() => {
@@ -65,7 +64,7 @@ const CheckoutPage = () => {
       } catch {}
     };
     fetchProfile();
-  }, [user, cartItems.length, navigate]);
+  }, [user, cartItems.length, navigate, canCheckout, MIN_CART_VALUE]);
 
   const addAddress = async () => {
     try {

@@ -9,7 +9,6 @@ const {
   updateProduct,
   deleteProduct,
   getLowStock,
-  getPopularProducts,
   reorderImages,
   deleteProductImage,
 } = require("../controllers/productController");
@@ -18,7 +17,6 @@ const { uploadProduct } = require("../config/cloudinary");
 const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.get("/", getProducts);
-router.get("/popular", getPopularProducts);
 router.get("/admin", protect, adminOnly, getAdminProducts);
 router.get("/low-stock", protect, adminOnly, getLowStock);
 router.get("/id/:id", getProductById);

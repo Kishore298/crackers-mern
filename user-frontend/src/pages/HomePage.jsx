@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { ArrowRight, ChevronRight, TrendingUp } from "lucide-react";
+import { ArrowRight, ChevronRight, TrendingUp, ChevronDown, Search } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
 import { Truck, Shield, Zap, Percent } from "lucide-react";
@@ -121,25 +121,6 @@ const SectionHead = ({ tag, title, sub, to }) => (
   </div>
 );
 
-/* ─── Horizontal product row (mobile) ─── */
-const ProductRow = ({ products, loading, discountPct }) => {
-  if (loading) return <Spinner />;
-  if (!products.length)
-    return <p className="text-sm text-gray-400 py-4">No products yet.</p>;
-  return (
-    <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
-      {products.map((p) => (
-        <div key={p._id} className="snap-start shrink-0 w-44 sm:w-52">
-          <ProductCard product={p} discountPct={discountPct} />
-        </div>
-      ))}
-    </div>
-  );
-};
-
-/* ═══════════════════════════════════════════════════════════
-   HOME PAGE
-═══════════════════════════════════════════════════════════ */
 const CustomPrevArrow = (props) => {
   const { className, style, onClick } = props;
   return (
@@ -166,73 +147,110 @@ const CustomNextArrow = (props) => {
 
 const HomePage = () => {
   const [banners, setBanners] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [activeCategory, setActiveCategory] = useState(null);
-  const [categoryProducts, setCategoryProducts] = useState({});
-  const [categoryLoading, setCategoryLoading] = useState({});
   const [discount, setDiscount] = useState(null);
-  const [popularProducts, setPopularProducts] = useState([]);
   const [initLoading, setInitLoading] = useState(true);
 
-  /* ── initial fetch ── */
+  // New states for infinite scroll categories
+  const [categories, setCategories] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  
+  // Search & sort state
+  const [searchFilter, setSearchFilter] = useState("");
+  const [sortFilter, setSortFilter] = useState("");
+  
+  // Accordion state
+  const [collapsedCategories, setCollapsedCategories] = useState({});
+
+  const observerRef = useRef(null);
+  
+  // Fetch specific page based on current filters
+  const fetchGroupedCategories = useCallback(async (pageNum = 1, append = false) => {
+    if (pageNum === 1) setInitLoading(true);
+    else setLoadingMore(true);
+
+    try {
+      const params = new URLSearchParams();
+      if (searchFilter) params.set("search", searchFilter);
+      if (sortFilter) params.set("sort", sortFilter);
+      params.set("page", pageNum);
+      params.set("limit", 5);
+
+      const { data } = await api.get(`/categories/with-products?${params}`);
+      
+      if (append) {
+        setCategories((prev) => {
+          // Prevent duplicates by checking _id
+          const newCats = data.categories || [];
+          const existingIds = new Set(prev.map(c => c._id));
+          return [...prev, ...newCats.filter(c => !existingIds.has(c._id))];
+        });
+      } else {
+        setCategories(data.categories || []);
+      }
+      
+      setHasMore(data.hasMore);
+      setPage(pageNum);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      if (pageNum === 1) setInitLoading(false);
+      else setLoadingMore(false);
+    }
+  }, [searchFilter, sortFilter]);
+
+  // Initial fetch for banners, discount, and page 1 categories
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchGlobalData = async () => {
       try {
-        const [bannerRes, catRes, popRes, discountRes] =
-          await Promise.all([
-            api.get("/banners"),
-            api.get("/categories"),
-            api.get("/products/popular?limit=25"),
-            api.get("/discount"),
-          ]);
+        const [bannerRes, discountRes] = await Promise.all([
+          api.get("/banners"),
+          api.get("/discount"),
+        ]);
         setBanners(bannerRes.data.banners || []);
-        const cats = catRes.data.categories || [];
-        setCategories(cats);
-        if (cats.length) setActiveCategory(cats[0]._id);
-        setPopularProducts(popRes.data.products || []);
         setDiscount(discountRes.data.discount || null);
       } catch (e) {
         console.error(e);
-      } finally {
-        setInitLoading(false);
       }
     };
-    fetchData();
+    fetchGlobalData();
   }, []);
 
-  /* ── lazy load per category ── */
-  const loadCategoryProducts = useCallback(
-    async (catId) => {
-      if (categoryProducts[catId] || categoryLoading[catId]) return;
-      setCategoryLoading((p) => ({ ...p, [catId]: true }));
-      try {
-        const { data } = await api.get(`/products?category=${catId}&limit=12`);
-        setCategoryProducts((p) => ({
-          ...p,
-          [catId]: data.products || [],
-        }));
-      } catch {
-        setCategoryProducts((p) => ({ ...p, [catId]: [] }));
-      } finally {
-        setCategoryLoading((p) => ({ ...p, [catId]: false }));
-      }
-    },
-    [categoryProducts, categoryLoading],
-  );
-
-  /* mobile: load all category products on mount */
+  // Fetch categories when filters change
   useEffect(() => {
-    if (!initLoading && categories.length) {
-      categories.forEach((c) => loadCategoryProducts(c._id));
+    fetchGroupedCategories(1, false);
+  }, [fetchGroupedCategories]);
+
+  // Infinite Scroll logic
+  const loadMoreCategories = useCallback(() => {
+    if (loadingMore || !hasMore || initLoading) return;
+    fetchGroupedCategories(page + 1, true);
+  }, [page, hasMore, loadingMore, initLoading, fetchGroupedCategories]);
+
+  const loadMoreRef = useRef(loadMoreCategories);
+  useEffect(() => {
+    loadMoreRef.current = loadMoreCategories;
+  }, [loadMoreCategories]);
+
+  const observerTargetRef = useCallback((node) => {
+    if (observerRef.current) observerRef.current.disconnect();
+    if (node) {
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreRef.current();
+        }
+      }, { threshold: 0.1 });
+      observerRef.current.observe(node);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initLoading, categories]);
+  }, []);
 
-  /* desktop: load active tab */
-  useEffect(() => {
-    if (activeCategory) loadCategoryProducts(activeCategory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory]);
+  const toggleCategory = (catId) => {
+    setCollapsedCategories((prev) => ({
+      ...prev,
+      [catId]: !prev[catId]
+    }));
+  };
 
   const sliderSettings = {
     dots: true,
@@ -249,7 +267,6 @@ const HomePage = () => {
   };
 
   const discountPct = discount?.isActive ? discount.percentage : 0;
-
   const giftCategory = categories.find((c) =>
     c.name.toLowerCase().includes("gift"),
   );
@@ -300,26 +317,22 @@ const HomePage = () => {
           <div className="w-full md:max-w-[90%] mx-auto px-5 sm:px-10 flex items-center min-h-[320px] sm:min-h-[420px]">
             {/* Left content */}
             <div className="relative z-10 flex-1 py-8 sm:py-16 max-w-lg text-center md:text-left">
-              {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-white border border-orange-100 rounded-full px-3 py-1 mb-4 sm:mb-6 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />
                 <span className="text-[10px] sm:text-xs font-bold text-gray-600 tracking-wider uppercase">
                   Premium Diwali Collection 2026
                 </span>
               </div>
-
               <h1 className="font-heading font-black text-2xl sm:text-5xl md:text-6xl leading-tight mb-2 sm:mb-3">
                 <span className="text-gray-900">Celebrate with </span>
                 <br className="hidden md:block" />
                 <span style={{ color: "#ff6600" }}>Luminous Joy</span>
               </h1>
-
               <p className="text-gray-500 text-xs sm:text-base leading-relaxed mb-5 sm:mb-8 max-w-full md:max-w-lg">
                 Experience the magic of Diwali with our premium, eco-friendly,
                 and safe celebration products. Delivered straight to your doorstep with
                 festive care.
               </p>
-
               <div className="flex flex-wrap gap-2 sm:gap-3 mb-5 sm:mb-8 justify-center md:justify-start">
                 <Link
                   to="/products"
@@ -339,7 +352,6 @@ const HomePage = () => {
                 </Link>
               </div>
             </div>
-
             {/* Right image */}
             <div className="hidden md:flex flex-1 items-center justify-center">
               <img
@@ -380,11 +392,10 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* ══ Featured Discount Banner ══ */}
       <DiscountBanner discount={discount} />
 
       {/* ══════════════════════════════════════════
-          BROWSE BY CATEGORY
+          SHOP BY CATEGORY (Accordion UI)
       ══════════════════════════════════════════ */}
       <section className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-12">
         <SectionHead
@@ -395,264 +406,104 @@ const HomePage = () => {
           }
           title="Shop by Category"
           sub="Find exactly what you're looking for"
-          to="/products"
         />
+
+        {/* Filter Bar */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 bg-surface p-4 rounded-2xl border border-orange-100">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              aria-label="Search products by name"
+              className="w-full pl-10 pr-4 py-2.5 border-2 rounded-xl text-sm outline-none transition-all border-white bg-white focus:border-primary shadow-sm"
+            />
+          </div>
+          <select
+            value={sortFilter}
+            onChange={(e) => setSortFilter(e.target.value)}
+            aria-label="Sort products"
+            className="px-4 py-2.5 border-2 border-white rounded-xl text-sm outline-none focus:border-primary bg-white shadow-sm"
+          >
+            <option value="">Sort By: Relevance</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="newest">Newest First</option>
+          </select>
+        </div>
 
         {initLoading ? (
           <Spinner />
         ) : (
-          <>
-            {/* ── MOBILE (< lg): stacked category + horizontal scroll ── */}
-            <div className="block lg:hidden space-y-10">
-              {categories.map((cat) => (
-                <div key={cat._id}>
-                  <div className="flex items-center justify-between mb-3">
+          <div className="space-y-6">
+            {categories.map((cat) => {
+              const isCollapsed = collapsedCategories[cat._id];
+              return (
+                <div key={cat._id} className="bg-white rounded-2xl border border-orange-100 overflow-hidden shadow-sm">
+                  {/* Accordion Header */}
+                  <button 
+                    onClick={() => toggleCategory(cat._id)}
+                    className="w-full flex items-center justify-between p-4 sm:p-5 bg-surface hover:bg-surface-2 transition-colors text-left"
+                  >
                     <div className="flex items-center gap-3">
                       {cat.image ? (
                         <img
                           src={cat.image}
                           alt={cat.name}
-                          width={32}
-                          height={32}
-                          loading="lazy"
-                          className="w-8 h-8 rounded-full object-cover"
+                          className="w-10 h-10 rounded-full object-cover border border-white shadow-sm"
                         />
                       ) : (
                         <div
-                          className="w-8 h-8 rounded-full"
-                          style={{
-                            background:
-                              "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                          }}
+                          className="w-10 h-10 rounded-full shadow-sm"
+                          style={{ background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)" }}
                         />
                       )}
-                      <span className="font-heading font-bold text-gray-900 text-lg">
-                        {cat.name}
-                      </span>
+                      <div>
+                        <h3 className="font-heading font-bold text-gray-900 text-lg sm:text-xl flex items-center gap-2">
+                          {cat.name} 
+                          <span className="text-sm font-normal text-gray-500">({cat.productCount})</span>
+                        </h3>
+                      </div>
                     </div>
-                    <Link
-                      to={`/products?category=${cat._id}`}
-                      className="text-xs text-primary font-semibold flex items-center gap-0.5"
-                    >
-                      See all <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                  <ProductRow
-                    products={categoryProducts[cat._id] || []}
-                    loading={categoryLoading[cat._id] || initLoading}
-                    discountPct={discountPct}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* ── DESKTOP (>= lg): tab bar + grid ── */}
-            <div className="hidden lg:block">
-              <div className="flex gap-2 flex-wrap mb-8">
-                {categories.map((cat) => {
-                  const isActive = activeCategory === cat._id;
-                  return (
-                    <button
-                      key={cat._id}
-                      onClick={() => setActiveCategory(cat._id)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ring-2 ${
-                        isActive
-                          ? "text-white ring-transparent shadow-md"
-                          : "bg-white text-gray-600 ring-gray-200 hover:text-primary"
-                      }`}
-                      style={
-                        isActive
-                          ? {
-                              background:
-                                "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                            }
-                          : {}
-                      }
-                    >
-                      {cat.image ? (
-                        <img
-                          src={cat.image}
-                          alt={cat.name}
-                          className="w-5 h-5 rounded-full object-cover ring-2 ring-white"
-                        />
+                    <div className={`p-2 rounded-full bg-white shadow-sm transition-transform duration-300 ${isCollapsed ? '' : 'rotate-180'}`}>
+                      <ChevronDown className="w-5 h-5 text-gray-600" />
+                    </div>
+                  </button>
+                  
+                  {/* Accordion Body */}
+                  <div className={`transition-all duration-500 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 overflow-hidden' : 'max-h-[10000px] opacity-100'}`}>
+                    <div className="p-4 sm:p-6 border-t border-orange-50">
+                      {cat.products && cat.products.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
+                          {cat.products.map((p) => (
+                            <ProductCard
+                              key={p._id}
+                              product={p}
+                              discountPct={discountPct}
+                            />
+                          ))}
+                        </div>
                       ) : (
-                        <div
-                          className="w-5 h-5 rounded-full shrink-0 ring-2 ring-white"
-                          style={{
-                            background: isActive
-                              ? "rgba(255,255,255,0.3)"
-                              : "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                          }}
-                        />
-                      )}
-                      {cat.name}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {activeCategory && (
-                <>
-                  {categoryLoading[activeCategory] || initLoading ? (
-                    <Spinner />
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-                      {(categoryProducts[activeCategory] || []).map((p) => (
-                        <ProductCard
-                          key={p._id}
-                          product={p}
-                          discountPct={discountPct}
-                        />
-                      ))}
-                      {(categoryProducts[activeCategory] || []).length ===
-                        0 && (
-                        <p className="col-span-5 text-gray-400 text-sm py-8 text-center">
+                        <p className="text-gray-400 text-sm py-8 text-center">
                           No products in this category yet.
                         </p>
                       )}
                     </div>
-                  )}
-                  <div className="mt-6 text-center">
-                    <Link
-                      to={`/products?category=${activeCategory}`}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors"
-                    >
-                      View All{" "}
-                      {categories.find((c) => c._id === activeCategory)?.name}
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
                   </div>
-                </>
+                </div>
+              );
+            })}
+            
+            {/* Intersection Observer Target using callback ref */}
+            <div ref={observerTargetRef} className="h-10 w-full flex items-center justify-center">
+              {loadingMore && <Spinner />}
+              {!hasMore && categories.length > 0 && (
+                <p className="text-gray-400 text-sm">You've reached the end of the catalog.</p>
               )}
             </div>
-          </>
-        )}
-      </section>
-
-      {/* ══════════════════════════════════════════
-          COLLECTIONS (Categories visual grid)
-      ══════════════════════════════════════════ */}
-      {categories.length > 0 && (
-        <section className="bg-surface border-t border-orange-100 py-6 md:py-12">
-          <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
-            <SectionHead
-              tag="✨ Collections"
-              title="Explore Our Collections"
-              sub="Browse by your favourite festive collection"
-              to="/products"
-            />
-
-            {/* Mobile: horizontal scroll */}
-            <div className="flex gap-3 overflow-x-auto pb-2 snap-x scrollbar-hide lg:hidden">
-              {categories.map((cat) => (
-                <Link
-                  key={cat._id}
-                  to={`/products?category=${cat._id}`}
-                  className="snap-start shrink-0 w-28 rounded-2xl overflow-hidden border border-orange-100 bg-white hover:shadow-md transition-shadow"
-                >
-                  <div className="aspect-[4/3] bg-surface overflow-hidden">
-                    {cat.image ? (
-                      <img
-                        src={cat.image}
-                        alt={cat.name}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full"
-                        style={{
-                          background: "linear-gradient(135deg,#FFE4D0,#ff6600)",
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div className="p-2">
-                    <p className="font-heading font-bold text-gray-900 text-xs text-center">
-                      {cat.name}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Desktop: grid */}
-            <div className="hidden lg:grid grid-cols-4 xl:grid-cols-5 gap-4">
-              {categories.map((cat) => (
-                <Link
-                  key={cat._id}
-                  to={`/products?category=${cat._id}`}
-                  className="group relative rounded-2xl overflow-hidden aspect-[3/2] bg-surface border border-orange-100 hover:shadow-lg transition-shadow"
-                >
-                  {cat.image ? (
-                    <img
-                      src={cat.image}
-                      alt={cat.name}
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-full"
-                      style={{
-                        background:
-                          "linear-gradient(135deg,#FFE4D0 0%,#ff6600 100%)",
-                      }}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="text-white font-heading font-bold text-lg">
-                      {cat.name}
-                    </p>
-                    <p className="text-white/70 text-xs flex items-center gap-1 mt-0.5">
-                      Shop now <ChevronRight className="w-3.5 h-3.5" />
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
           </div>
-        </section>
-      )}
-
-      {/* ══════════════════════════════════════════
-          POPULAR PRODUCTS (top 25 by sales)
-      ══════════════════════════════════════════ */}
-      <section className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-12">
-        <SectionHead
-          tag={
-            <>
-              <TrendingUp className="w-3.5 h-3.5" /> Trending
-            </>
-          }
-          title="Popular Products 🔥"
-          sub="What everyone's buying this season"
-          to="/products"
-        />
-
-        {initLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            {/* Mobile: horizontal scroll */}
-            <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide lg:hidden">
-              {popularProducts.map((p) => (
-                <div key={p._id} className="snap-start shrink-0 w-44 sm:w-52">
-                  <ProductCard product={p} discountPct={discountPct} />
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop: grid */}
-            <div className="hidden lg:grid grid-cols-3 xl:grid-cols-5 gap-5">
-              {popularProducts.slice(0, 25).map((p) => (
-                <ProductCard
-                  key={p._id}
-                  product={p}
-                  discountPct={discountPct}
-                />
-              ))}
-            </div>
-          </>
         )}
       </section>
 
@@ -794,3 +645,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+

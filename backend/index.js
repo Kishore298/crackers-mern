@@ -1,4 +1,8 @@
 require("dotenv").config();
+const dns = require("node:dns");
+
+// Force Node.js to use public DNS servers to resolve MongoDB SRV records
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const express = require("express");
 const http = require("http");
 const helmet = require("helmet");
@@ -47,6 +51,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:3000",
   process.env.ADMIN_FRONTEND_URL || "http://localhost:3001",
   "https://www.vcrackers.in",
+  "http://localhost:3000",
+  "http://localhost:3001",
 ];
 
 app.use(
@@ -74,15 +80,6 @@ app.use(
     }
   })
 );
-
-// Debug (optional - remove later)
-app.use((req, res, next) => {
-  console.log("FINAL METHOD:", req.method);
-  if (req.method !== "GET") {
-    console.log("BODY:", req.body);
-  }
-  next();
-});
 
 // Health
 app.get("/api/health", (req, res) => {

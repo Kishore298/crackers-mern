@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   getCategories,
   getCategoryById,
+  getCategoriesWithProducts,
   createCategory,
   updateCategory,
   deleteCategory,
@@ -14,6 +15,7 @@ const { uploadCategory } = require("../config/cloudinary");
 const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.get("/", getCategories);
+router.get("/with-products", getCategoriesWithProducts);
 router.get("/:id", getCategoryById);
 
 router.post(

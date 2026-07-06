@@ -172,7 +172,7 @@ const ProductDetailPage = () => {
                   >
                     <img
                       src={img.url}
-                      alt={`View ${product.name} image ${idx + 1}`}
+                      alt={`View ${product.name} ${idx + 1}`}
                       width={64}
                       height={64}
                       loading="lazy"

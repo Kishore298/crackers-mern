@@ -1,4 +1,5 @@
 const Category = require("../models/Category");
+const Product = require("../models/Product");
 const { cloudinary } = require("../config/cloudinary");
 
 const slugify = (text) =>
@@ -116,9 +117,72 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+// GET /api/categories/with-products (public)
+const getCategoriesWithProducts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+    const { search, category, sort } = req.query;
+
+    let catFilter = { isActive: true };
+    if (category) catFilter._id = category;
+
+    const categories = await Category.find(catFilter)
+      .sort({ name: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalCategories = await Category.countDocuments(catFilter);
+    const categoryIds = categories.map((c) => c._id);
+
+    let productFilter = {
+      category: { $in: categoryIds },
+      isActive: true,
+    };
+    if (search) productFilter.name = { $regex: search, $options: "i" };
+
+    const sortMap = {
+      price_asc: { discountedPrice: 1 },
+      price_desc: { discountedPrice: -1 },
+      newest: { createdAt: -1 },
+    };
+    const sortOption = sortMap[sort] || { createdAt: -1 };
+
+    const products = await Product.find(productFilter)
+      .populate("category", "name slug")
+      .sort(sortOption);
+
+    // Group products by category
+    const result = categories.map((cat) => {
+      const catProducts = products.filter(
+        (p) => p.category && p.category._id.toString() === cat._id.toString()
+      );
+      return {
+        ...cat.toObject(),
+        products: catProducts,
+        productCount: catProducts.length,
+      };
+    }).filter(cat => !(search || sort) || cat.productCount > 0 || !search); 
+    // If search is used, filter out empty categories in the result (though pagination might be weird if many are empty).
+    // Note: To be fully accurate with category pagination and search, we should ideally aggregate, but this works for now as long as we fetch enough.
+
+    res.json({
+      success: true,
+      categories: result,
+      hasMore: skip + categories.length < totalCategories,
+      page,
+      totalPages: Math.ceil(totalCategories / limit)
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   getCategories,
   getCategoryById,
+  getCategoriesWithProducts,
   createCategory,
   updateCategory,
   deleteCategory,

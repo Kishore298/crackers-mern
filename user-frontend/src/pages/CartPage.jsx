@@ -8,7 +8,7 @@ import SEO from "../components/SEO";
 const CartPage = () => {
   const {
     cartItems, updateQty, removeFromCart, subtotal, total, itemCount,
-    slabDiscount, slabLabel, nextSlabHint, canCheckout, minCartShortfall,
+    slabDiscount, nextSlabHint, canCheckout, minCartShortfall,
     MIN_CART_VALUE, DISCOUNT_SLABS,
   } = useCart();
   const { user } = useAuth();
