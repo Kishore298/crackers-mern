@@ -26,7 +26,7 @@ const AuthCard = ({ pageKey, direction, formSide, formPanel, bannerPanel }) => {
 
   return (
     /* Page wrapper — full remaining height, centered */
-    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 px-4 py-10">
+    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 py-10" style={{ background: "#0a0814" }}>
       <AnimatePresence mode="wait" custom={direction}>
         <motion.div
           key={pageKey}
@@ -35,7 +35,8 @@ const AuthCard = ({ pageKey, direction, formSide, formPanel, bannerPanel }) => {
           initial="initial"
           animate="animate"
           exit="exit"
-          className="w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row bg-white"
+          className="w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
+          style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}
         >
           {/* Form side */}
           <div

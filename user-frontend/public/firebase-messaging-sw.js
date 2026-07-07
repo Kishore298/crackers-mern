@@ -31,7 +31,7 @@ try {
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
       body: payload.notification.body,
-      icon: payload.notification.image || "/v-crackers-logo.png",
+      icon: payload.notification.image || "/v-crackers-logo.webp",
       data: payload.data,
     };
 

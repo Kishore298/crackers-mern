@@ -1,21 +1,21 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 
-const SEO = ({ 
-  title, 
-  description, 
-  canonical, 
-  ogImage, 
+const SEO = ({
+  title,
+  description,
+  canonical,
+  ogImage,
   ogType = "website",
   keywords = "festive products, diwali gifts, buy celebration packs, sivakasi products, v crackers",
-  schemaMarkup 
+  schemaMarkup
 }) => {
   const siteName = "V Crackers";
   const fullTitle = title ? `${title} | ${siteName}` : siteName;
   const defaultDescription = "V Crackers - Sivakasi's most trusted festive brand. Buy premium quality celebration packs, gift boxes, and festive items online at the best prices.";
   const metaDescription = description || defaultDescription;
   const url = window.location.href;
-  const image = ogImage || `${window.location.origin}/festive-banner.png`;
+  const image = ogImage || `${window.location.origin}/festive-banner.webp`;
 
   return (
     <Helmet>

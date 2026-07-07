@@ -19,11 +19,11 @@ import SEO from "../components/SEO";
 const STATUS_STEPS = ["processing", "packed", "shipped", "delivered"];
 
 const statusConfig = {
-  processing: { label: "Processing", icon: Clock, color: "text-blue-600 bg-blue-50" },
-  packed: { label: "Packed", icon: Package, color: "text-purple-600 bg-purple-50" },
-  shipped: { label: "Shipped", icon: Truck, color: "text-amber-600 bg-amber-50" },
-  delivered: { label: "Delivered", icon: CheckCircle, color: "text-green-600 bg-green-50" },
-  cancelled: { label: "Cancelled", icon: XCircle, color: "text-red-600 bg-red-50" },
+  processing: { label: "Processing", icon: Clock, color: "text-blue-400 bg-blue-500/10" },
+  packed: { label: "Packed", icon: Package, color: "text-purple-400 bg-purple-500/10" },
+  shipped: { label: "Shipped", icon: Truck, color: "text-amber-400 bg-amber-500/10" },
+  delivered: { label: "Delivered", icon: CheckCircle, color: "text-green-400 bg-green-500/10" },
+  cancelled: { label: "Cancelled", icon: XCircle, color: "text-red-400 bg-red-500/10" },
 };
 
 const OrderHistoryPage = () => {
@@ -68,23 +68,23 @@ const OrderHistoryPage = () => {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center min-h-96">
-        <div className="w-10 h-10 rounded-full border-4 border-orange-100 border-t-primary animate-spin" />
+      <div className="flex justify-center items-center min-h-96" style={{ background: "#0a0814" }}>
+        <div className="w-10 h-10 rounded-full border-4 border-surface-2 border-t-primary animate-spin" />
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-surface py-8">
+    <div className="min-h-screen py-8 animate-fade-in-up" style={{ background: "#0a0814" }}>
       <SEO title="My Orders" />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
-        <h1 className="font-heading font-bold text-2xl text-gray-900 mb-6">My Orders</h1>
+        <h1 className="font-heading font-bold text-2xl text-white mb-6">My Orders</h1>
 
         {orders.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-orange-100 py-20 text-center">
-            <ShoppingBag className="w-16 h-16 text-orange-200 mx-auto mb-4" />
-            <h3 className="font-heading font-bold text-lg text-gray-700 mb-2">No orders yet</h3>
+          <div className="rounded-2xl py-20 text-center border shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+            <ShoppingBag className="w-16 h-16 text-primary mx-auto mb-4 opacity-50" />
+            <h3 className="font-heading font-bold text-lg text-white mb-2">No orders yet</h3>
             <p className="text-gray-400 text-sm mb-6">Start shopping and your orders will appear here</p>
-            <Link to="/products" className="btn-fire px-6 py-3 rounded-xl">Shop Now 🎆</Link>
+            <Link to="/products" className="btn-fire px-6 py-3 rounded-xl inline-block">Shop Now 🎇</Link>
           </div>
         ) : (
           <div className="space-y-4">
@@ -101,7 +101,8 @@ const OrderHistoryPage = () => {
               return (
                 <div
                   key={order._id}
-                  className="bg-white rounded-2xl border border-orange-100 p-5 hover:border-primary hover:shadow-sm transition-all"
+                  className="rounded-2xl p-5 hover:border-primary-light transition-all border"
+                  style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}
                 >
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1">
@@ -111,12 +112,12 @@ const OrderHistoryPage = () => {
                           <StatusIcon className="w-3 h-3" /> {st.label}
                         </span>
                         {cancelRequested && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400">
                             <AlertTriangle className="w-3 h-3" /> Cancel Requested
                           </span>
                         )}
                       </div>
-                      <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-3">
+                      <div className="flex flex-wrap gap-2 text-xs text-gray-400 mb-3">
                         <span>{order.items?.length} item(s)</span>
                         <span>·</span>
                         <span>{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
@@ -125,8 +126,8 @@ const OrderHistoryPage = () => {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {order.items?.slice(0, 3).map((item, i) => (
-                          <span key={i} className="text-xs bg-surface px-2 py-1 rounded-lg text-gray-600">
-                            {item.name} ×{item.quantity}
+                          <span key={i} className="text-xs px-2 py-1 rounded-lg text-gray-300" style={{ background: "rgba(255,255,255,0.05)" }}>
+                            {item.name} Ã—{item.quantity}
                           </span>
                         ))}
                         {order.items?.length > 3 && (
@@ -137,7 +138,7 @@ const OrderHistoryPage = () => {
                     <div className="text-right shrink-0">
                       <p className="font-heading font-bold text-primary text-lg">₹{order.finalPayable?.toLocaleString("en-IN")}</p>
                       {order.slabDiscount > 0 && (
-                        <p className="text-xs text-green-600 font-semibold">
+                        <p className="text-xs text-green-400 font-semibold">
                           Saved ₹{order.slabDiscount?.toLocaleString("en-IN")}
                         </p>
                       )}
@@ -153,11 +154,11 @@ const OrderHistoryPage = () => {
                         return (
                           <React.Fragment key={step}>
                             <div className="flex flex-col items-center min-w-[64px]">
-                              <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${passed ? "bg-primary" : "bg-gray-100"}`}>
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${passed ? "bg-primary" : "bg-surface-2"}`} style={!passed ? { background: "rgba(255,255,255,0.05)" } : {}}>
                                 {passed ? (
                                   <CheckCircle className="w-3.5 h-3.5 text-white" />
                                 ) : (
-                                  <div className="w-2 h-2 rounded-full bg-gray-300" />
+                                  <div className="w-2 h-2 rounded-full" style={{ background: "rgba(255,255,255,0.2)" }} />
                                 )}
                               </div>
                               <span className={`text-[10px] mt-1 font-semibold ${passed ? "text-primary" : "text-gray-400"}`}>
@@ -165,7 +166,7 @@ const OrderHistoryPage = () => {
                               </span>
                             </div>
                             {i < STATUS_STEPS.length - 1 && (
-                              <div className={`flex-1 h-0.5 max-w-[40px] min-w-[16px] ${i < currentStepIdx ? "bg-primary" : "bg-gray-100"}`} />
+                              <div className={`flex-1 h-0.5 max-w-[40px] min-w-[16px] ${i < currentStepIdx ? "bg-primary" : ""}`} style={i >= currentStepIdx ? { background: "rgba(255,255,255,0.05)" } : {}} />
                             )}
                           </React.Fragment>
                         );
@@ -174,7 +175,7 @@ const OrderHistoryPage = () => {
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-3 pt-3 border-t border-orange-50">
+                  <div className="flex items-center gap-3 pt-3" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
                     <Link
                       to={`/order-success/${order._id}`}
                       className="text-xs text-primary font-semibold hover:underline"
@@ -186,7 +187,7 @@ const OrderHistoryPage = () => {
                         href={order.razorpayPaymentLinkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-blue-600 font-bold flex items-center gap-1 hover:underline"
+                        className="text-xs text-blue-400 font-bold flex items-center gap-1 hover:underline"
                       >
                         <CreditCard className="w-3 h-3" /> Pay Online Now <ExternalLink className="w-3 h-3" />
                       </a>
@@ -194,13 +195,13 @@ const OrderHistoryPage = () => {
                     {canRequest && (
                       <button
                         onClick={() => setCancelModal(order._id)}
-                        className="ml-auto text-xs text-red-600 font-semibold border border-red-100 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors"
+                        className="ml-auto text-xs text-red-400 font-semibold border border-red-500/20 rounded-lg px-3 py-1.5 hover:bg-red-500/10 transition-colors"
                       >
                         Request Cancellation
                       </button>
                     )}
                     {cancelRequested && (
-                      <span className="ml-auto text-xs text-amber-600 font-semibold">
+                      <span className="ml-auto text-xs text-amber-400 font-semibold">
                         ⏳ Awaiting admin response
                       </span>
                     )}
@@ -214,15 +215,15 @@ const OrderHistoryPage = () => {
 
       {/* Cancel Request Modal */}
       {cancelModal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setCancelModal(null)}>
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setCancelModal(null)}>
+          <div className="w-full max-w-md rounded-2xl shadow-2xl p-6" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Request Order Cancellation</h3>
-              <button onClick={() => setCancelModal(null)} className="p-1 rounded-lg hover:bg-gray-100">
-                <X className="w-5 h-5 text-gray-500" />
+              <h3 className="text-lg font-bold text-white">Request Order Cancellation</h3>
+              <button onClick={() => setCancelModal(null)} className="p-1 rounded-lg hover:bg-surface-2 text-gray-400">
+                <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-400 mb-4">
               This sends a cancellation request to the store admin. You'll receive an email once it is processed.
             </p>
             <textarea
@@ -230,16 +231,16 @@ const OrderHistoryPage = () => {
               onChange={(e) => setCancelReason(e.target.value)}
               placeholder="Reason for cancellation (optional)..."
               rows={3}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-200 mb-4"
+              className="input-fire resize-none mb-4"
             />
             <div className="flex justify-end gap-3">
-              <button onClick={() => setCancelModal(null)} className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl">
+              <button onClick={() => setCancelModal(null)} className="px-4 py-2 text-sm font-semibold text-gray-400 hover:bg-surface-2 hover:text-white transition-colors rounded-xl border border-transparent">
                 Back
               </button>
               <button
                 onClick={handleCancelRequest}
                 disabled={cancelLoading}
-                className="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl disabled:opacity-50 transition-colors"
+                className="px-4 py-2 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl disabled:opacity-50 transition-colors"
               >
                 {cancelLoading ? "Sending..." : "Send Request"}
               </button>

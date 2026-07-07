@@ -76,21 +76,21 @@ const ForgotPasswordPage = () => {
 
   if (done) {
     return (
-      <div className="min-h-[calc(100vh-120px)] flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 px-4">
+      <div className="min-h-[calc(100vh-120px)] flex items-center justify-center px-4" style={{ background: "#0a0814" }}>
         <SEO title="Password Reset Success" />
-        <div className="bg-white rounded-3xl shadow-xl p-10 max-w-md w-full text-center">
+        <div className="rounded-3xl shadow-xl p-10 max-w-md w-full text-center" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
           <div
-            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow"
             style={{
               background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
             }}
           >
             <CheckCircle className="w-10 h-10 text-white" />
           </div>
-          <h2 className="font-heading font-black text-2xl text-gray-900 mb-2">
-            Password Reset! 🎆
+          <h2 className="font-heading font-black text-2xl text-white mb-2">
+            Password Reset! 🎇
           </h2>
-          <p className="text-gray-500 text-sm mb-6">
+          <p className="text-gray-400 text-sm mb-6">
             Your password has been reset successfully. You can now log in with
             your new password.
           </p>
@@ -106,23 +106,23 @@ const ForgotPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-amber-50 px-4 py-10">
+    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 py-10" style={{ background: "#0a0814" }}>
       <SEO title="Forgot Password" />
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow"
             style={{
               background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
             }}
           >
             <ShieldCheck className="w-8 h-8 text-white" />
           </div>
-          <h1 className="font-heading font-black text-3xl text-gray-900">
+          <h1 className="font-heading font-black text-3xl text-white">
             Forgot Password?
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-400 text-sm mt-1">
             We'll send an OTP to your email to verify it's you.
           </p>
         </div>
@@ -140,7 +140,7 @@ const ForgotPasswordPage = () => {
                           "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                         color: "#fff",
                       }
-                    : { background: "#f3f4f6", color: "#9ca3af" }
+                    : { background: "rgba(255,255,255,0.05)", color: "#6b7280" }
                 }
               >
                 {i < step ? "✓" : i + 1}
@@ -148,19 +148,19 @@ const ForgotPasswordPage = () => {
               {i < STEPS.length - 1 && (
                 <div
                   className="w-8 h-0.5 transition-all"
-                  style={{ background: i < step ? "#ff6600" : "#e5e7eb" }}
+                  style={{ background: i < step ? "#ff6600" : "rgba(255,255,255,0.05)" }}
                 />
               )}
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div className="rounded-3xl shadow-xl p-8" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
           {/* ── Step 0: Email ── */}
           {step === 0 && (
             <form onSubmit={sendOtp} className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                   Email Address
                 </label>
                 <div className="relative group">
@@ -171,7 +171,7 @@ const ForgotPasswordPage = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                    className="input-fire pl-11"
                   />
                 </div>
               </div>
@@ -188,11 +188,11 @@ const ForgotPasswordPage = () => {
           {/* ── Step 1: OTP ── */}
           {step === 1 && (
             <form onSubmit={verifyOtp} className="space-y-5">
-              <div className="text-center text-sm text-gray-500 bg-orange-50 rounded-xl p-3 mb-2">
+              <div className="text-center text-sm text-gray-400 rounded-xl p-3 mb-2" style={{ background: "rgba(255,102,0,0.05)", border: "1px solid rgba(255,102,0,0.1)" }}>
                 OTP sent to <strong>{email}</strong>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                   6-Digit OTP
                 </label>
                 <input
@@ -203,7 +203,7 @@ const ForgotPasswordPage = () => {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                   placeholder="Enter OTP from email"
-                  className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 px-4 text-center text-xl font-bold tracking-[0.5em] text-gray-900 placeholder-gray-300 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                  className="input-fire text-center text-xl font-bold tracking-[0.5em]"
                 />
               </div>
               <button
@@ -230,7 +230,7 @@ const ForgotPasswordPage = () => {
           {step === 2 && (
             <form onSubmit={resetPassword} className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                   New Password
                 </label>
                 <div className="relative group">
@@ -242,7 +242,7 @@ const ForgotPasswordPage = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 pl-11 pr-11 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                    className="input-fire pl-11 pr-11"
                   />
                   <button
                     type="button"
@@ -258,7 +258,7 @@ const ForgotPasswordPage = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                   Confirm Password
                 </label>
                 <div className="relative group">
@@ -269,7 +269,7 @@ const ForgotPasswordPage = () => {
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     placeholder="Re-enter new password"
-                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                    className="input-fire pl-11 pr-11"
                   />
                 </div>
               </div>
@@ -278,14 +278,14 @@ const ForgotPasswordPage = () => {
                 disabled={loading}
                 className="btn-fire w-full py-3.5 rounded-xl text-base font-bold"
               >
-                {loading ? "Resetting…" : "Reset Password 🔐"}
+                {loading ? "Resetting…" : "Reset Password ðŸ”"}
               </button>
             </form>
           )}
         </div>
 
         {/* Back to login */}
-        <p className="text-center mt-6 text-sm text-gray-500">
+        <p className="text-center mt-6 text-sm text-gray-400">
           Remember your password?{" "}
           <Link to="/login" className="text-primary font-bold hover:underline">
             Back to Login

@@ -12,11 +12,11 @@ import {
 import api from "../services/api";
 
 const STATUS_MAP = {
-  processing: { label: "Processing", color: "badge-processing" },
-  packed: { label: "Packed", color: "badge-packed" },
-  shipped: { label: "Shipped", color: "badge-shipped" },
-  delivered: { label: "Delivered", color: "badge-delivered" },
-  cancelled: { label: "Cancelled", color: "badge-cancelled" },
+  processing: { label: "Processing", color: "text-blue-400 bg-blue-500/10" },
+  packed: { label: "Packed", color: "text-purple-400 bg-purple-500/10" },
+  shipped: { label: "Shipped", color: "text-amber-400 bg-amber-500/10" },
+  delivered: { label: "Delivered", color: "text-green-400 bg-green-500/10" },
+  cancelled: { label: "Cancelled", color: "text-red-400 bg-red-500/10" },
 };
 
 /* ─── Fireworks / Cracker Burst Canvas ─── */
@@ -250,26 +250,26 @@ const OrderSuccessPage = () => {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center min-h-96">
-        <div className="w-10 h-10 rounded-full border-4 border-orange-100 border-t-primary animate-spin" />
+      <div className="flex justify-center items-center min-h-96" style={{ background: "#0a0814" }}>
+        <div className="w-10 h-10 rounded-full border-4 border-surface-2 border-t-primary animate-spin" />
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-surface py-10 relative">
-      {/* 🎆 Full-page fireworks animation */}
+    <div className="min-h-screen py-10 relative" style={{ background: "#0a0814" }}>
+      {/* 🎇 Full-page fireworks animation */}
       <CrackerBurst />
 
-      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 relative z-10">
+      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 relative z-10 animate-fade-in-up">
         {/* Success Header */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-bounce">
-            <CheckCircle className="w-10 h-10 text-green-600" />
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce" style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)" }}>
+            <CheckCircle className="w-10 h-10 text-green-400" />
           </div>
-          <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-            Order Placed! 🎆
+          <h1 className="font-heading font-bold text-2xl text-white mb-1">
+            Order Placed! 🎇
           </h1>
-          <p className="text-gray-500">Your products are on their way!</p>
+          <p className="text-gray-400">Your products are on their way!</p>
           {order?.invoiceNo && (
             <p className="text-xs text-gray-400 mt-1 font-mono">
               Invoice: {order.invoiceNo}
@@ -278,23 +278,23 @@ const OrderSuccessPage = () => {
         </div>
 
         {order && (
-          <div className="bg-white rounded-2xl border border-orange-100 overflow-hidden shadow-sm">
+          <div className="rounded-2xl overflow-hidden shadow-sm border" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
             {/* Order Status */}
-            <div className="px-6 py-4 border-b border-orange-50 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
+              <div className="flex items-center gap-2 text-sm text-gray-400">
                 <Package className="w-4 h-4 text-primary" />
                 <span>Order Status</span>
               </div>
               <span
-                className={STATUS_MAP[order.orderStatus]?.color || "badge-gray"}
+                className={`inline-block px-2.5 py-1 text-xs font-bold rounded-md ${STATUS_MAP[order.orderStatus]?.color || "text-gray-400 bg-surface-2"}`}
               >
                 {STATUS_MAP[order.orderStatus]?.label}
               </span>
             </div>
 
             {/* Items */}
-            <div className="px-6 py-4 border-b border-orange-50">
-              <h3 className="font-semibold text-sm text-gray-700 mb-3">
+            <div className="px-6 py-4" style={{ borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
+              <h3 className="font-semibold text-sm text-gray-300 mb-3">
                 Items Ordered
               </h3>
               <div className="space-y-3">
@@ -304,12 +304,12 @@ const OrderSuccessPage = () => {
                     className="flex justify-between items-center text-sm"
                   >
                     <div>
-                      <p className="font-semibold text-gray-800">{item.name}</p>
+                      <p className="font-semibold text-white">{item.name}</p>
                       <p className="text-gray-400 text-xs">
-                        ₹{item.price} × {item.quantity}
+                        ₹{item.price} Ã— {item.quantity}
                       </p>
                     </div>
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-white">
                       ₹{item.subtotal}
                     </span>
                   </div>
@@ -319,11 +319,11 @@ const OrderSuccessPage = () => {
 
             {/* Shipping Address */}
             {order.shippingAddress && (
-              <div className="px-6 py-4 border-b border-orange-50">
-                <h3 className="font-semibold text-sm text-gray-700 mb-2 flex items-center gap-1.5">
+              <div className="px-6 py-4" style={{ borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
+                <h3 className="font-semibold text-sm text-gray-300 mb-2 flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-primary" /> Delivery Address
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-white">
                   {order.shippingAddress.fullName} ·{" "}
                   {order.shippingAddress.phone}
                 </p>
@@ -336,11 +336,11 @@ const OrderSuccessPage = () => {
             )}
 
             {/* Payment Method */}
-            <div className="px-6 py-4 border-b border-orange-50">
-              <h3 className="font-semibold text-sm text-gray-700 mb-2 flex items-center gap-1.5">
+            <div className="px-6 py-4" style={{ borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
+              <h3 className="font-semibold text-sm text-gray-300 mb-2 flex items-center gap-1.5">
                 <CreditCard className="w-4 h-4 text-primary" /> Payment Method
               </h3>
-              <p className="text-sm text-gray-600 capitalize">
+              <p className="text-sm text-white capitalize">
                 {order.paymentMethod === "cod"
                   ? "Cash on Delivery"
                   : order.paymentMethod === "upi"
@@ -348,8 +348,8 @@ const OrderSuccessPage = () => {
                   : "Online (Razorpay)"}
               </p>
               {order.paymentMethod === "cod" && order.paymentStatus === "pending" && (
-                <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
-                  <p className="text-xs text-blue-700 font-medium">
+                <div className="mt-3 p-3 rounded-xl" style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}>
+                  <p className="text-xs text-blue-400 font-medium">
                     Want to pay online instead?
                   </p>
                   {order.razorpayPaymentLinkUrl ? (
@@ -357,19 +357,19 @@ const OrderSuccessPage = () => {
                       href={order.razorpayPaymentLinkUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:underline"
+                      className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-blue-500 hover:underline"
                     >
                       Pay Online Now <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   ) : (
-                    <p className="text-[10px] text-blue-500 mt-1">
+                    <p className="text-[10px] text-blue-400/80 mt-1">
                       Payment link will be sent to your WhatsApp shortly.
                     </p>
                   )}
                 </div>
               )}
               {order.paymentStatus === "paid" && (
-                <p className="text-xs text-green-600 font-bold mt-1 flex items-center gap-1">
+                <p className="text-xs text-green-400 font-bold mt-1 flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" /> Payment Received
                 </p>
               )}
@@ -377,12 +377,12 @@ const OrderSuccessPage = () => {
 
             {/* Totals */}
             <div className="px-6 py-4 space-y-2 text-sm">
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-gray-400">
                 <span>Subtotal</span>
                 <span>₹{order.totalAmount?.toLocaleString("en-IN")}</span>
               </div>
               {order.slabDiscount > 0 && (
-                <div className="flex justify-between text-green-600">
+                <div className="flex justify-between text-green-400">
                   <span className="flex items-center gap-1">
                     Slab Discount
                     {order.slabLabel && (
@@ -393,17 +393,17 @@ const OrderSuccessPage = () => {
                 </div>
               )}
               {order.discount > 0 && !order.slabDiscount && (
-                <div className="flex justify-between text-green-600">
+                <div className="flex justify-between text-green-400">
                   <span>Discount</span>
                   <span>-₹{order.discount}</span>
                 </div>
               )}
-              <div className="flex justify-between font-heading font-bold text-base text-gray-900 border-t border-orange-50 pt-3">
+              <div className="flex justify-between font-heading font-bold text-base text-white pt-3" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
                 <span>{order.paymentStatus === "paid" ? "Total Paid" : "Total Payable"}</span>
                 <div className="text-right">
                   <span className="text-primary">₹{order.finalPayable?.toLocaleString("en-IN")}</span>
                   {order.slabDiscount > 0 && (
-                    <p className="text-xs text-green-600 font-semibold">
+                    <p className="text-xs text-green-400 font-semibold">
                       You saved ₹{order.slabDiscount?.toLocaleString("en-IN")}!
                     </p>
                   )}
@@ -416,13 +416,14 @@ const OrderSuccessPage = () => {
         <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Link
             to="/orders"
-            className="btn-fire flex-1 justify-center py-3 rounded-xl"
+            className="btn-fire flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold"
           >
             <Receipt className="w-4 h-4" /> My Orders
           </Link>
           <Link
             to="/products"
-            className="flex-1 flex items-center justify-center gap-2 py-3 px-5 bg-white border-2 border-primary text-primary rounded-xl font-semibold hover:bg-surface transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 py-3 px-5 text-primary rounded-xl font-semibold transition-colors"
+            style={{ border: "2px solid rgba(255,102,0,0.3)", background: "rgba(255,102,0,0.05)" }}
           >
             Continue Shopping <ArrowRight className="w-4 h-4" />
           </Link>

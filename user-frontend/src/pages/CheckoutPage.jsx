@@ -145,7 +145,7 @@ const CheckoutPage = () => {
             });
             if (verifyData.success) {
               clearCart();
-              toast.success("Order placed successfully! 🎆");
+              toast.success("Order placed successfully! 🎇");
               navigate(`/order-success/${verifyData.sale._id}`);
             }
           } catch (err) {
@@ -166,10 +166,10 @@ const CheckoutPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
       <SEO title="Checkout" />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
-        <h1 className="font-heading font-bold text-2xl text-gray-900 mb-8">
+        <h1 className="font-heading font-bold text-2xl text-white mb-8">
           Checkout
         </h1>
 
@@ -177,8 +177,8 @@ const CheckoutPage = () => {
           {/* Main Column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Items Section */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="font-heading font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
+            <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+              <h2 className="font-heading font-semibold text-lg text-white mb-4 flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5 text-primary" /> Review Items
               </h2>
               <div className="space-y-4">
@@ -188,31 +188,35 @@ const CheckoutPage = () => {
                   return (
                     <div
                       key={item._id}
-                      className="flex items-center gap-4 p-3 rounded-xl border border-gray-50 bg-surface/30"
+                      className="flex items-center gap-4 p-3 rounded-xl border border-transparent"
+                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
                     >
-                      <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-white border border-gray-100">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0" style={{ background: "#0f0d1a" }}>
                         {item.images?.[0]?.url ? (
                           <img
-                            src={item.images[0].url}
+                            src={item.images[0].url?.replace("/upload/", "/upload/q_auto,f_auto,w_100/")}
                             alt={item.name}
+                            crossOrigin="anonymous"
+                            width={64}
+                            height={64}
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+                          <div className="w-full h-full bg-gray-50 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)" }}>
                             <ShoppingBag className="w-6 h-6 text-gray-200" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-heading font-semibold text-sm text-gray-900 truncate">
+                        <h3 className="font-heading font-semibold text-sm text-white truncate">
                           {item.name}
                         </h3>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-xs text-gray-400 mt-0.5">
                           ₹{itemPrice.toLocaleString("en-IN")} × {item.quantity}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gray-900">
+                        <p className="font-bold text-white">
                           ₹{itemTotal.toLocaleString("en-IN")}
                         </p>
                       </div>
@@ -223,8 +227,8 @@ const CheckoutPage = () => {
             </div>
 
             {/* Address Section */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="font-heading font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
+            <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+              <h2 className="font-heading font-semibold text-lg text-white mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" /> Delivery Address
               </h2>
 
@@ -232,7 +236,8 @@ const CheckoutPage = () => {
                 {addresses.map((addr) => (
                   <label
                     key={addr._id}
-                    className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedAddr === addr._id ? "border-primary bg-surface" : "border-orange-100 hover:border-primary-light"}`}
+                    className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedAddr === addr._id ? "border-primary" : "hover:border-primary-light"}`}
+                    style={selectedAddr === addr._id ? { background: "rgba(255,102,0,0.05)" } : { background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.05)" }}
                   >
                     <input
                       type="radio"
@@ -243,10 +248,10 @@ const CheckoutPage = () => {
                       className="mt-1 accent-primary"
                     />
                     <div className="flex-1">
-                      <p className="font-semibold text-sm text-gray-900">
+                      <p className="font-semibold text-sm text-white">
                         {addr.fullName} · {addr.phone}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-400 mt-0.5">
                         {addr.addressLine1}
                         {addr.addressLine2
                           ? `, ${addr.addressLine2}`
@@ -273,7 +278,7 @@ const CheckoutPage = () => {
               </button>
 
               {showAddAddr && (
-                <div className="mt-4 p-4 bg-surface rounded-xl border border-orange-100 grid grid-cols-2 gap-3">
+                <div className="mt-4 p-4 rounded-xl grid grid-cols-2 gap-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,102,0,0.1)" }}>
                   {[
                     { id: "fullName", label: "Full Name", colSpan: 1 },
                     { id: "phone", label: "Phone", colSpan: 1 },
@@ -288,7 +293,7 @@ const CheckoutPage = () => {
                     { id: "pincode", label: "Pincode", colSpan: 1 },
                   ].map(({ id, label, colSpan }) => (
                     <div key={id} className={colSpan === 2 ? "col-span-2" : ""}>
-                      <label className="text-xs font-semibold text-gray-600 block mb-1">
+                      <label className="text-xs font-semibold text-gray-400 block mb-1">
                         {label}
                       </label>
                       <input
@@ -309,7 +314,8 @@ const CheckoutPage = () => {
                     </button>
                     <button
                       onClick={() => setShowAddAddr(false)}
-                      className="px-5 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="px-5 py-2 text-sm text-gray-400 rounded-lg hover:bg-surface-2 transition-colors"
+                      style={{ border: "1px solid rgba(255,102,0,0.1)" }}
                     >
                       Cancel
                     </button>
@@ -319,13 +325,14 @@ const CheckoutPage = () => {
             </div>
 
             {/* Payment Method Selection */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="font-heading font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
+            <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+              <h2 className="font-heading font-semibold text-lg text-white mb-4 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-primary" /> Payment Method
               </h2>
               <div className="grid grid-cols-1 gap-4">
                 <label
-                  className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all border-primary bg-surface`}
+                  className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all border-primary`}
+                  style={{ background: "rgba(255,102,0,0.05)" }}
                 >
                   <input
                     type="radio"
@@ -336,7 +343,7 @@ const CheckoutPage = () => {
                     className="accent-primary"
                   />
                   <div className="flex-1">
-                    <p className="font-semibold text-sm text-gray-900">
+                    <p className="font-semibold text-sm text-white">
                       Online Payment
                     </p>
                     <p className="text-xs text-gray-400">Cards, UPI, Netbanking</p>
@@ -347,49 +354,49 @@ const CheckoutPage = () => {
           </div>
 
           {/* Summary & Pay */}
-          <div className="bg-white rounded-2xl border border-orange-100 p-6 h-fit sticky top-24">
-            <h2 className="font-heading font-semibold text-lg text-gray-900 mb-5">
+          <div className="rounded-2xl p-6 h-fit sticky top-24" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+            <h2 className="font-heading font-semibold text-lg text-white mb-5">
               Order Summary
             </h2>
             <div className="space-y-2.5 text-sm">
               {cartItems.map((item) => {
                 const itemPrice = item.effectivePrice ?? item.discountedPrice ?? item.price;
                 return (
-                  <div key={item._id} className="flex justify-between text-gray-600">
+                  <div key={item._id} className="flex justify-between text-gray-400">
                     <span className="truncate max-w-[150px]">
-                      {item.name} × {item.quantity}
+                      {item.name} Ã— {item.quantity}
                     </span>
-                    <span className="font-semibold">
+                    <span className="font-semibold text-white">
                       ₹{(itemPrice * item.quantity).toLocaleString("en-IN")}
                     </span>
                   </div>
                 );
               })}
-              <div className="border-t border-orange-50 my-3" />
-              <div className="flex justify-between text-gray-600">
+              <div className="my-3" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }} />
+              <div className="flex justify-between text-gray-400">
                 <span>Subtotal</span>
-                <span>₹{subtotal.toLocaleString("en-IN")}</span>
+                <span className="text-white">₹{subtotal.toLocaleString("en-IN")}</span>
               </div>
               {slabDiscount > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-green-600 flex items-center gap-1">
+                  <span className="text-green-400 flex items-center gap-1">
                     <Sparkles className="w-3.5 h-3.5" /> Slab Discount
                   </span>
-                  <span className="font-bold text-green-600">
+                  <span className="font-bold text-green-400">
                     −₹{slabDiscount.toLocaleString("en-IN")}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-gray-400">
                 <span>Shipping</span>
-                <span className="text-green-600 font-semibold">FREE</span>
+                <span className="text-green-400 font-semibold">FREE</span>
               </div>
-              <div className="border-t border-orange-100 pt-3 flex justify-between font-heading font-bold text-gray-900 text-base">
+              <div className="pt-3 flex justify-between font-heading font-bold text-white text-base" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
                 <span>Total</span>
                 <div className="text-right">
                   <span className="text-primary">₹{finalAmount.toLocaleString("en-IN")}</span>
                   {slabDiscount > 0 && (
-                    <p className="text-xs text-green-600 font-semibold">
+                    <p className="text-xs text-green-400 font-semibold">
                       You save ₹{slabDiscount.toLocaleString("en-IN")}!
                     </p>
                   )}
@@ -397,9 +404,9 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* Minimum cart warning (safety - should have been caught on cart page) */}
+            {/* Minimum cart warning */}
             {!canCheckout && (
-              <div className="mt-3 bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2 text-xs text-red-700">
+              <div className="mt-3 rounded-xl p-3 flex items-start gap-2 text-xs text-red-400" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <p>Minimum order value is ₹{MIN_CART_VALUE.toLocaleString("en-IN")} to proceed with checkout.</p>
               </div>
@@ -408,7 +415,12 @@ const CheckoutPage = () => {
             <button
               onClick={handlePayment}
               disabled={payLoading || !canCheckout}
-              className="btn-fire w-full justify-center mt-5 py-3.5 text-base rounded-xl disabled:opacity-50"
+              className={`w-full justify-center mt-5 py-3.5 text-base rounded-xl flex items-center gap-2 font-bold transition-all ${
+                canCheckout
+                  ? "btn-fire"
+                  : "opacity-50 cursor-not-allowed"
+              }`}
+              style={!canCheckout ? { background: "#1a1726", color: "#555" } : {}}
             >
               {payLoading ? (
                 <>

@@ -125,12 +125,12 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-surface py-8">
+    <div className="min-h-screen py-8 animate-fade-in-up" style={{ background: "#0a0814" }}>
       <SEO title="My Profile" />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 space-y-6">
         {/* Profile */}
-        <div className="bg-white rounded-2xl border border-orange-100 p-6">
-          <h2 className="font-heading font-semibold text-lg text-gray-900 mb-5 flex items-center gap-2">
+        <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+          <h2 className="font-heading font-semibold text-lg text-white mb-5 flex items-center gap-2">
             <User className="w-5 h-5 text-primary" /> Profile Details
           </h2>
           <form
@@ -138,7 +138,7 @@ const ProfilePage = () => {
             className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
                 Full Name
               </label>
               <input
@@ -150,7 +150,7 @@ const ProfilePage = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
                 Phone
               </label>
               <input
@@ -162,7 +162,7 @@ const ProfilePage = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
                 Email (cannot change)
               </label>
               <input
@@ -171,7 +171,7 @@ const ProfilePage = () => {
                 className="input-fire opacity-60"
               />
             </div>
-            <div className="sm:col-span-2 flex gap-3">
+            <div className="sm:col-span-2 flex gap-3 mt-2">
               <button
                 type="submit"
                 disabled={savingProfile}
@@ -185,7 +185,7 @@ const ProfilePage = () => {
                   logout();
                   navigate("/");
                 }}
-                className="px-6 py-2.5 rounded-xl text-sm border-2 border-red-200 text-red-600 hover:bg-red-50 transition-colors font-semibold"
+                className="px-6 py-2.5 rounded-xl text-sm border-2 border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors font-semibold"
               >
                 Logout
               </button>
@@ -194,9 +194,9 @@ const ProfilePage = () => {
         </div>
 
         {/* Addresses */}
-        <div className="bg-white rounded-2xl border border-orange-100 p-6">
+        <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-heading font-semibold text-lg text-gray-900 flex items-center gap-2">
+            <h2 className="font-heading font-semibold text-lg text-white flex items-center gap-2">
               <MapPin className="w-5 h-5 text-primary" /> Saved Addresses
             </h2>
             <button
@@ -224,13 +224,14 @@ const ProfilePage = () => {
             {addresses.map((addr) => (
               <div
                 key={addr._id}
-                className="flex items-start gap-3 p-4 rounded-xl border border-orange-100 bg-surface"
+                className="flex items-start gap-3 p-4 rounded-xl border border-transparent transition-colors hover:border-primary-light"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
               >
                 <div className="flex-1">
-                  <p className="font-semibold text-sm text-gray-900">
+                  <p className="font-semibold text-sm text-white">
                     {addr.fullName} · {addr.phone}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-gray-400 mt-0.5">
                     {addr.addressLine1}
                     {addr.addressLine2 ? `, ${addr.addressLine2}` : ""},{" "}
                     {addr.city}, {addr.state} – {addr.pincode}
@@ -263,7 +264,7 @@ const ProfilePage = () => {
                   </button>
                   <button
                     onClick={() => setConfirmDelete({ open: true, id: addr._id, loading: false })}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -278,8 +279,8 @@ const ProfilePage = () => {
           </div>
 
           {showAddAddr && (
-            <div className="mt-4 p-4 bg-surface rounded-xl border border-orange-100 grid grid-cols-2 gap-3">
-              <h3 className="col-span-2 font-semibold text-sm text-gray-800">
+            <div className="mt-4 p-4 rounded-xl grid grid-cols-2 gap-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,102,0,0.1)" }}>
+              <h3 className="col-span-2 font-semibold text-sm text-gray-300">
                 {editingAddr ? "Edit Address" : "New Address"}
               </h3>
               {addrFields.map(({ id, label }) => (
@@ -291,7 +292,7 @@ const ProfilePage = () => {
                       : ""
                   }
                 >
-                  <label className="text-xs font-semibold text-gray-600 block mb-1">
+                  <label className="text-xs font-semibold text-gray-400 block mb-1">
                     {label}
                   </label>
                   <input
@@ -315,12 +316,12 @@ const ProfilePage = () => {
                 />
                 <label
                   htmlFor="isDefault"
-                  className="text-xs font-semibold text-gray-600"
+                  className="text-xs font-semibold text-gray-400"
                 >
                   Set as default address
                 </label>
               </div>
-              <div className="col-span-2 flex gap-3">
+              <div className="col-span-2 flex gap-3 mt-2">
                 <button
                   onClick={saveAddress}
                   className="btn-fire px-5 py-2 text-sm rounded-lg"
@@ -332,7 +333,8 @@ const ProfilePage = () => {
                     setShowAddAddr(false);
                     setEditingAddr(null);
                   }}
-                  className="px-5 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-5 py-2 text-sm text-gray-400 rounded-lg hover:bg-surface-2 transition-colors"
+                  style={{ border: "1px solid rgba(255,102,0,0.1)" }}
                 >
                   Cancel
                 </button>
@@ -342,8 +344,8 @@ const ProfilePage = () => {
         </div>
 
         {/* Change Password */}
-        <div className="bg-white w-full rounded-2xl border border-orange-100 p-6">
-          <h2 className="font-heading font-semibold text-lg text-gray-900 mb-5 flex items-center gap-2">
+        <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+          <h2 className="font-heading font-semibold text-lg text-white mb-5 flex items-center gap-2">
             <Lock className="w-5 h-5 text-primary" /> Change Password
           </h2>
           <form
@@ -374,7 +376,7 @@ const ProfilePage = () => {
             className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             <div className="relative">
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
                 Current Password
               </label>
               <input
@@ -388,7 +390,7 @@ const ProfilePage = () => {
               />
             </div>
             <div className="relative">
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
                 New Password
               </label>
               <input
@@ -403,7 +405,7 @@ const ProfilePage = () => {
               />
             </div>
             <div className="relative">
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
                 Confirm New Password
               </label>
               <input
@@ -416,7 +418,7 @@ const ProfilePage = () => {
                 className="input-fire"
               />
             </div>
-            <div className="sm:col-span-2 flex items-center gap-4">
+            <div className="sm:col-span-2 flex items-center gap-4 mt-2">
               <button
                 type="submit"
                 disabled={savingPwd}
@@ -427,7 +429,7 @@ const ProfilePage = () => {
               <button
                 type="button"
                 onClick={() => setShowPwd(!showPwd)}
-                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors"
+                className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-primary transition-colors"
               >
                 {showPwd ? (
                   <EyeOff className="w-4 h-4" />

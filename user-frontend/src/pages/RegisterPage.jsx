@@ -33,7 +33,7 @@ const RegisterPage = () => {
       const { data } = await api.post("/auth/register", form);
       if (data.success) {
         login(data.user, data.token);
-        toast.success("Account created! Welcome to V Crackers 🎆");
+        toast.success("Account created! Welcome to V Crackers 🎇");
         navigate(redirect);
       }
     } catch (err) {
@@ -73,10 +73,10 @@ const RegisterPage = () => {
   const formPanel = (
     <>
       <div className="mb-6">
-        <h1 className="font-heading font-black text-3xl text-gray-900 mb-1">
+        <h1 className="font-heading font-black text-3xl text-white mb-1">
           Create Account
         </h1>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-400 text-sm">
           Join <span className="text-primary font-semibold">V Crackers</span> –
           India's finest festive collections.
         </p>
@@ -85,7 +85,7 @@ const RegisterPage = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {fields.map(({ id, label, type, icon: Icon, placeholder }) => (
           <div key={id}>
-            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">
               {label} {id !== "email" && <span className="text-red-500">*</span>}
             </label>
             <div className="relative group">
@@ -96,7 +96,7 @@ const RegisterPage = () => {
                 value={form[id]}
                 onChange={(e) => setForm({ ...form, [id]: e.target.value })}
                 placeholder={placeholder}
-                className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-2.5 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+                className="input-fire pl-11 py-2.5"
               />
             </div>
           </div>
@@ -104,8 +104,8 @@ const RegisterPage = () => {
 
         {/* Password */}
         <div>
-          <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
-            Password
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+            Password <span className="text-red-500">*</span>
           </label>
           <div className="relative group">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
@@ -115,7 +115,7 @@ const RegisterPage = () => {
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               placeholder="Min 6 characters"
-              className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-2.5 pl-11 pr-11 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
+              className="input-fire pl-11 pr-11 py-2.5"
             />
             <button
               type="button"
@@ -136,12 +136,12 @@ const RegisterPage = () => {
           disabled={loading}
           className="btn-fire w-full py-3.5 rounded-xl text-base font-bold shadow-lg shadow-primary/25 mt-1"
         >
-          {loading ? "Creating Account…" : "Create Account 🎆"}
+          {loading ? "Creating Account…" : "Create Account 🎇"}
         </button>
       </form>
 
       {/* Toggle link */}
-      <p className="mt-6 pt-5 border-t border-gray-100 text-sm text-center text-gray-500">
+      <p className="mt-6 pt-5 text-sm text-center text-gray-400" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         Already have an account?{" "}
         <Link
           to={loginLink}

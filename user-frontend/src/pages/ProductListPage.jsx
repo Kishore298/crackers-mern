@@ -11,7 +11,7 @@ const Spinner = () => (
     <div
       className="w-9 h-9 rounded-full animate-spin"
       style={{
-        border: "3px solid #FFD4B8",
+        border: "3px solid rgba(255,102,0,0.15)",
         borderTopColor: "#ff6600",
       }}
     />
@@ -143,15 +143,15 @@ const ProductListPage = () => {
   const totalProductsShown = groupedCategories.reduce((acc, cat) => acc + (cat.products?.length || 0), 0);
 
   return (
-    <div className="min-h-screen bg-white relative">
+    <div className="min-h-screen relative" style={{ background: "#0a0814" }}>
       <SEO title={seoTitle} description={seoDesc} />
       {/* Page header */}
-      <div className="bg-surface border-b border-orange-100 py-8">
+      <div className="py-8" style={{ background: "#0f0d1a", borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
-          <h1 className="font-heading font-bold text-2xl sm:text-3xl text-gray-900">
-            {activeCatName ? `${activeCatName} 🎆` : "All Products 🎆"}
+          <h1 className="font-heading font-bold text-2xl sm:text-3xl text-white">
+            {activeCatName ? `${activeCatName} 🎇` : "All Products 🎇"}
           </h1>
-          <p className="text-gray-500 mt-1 text-sm">{totalProductsShown} products shown</p>
+          <p className="text-gray-400 mt-1 text-sm">{totalProductsShown} products shown</p>
         </div>
       </div>
 
@@ -166,17 +166,16 @@ const ProductListPage = () => {
               value={searchFilter}
               onChange={(e) => setFilter("search", e.target.value)}
               aria-label="Search products by name"
-              className="w-full pl-10 pr-4 py-2.5 border-2 rounded-xl text-sm outline-none transition-all border-orange-100 focus:border-primary"
-              style={{
-                "&:focus": { boxShadow: "0 0 0 3px rgba(255,69,0,0.12)" },
-              }}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+              style={{ background: "#13111f", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.12)" }}
             />
           </div>
           <select
             value={sortFilter}
             onChange={(e) => setFilter("sort", e.target.value)}
             aria-label="Sort products"
-            className="px-4 py-2.5 border-2 border-orange-100 rounded-xl text-sm outline-none focus:border-primary bg-white"
+            className="px-4 py-2.5 rounded-xl text-sm outline-none"
+            style={{ background: "#13111f", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.12)" }}
           >
             {sortOptions.map((o) => (
               <option key={o.value} value={o.value}>
@@ -186,7 +185,8 @@ const ProductListPage = () => {
           </select>
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="flex items-center gap-2 px-4 py-2.5 border-2 border-orange-100 rounded-xl text-sm font-medium hover:border-primary hover:text-primary transition-colors sm:hidden"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium hover:text-primary transition-colors sm:hidden"
+            style={{ border: "1px solid rgba(255,102,0,0.12)", color: "#9ca3af" }}
           >
             <Filter className="w-4 h-4" /> Filters
           </button>
@@ -194,9 +194,9 @@ const ProductListPage = () => {
 
         {/* Mobile filter drawer */}
         {showFilter && (
-          <div className="sm:hidden mb-4 bg-surface rounded-2xl border border-orange-100 p-4">
+          <div className="sm:hidden mb-4 rounded-2xl p-4" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-heading font-semibold text-sm text-gray-900">
+              <h3 className="font-heading font-semibold text-sm text-white">
                 Categories
               </h3>
               <button
@@ -212,14 +212,14 @@ const ProductListPage = () => {
                   setFilter("category", "");
                   setShowFilter(false);
                 }}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${!categoryFilter ? "text-white" : "bg-white text-gray-600 border border-gray-200 hover:text-primary"}`}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${!categoryFilter ? "text-white" : "text-gray-400"}`}
                 style={
                   !categoryFilter
                     ? {
                         background:
                           "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                       }
-                    : {}
+                    : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,102,0,0.1)" }
                 }
               >
                 All
@@ -231,14 +231,14 @@ const ProductListPage = () => {
                     setFilter("category", cat._id);
                     setShowFilter(false);
                   }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${categoryFilter === cat._id ? "text-white" : "bg-white text-gray-600 border border-gray-200 hover:text-primary"}`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${categoryFilter === cat._id ? "text-white" : "text-gray-400"}`}
                   style={
                     categoryFilter === cat._id
                       ? {
                           background:
                             "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
                         }
-                      : {}
+                      : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,102,0,0.1)" }
                   }
                 >
                   {cat.name}
@@ -251,14 +251,14 @@ const ProductListPage = () => {
         <div className="flex gap-6">
           {/* Sidebar filters - desktop */}
           <aside className="hidden sm:block w-56 shrink-0">
-            <div className="bg-surface rounded-2xl border border-orange-100 p-5 sticky top-24">
-              <h3 className="font-heading font-semibold text-sm text-gray-900 mb-4">
+            <div className="rounded-2xl p-5 sticky top-24" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+              <h3 className="font-heading font-semibold text-sm text-white mb-4">
                 Categories
               </h3>
               <div className="space-y-1.5">
                 <button
                   onClick={() => setFilter("category", "")}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${!categoryFilter ? "bg-primary text-white font-semibold" : "text-gray-600 hover:bg-white hover:text-primary"}`}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${!categoryFilter ? "bg-primary text-white font-semibold" : "text-gray-400 hover:bg-surface-2 hover:text-primary"}`}
                 >
                   All Products
                 </button>
@@ -266,7 +266,7 @@ const ProductListPage = () => {
                   <button
                     key={cat._id}
                     onClick={() => setFilter("category", cat._id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${categoryFilter === cat._id ? "bg-primary text-white font-semibold" : "text-gray-600 hover:bg-white hover:text-primary"}`}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${categoryFilter === cat._id ? "bg-primary text-white font-semibold" : "text-gray-400 hover:bg-surface-2 hover:text-primary"}`}
                   >
                     {cat.name}
                   </button>
@@ -281,8 +281,8 @@ const ProductListPage = () => {
               <Spinner />
             ) : groupedCategories.length === 0 ? (
               <div className="text-center py-20 text-gray-400">
-                <div className="text-5xl mb-4">🎆</div>
-                <h3 className="font-heading font-bold text-xl text-gray-600 mb-2">
+                <div className="text-5xl mb-4">🎇</div>
+                <h3 className="font-heading font-bold text-xl text-gray-400 mb-2">
                   No products found
                 </h3>
                 <p className="text-sm">Try adjusting your filters</p>
@@ -290,15 +290,16 @@ const ProductListPage = () => {
             ) : (
               <div className="space-y-10">
                 {groupedCategories.map((cat) => (
-                  <div key={cat._id} className="bg-white rounded-2xl border border-orange-100 overflow-hidden shadow-sm">
+                  <div key={cat._id} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
                     {/* Category Header */}
-                    <div className="w-full flex items-center p-4 sm:p-5 bg-surface text-left">
+                    <div className="w-full flex items-center p-4 sm:p-5 text-left" style={{ background: "rgba(255,255,255,0.02)" }}>
                       <div className="flex items-center gap-3">
                         {cat.image ? (
                           <img
                             src={cat.image}
                             alt={cat.name}
-                            className="w-10 h-10 rounded-full object-cover border border-white shadow-sm"
+                            className="w-10 h-10 rounded-full object-cover shadow-sm"
+                            style={{ border: "1px solid rgba(255,102,0,0.15)" }}
                           />
                         ) : (
                           <div
@@ -307,16 +308,16 @@ const ProductListPage = () => {
                           />
                         )}
                         <div>
-                          <h3 className="font-heading font-bold text-gray-900 text-lg sm:text-xl flex items-center gap-2">
+                          <h3 className="font-heading font-bold text-white text-lg sm:text-xl flex items-center gap-2">
                             {cat.name} 
-                            <span className="text-sm font-normal text-gray-500">({cat.productCount})</span>
+                            <span className="text-sm font-normal text-gray-400">({cat.productCount})</span>
                           </h3>
                         </div>
                       </div>
                     </div>
                     
                     {/* Category Body (Products Grid) */}
-                    <div className="p-4 sm:p-6 border-t border-orange-50">
+                    <div className="p-4 sm:p-6" style={{ borderTop: "1px solid rgba(255,102,0,0.06)" }}>
                       {cat.products && cat.products.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                           {cat.products.map((p) => (

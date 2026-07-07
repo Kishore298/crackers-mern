@@ -60,7 +60,7 @@ const AuthBanner = ({
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-8 py-10 text-white gap-5">
         {/* Logo */}
         <img
-          src="/v-crackers-logo.png"
+          src="/v-crackers-logo.webp"
           alt="V Crackers"
           className="h-32 w-auto object-contain brightness-0 invert opacity-90"
         />

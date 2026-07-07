@@ -2,9 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/v-crackers-logo.png" />
+    <link rel="icon" href="%PUBLIC_URL%/v-crackers-logo.webp" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#ff6600" />
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://api.vcrackers.in" />
+    <link rel="preconnect" href="https://res.cloudinary.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Preload LCP image -->
+    <link rel="preload" as="image" href="%PUBLIC_URL%/festive-banner.webp" fetchpriority="high" />
     <meta name="description" content="Buy high-quality Sivakasi crackers, fireworks, and gift boxes online at V Crackers. The most trusted brand for all your festive celebrations." />
     
     <!-- Open Graph / Facebook / WhatsApp -->
@@ -12,7 +20,7 @@
     <meta property="og:url" content="https://vcrackers.in/" />
     <meta property="og:title" content="V Crackers | Buy Premium Sivakasi Crackers Online" />
     <meta property="og:description" content="Premium Sivakasi crackers, fireworks, and gift boxes at best prices. Order online for safe and grand celebrations." />
-    <meta property="og:image" content="%PUBLIC_URL%/v-crackers-logo.png" />
+    <meta property="og:image" content="%PUBLIC_URL%/v-crackers-logo.webp" />
     <meta property="og:site_name" content="V Crackers" />
 
     <!-- Twitter -->
@@ -20,7 +28,7 @@
     <meta property="twitter:url" content="https://vcrackers.in/" />
     <meta property="twitter:title" content="V Crackers | Buy Premium Sivakasi Crackers Online" />
     <meta property="twitter:description" content="Premium Sivakasi crackers, fireworks, and gift boxes at best prices. Order online for safe and grand celebrations." />
-    <meta property="twitter:image" content="%PUBLIC_URL%/v-crackers-logo.png" />
+    <meta property="twitter:image" content="%PUBLIC_URL%/v-crackers-logo.webp" />
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -28,7 +36,7 @@
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
         "name": "V Crackers",
-        "image": "https://vcrackers.in/v-crackers-logo.png",
+        "image": "https://vcrackers.in/v-crackers-logo.webp",
         "@id": "https://vcrackers.in/",
         "url": "https://vcrackers.in/",
         "telephone": "+91 00000 00000",
@@ -68,7 +76,7 @@
     <div id="root">
       <!-- Static content for crawlers and slow connections -->
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; color: #333; padding: 20px;">
-        <img src="%PUBLIC_URL%/v-crackers-logo.png" alt="V Crackers Logo" style="width: 150px; margin-bottom: 20px;" />
+        <img src="%PUBLIC_URL%/v-crackers-logo.webp" alt="V Crackers Logo" width="150" height="150" style="width: 150px; height: 150px; margin-bottom: 20px; object-fit: contain;" />
         <h1>V Crackers</h1>
         <p>Buy High-Quality Sivakasi Crackers & Fireworks Online</p>
         <p style="color: #666; font-size: 0.9rem;">Loading the best experience for your celebrations...</p>

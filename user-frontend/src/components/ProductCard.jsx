@@ -38,17 +38,20 @@ const ProductCard = ({ product, discountPct = 0 }) => {
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.45, ease: "easeOut" }}
       whileHover={{ y: -4 }}
-      className="group bg-white rounded-2xl border border-orange-100 shadow-sm transition-shadow duration-250 overflow-hidden flex flex-col"
+      className="group rounded-2xl transition-shadow duration-250 overflow-hidden flex flex-col"
+      style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}
     >
       {/* Image */}
       <Link
         to={`/products/${product.slug}`}
-        className="relative overflow-hidden block aspect-[4/3] bg-surface"
+        className="relative overflow-hidden block aspect-[4/3]"
+        style={{ background: "#0f0d1a" }}
       >
         {product.images?.[0]?.url ? (
           <img
-            src={product.images[0].url}
+            src={product.images[0].url?.replace("/upload/", "/upload/q_auto,f_auto,w_400/")}
             alt={product.name}
+            crossOrigin="anonymous"
             width={240}
             height={180}
             loading="lazy"
@@ -59,7 +62,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             className="w-full h-full"
             style={{
               background:
-                "linear-gradient(135deg, #FFE4D0 0%, #FFB347 60%, #ff6600 100%)",
+                "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)",
             }}
           />
         )}
@@ -82,16 +85,16 @@ const ProductCard = ({ product, discountPct = 0 }) => {
       {/* Content */}
       <div className="p-2 md:p-4 flex flex-col flex-1 gap-1 md:gap-2">
         <Link to={`/products/${product.slug}`}>
-          <h3 className="font-heading font-semibold text-gray-900 text-xs sm:text-sm leading-snug hover:text-primary transition-colors line-clamp-2">
+          <h3 className="font-heading font-semibold text-white text-xs sm:text-sm md:text-base leading-snug hover:text-primary transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
 
-        {product.category?.name && (
-          <span className="text-xs text-gray-600 font-medium">
+        {/* {product.category?.name && (
+          <span className="text-xs text-gray-400 font-medium">
             {product.category.name}
           </span>
-        )}
+        )} */}
 
         {/* Pricing */}
         <div className="flex items-center gap-2 mt-auto">
@@ -99,17 +102,17 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             ₹{effectivePrice}
           </span>
           {showDiscount && (
-            <span className="text-xs text-gray-500 line-through">
+            <span className="text-xs text-gray-400 line-through">
               ₹{basePrice}
             </span>
           )}
           {product.stock <= 10 && product.stock > 0 && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white">
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400">
               Few left!
             </span>
           )}
           {product.stock === 0 && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-600 text-white">
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/20 text-red-400">
               Out of stock
             </span>
           )}
@@ -119,17 +122,17 @@ const ProductCard = ({ product, discountPct = 0 }) => {
         {product.stock > 0 ? (
           <div className="flex items-center gap-1 md:gap-2 mt-1">
             {/* Quantity Selector */}
-            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+            <div className="flex items-center rounded-xl overflow-hidden" style={{ border: "1px solid rgba(255,102,0,0.15)" }}>
               <button
                 type="button"
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
                 aria-label="Decrease quantity"
-                className="w-6 h-8 md:w-8 md:h-9 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                className="w-6 h-8 md:w-8 md:h-9 flex items-center justify-center text-gray-400 hover:bg-surface-2 transition-colors"
               >
                 <Minus className="w-3 h-3 md:w-3.5 md:h-3.5" />
               </button>
 
-              <span className="w-6 md:w-8 text-center text-sm font-bold text-gray-800">
+              <span className="w-6 md:w-8 text-center text-sm font-bold text-white">
                 {qty}
               </span>
 
@@ -137,7 +140,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
                 type="button"
                 onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
                 aria-label="Increase quantity"
-                className="w-6 h-8 md:w-8 md:h-9 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                className="w-6 h-8 md:w-8 md:h-9 flex items-center justify-center text-gray-400 hover:bg-surface-2 transition-colors"
               >
                 <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
               </button>
@@ -147,12 +150,12 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             <button
               onClick={handleAdd}
               aria-label={`Add ${product.name} to cart`}
-              className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-white"
+              className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-2 rounded-xl text-[10px] md:text-md lg:text-lg font-semibold transition-all duration-200 text-white"
               style={{
                 background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
               }}
             >
-              <ShoppingCart className="w-4 h-4" />
+              <ShoppingCart className="w-3 h-3 md:w-4 md:h-4" />
               Add
             </button>
           </div>
@@ -160,7 +163,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
           <button
             disabled
             className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold mt-1 opacity-50 cursor-not-allowed"
-            style={{ background: "#f3f4f6", color: "#9ca3af" }}
+            style={{ background: "#1a1726", color: "#555" }}
           >
             <ShoppingCart className="w-4 h-4" />
             Out of Stock

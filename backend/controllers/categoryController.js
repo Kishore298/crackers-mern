@@ -8,11 +8,43 @@ const slugify = (text) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
+const CATEGORY_ORDER = [
+  "Single  sound crackers",
+  "Premium Bombs",
+  "Paper Bombs",
+  "K-Series",
+  "Flower Pots",
+  "Special Mud Pots",
+  "Ground Chakkars",
+  "Premium Rockets",
+  "Twinkling Star and Special Candles",
+  "Sparklers",
+  "Colour Matches",
+  "Fancy Skyshots",
+  "Peacock Series",
+  "2026 Special Fountains and New Arrivals"
+];
+
+const getSortIndex = (name) => {
+  const index = CATEGORY_ORDER.findIndex(
+    (cat) => cat.toLowerCase().replace(/\s+/g, " ").trim() === name.toLowerCase().replace(/\s+/g, " ").trim()
+  );
+  return index === -1 ? 999 : index;
+};
+
 // GET /api/categories (public)
 const getCategories = async (req, res) => {
   try {
     const filter = req.query.all === "true" ? {} : { isActive: true };
-    const categories = await Category.find(filter).sort({ name: 1 });
+    const categories = await Category.find(filter);
+    categories.sort((a, b) => {
+      const indexA = getSortIndex(a.name);
+      const indexB = getSortIndex(b.name);
+      if (indexA === 999 && indexB === 999) {
+        return a.name.localeCompare(b.name);
+      }
+      return indexA - indexB;
+    });
     res.json({ success: true, categories });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -128,12 +160,18 @@ const getCategoriesWithProducts = async (req, res) => {
     let catFilter = { isActive: true };
     if (category) catFilter._id = category;
 
-    const categories = await Category.find(catFilter)
-      .sort({ name: 1 })
-      .skip(skip)
-      .limit(limit);
+    const allCategories = await Category.find(catFilter);
+    allCategories.sort((a, b) => {
+      const indexA = getSortIndex(a.name);
+      const indexB = getSortIndex(b.name);
+      if (indexA === 999 && indexB === 999) {
+        return a.name.localeCompare(b.name);
+      }
+      return indexA - indexB;
+    });
 
-    const totalCategories = await Category.countDocuments(catFilter);
+    const totalCategories = allCategories.length;
+    const categories = allCategories.slice(skip, skip + limit);
     const categoryIds = categories.map((c) => c._id);
 
     let productFilter = {

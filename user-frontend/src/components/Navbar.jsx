@@ -30,7 +30,7 @@ const Navbar = () => {
     api
       .get("/categories")
       .then((r) => setCategories(r.data.categories || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleLogout = () => {
@@ -57,7 +57,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-orange-100 shadow-sm">
+    <header className="sticky top-0 z-50 border-b shadow-sm" style={{ background: "#0d0b1a", borderColor: "rgba(255,102,0,0.1)" }}>
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-[70px] md:h-[100px]">
           {/* Logo */}
@@ -67,7 +67,7 @@ const Navbar = () => {
             aria-label="V Crackers - Return to Home"
           >
             <img
-              src="/v-crackers-logo.png"
+              src="/v-crackers-logo.webp"
               alt="V Crackers Logo"
               width={60}
               height={60}
@@ -79,7 +79,7 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center gap-6">
             <Link
               to="/"
-              className="text-sm font-semibold text-gray-700 hover:text-primary transition-colors"
+              className="text-sm font-semibold text-gray-300 hover:text-primary transition-colors"
             >
               Home
             </Link>
@@ -93,7 +93,7 @@ const Navbar = () => {
               <button
                 onClick={() => setCatOpen(!catOpen)}
                 aria-label="Toggle Categories Menu"
-                className="flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-primary transition-colors"
+                className="flex items-center gap-1 text-sm font-semibold text-gray-300 hover:text-primary transition-colors"
               >
                 All Categories
                 <ChevronDown
@@ -102,35 +102,35 @@ const Navbar = () => {
               </button>
 
               {catOpen && (
-                <div className="absolute left-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-orange-100 py-2 z-50 max-h-[70vh] overflow-y-auto">
+                <div className="absolute left-0 top-full mt-2 w-56 rounded-xl shadow-xl py-2 z-50 max-h-[70vh] overflow-y-auto" style={{ background: "#1a1726", border: "1px solid rgba(255,102,0,0.12)" }}>
                   <Link
                     to="/products"
                     onClick={() => setCatOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-surface transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-surface-2 transition-colors"
                   >
                     View All Products
                   </Link>
-                  <div className="border-t border-orange-50 my-1" />
+                  <div className="my-1" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }} />
                   {otherCategories.map((cat) => (
                     <Link
                       key={cat._id}
                       to={`/products?category=${cat._id}`}
                       onClick={() => setCatOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-surface hover:text-primary transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:bg-surface-2 hover:text-primary transition-colors"
                     >
                       {cat.image ? (
                         <img
-                          src={cat.image}
+                          src={cat.image?.replace("/upload/", "/upload/q_auto,f_auto,w_50/")}
                           alt=""
+                          crossOrigin="anonymous"
+                          width={20}
+                          height={20}
                           className="w-5 h-5 rounded-full object-cover"
                         />
                       ) : (
                         <div
                           className="w-5 h-5 rounded-full shrink-0"
-                          style={{
-                            background:
-                              "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                          }}
+                          style={{ background: "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)" }}
                         />
                       )}
                       {cat.name}
@@ -138,11 +138,11 @@ const Navbar = () => {
                   ))}
                   {giftCategory && (
                     <>
-                      <div className="border-t border-orange-50 my-1" />
+                      <div className="my-1" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }} />
                       <Link
                         to={`/products?category=${giftCategory._id}`}
                         onClick={() => setCatOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-amber-400 hover:bg-surface-2 transition-colors"
                       >
                         <Gift className="w-4 h-4 text-amber-500" />
                         {giftCategory.name} 🎁
@@ -157,7 +157,7 @@ const Navbar = () => {
             {giftCategory && (
               <Link
                 to={`/products?category=${giftCategory._id}`}
-                className="flex items-center gap-1.5 text-sm font-semibold text-amber-700 hover:text-amber-900 transition-colors"
+                className="flex items-center gap-1.5 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
               >
                 <Gift className="w-4 h-4" />
                 Gift Boxes
@@ -170,10 +170,10 @@ const Navbar = () => {
             {/* Cart */}
             <Link
               to="/cart"
-              className="relative p-1.5 hover:bg-surface rounded-xl transition-colors flex flex-col items-center min-w-[44px]"
+              className="relative p-1.5 hover:bg-surface-2 rounded-xl transition-colors flex flex-col items-center min-w-[44px]"
             >
               <div className="relative">
-                <ShoppingCart className="w-6 h-6 text-gray-700" />
+                <ShoppingCart className="w-6 h-6 text-gray-300" />
                 {itemCount > 0 && (
                   <span
                     className="absolute -top-2 -right-2 w-5 h-5 rounded-full text-white text-[10px] flex items-center justify-center font-bold"
@@ -200,7 +200,7 @@ const Navbar = () => {
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   aria-label="Open User Menu"
-                  className="flex items-center gap-1.5 px-2 py-2 rounded-lg hover:bg-surface transition-colors text-sm font-medium text-gray-700"
+                  className="flex items-center gap-1.5 px-2 py-2 rounded-lg hover:bg-surface-2 transition-colors text-sm font-medium text-gray-300"
                 >
                   <User className="w-5 h-5" />
                   <span className="hidden sm:block text-xs">
@@ -209,25 +209,25 @@ const Navbar = () => {
                   <ChevronDown className="w-4 h-4 hidden sm:block" />
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-lg border border-orange-100 py-1 z-50">
+                  <div className="absolute right-0 top-full mt-2 w-44 rounded-xl shadow-lg py-1 z-50" style={{ background: "#1a1726", border: "1px solid rgba(255,102,0,0.12)" }}>
                     <Link
                       to="/orders"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface hover:text-primary transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-surface-2 hover:text-primary transition-colors"
                     >
                       <Package className="w-4 h-4" /> My Orders
                     </Link>
                     <Link
                       to="/profile"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-surface hover:text-primary transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-surface-2 hover:text-primary transition-colors"
                     >
                       <User className="w-4 h-4" /> Profile
                     </Link>
-                    <div className="border-t border-orange-50 my-1" />
+                    <div className="my-1" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }} />
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                     >
                       <LogOut className="w-4 h-4" /> Logout
                     </button>
@@ -244,12 +244,12 @@ const Navbar = () => {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Close Menu" : "Open Menu"}
-              className="md:hidden p-2 rounded-lg hover:bg-surface transition-colors"
+              className="md:hidden p-2 rounded-lg hover:bg-surface-2 transition-colors"
             >
               {menuOpen ? (
-                <X className="w-5 h-5 text-gray-700" />
+                <X className="w-5 h-5 text-gray-300" />
               ) : (
-                <Menu className="w-5 h-5 text-gray-700" />
+                <Menu className="w-5 h-5 text-gray-300" />
               )}
             </button>
           </div>
@@ -257,25 +257,25 @@ const Navbar = () => {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-orange-50 py-3 space-y-1 max-h-[70vh] overflow-y-auto">
+          <div className="md:hidden py-3 space-y-1 max-h-[70vh] overflow-y-auto" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
             <Link
               to="/"
               onClick={() => setMenuOpen(false)}
-              className="block px-4 py-2.5 text-sm font-semibold text-gray-700 hover:text-primary hover:bg-surface rounded-lg transition-colors"
+              className="block px-4 py-2.5 text-sm font-semibold text-gray-300 hover:text-primary hover:bg-surface-2 rounded-lg transition-colors"
             >
               Home
             </Link>
             <Link
               to="/products"
               onClick={() => setMenuOpen(false)}
-              className="block px-4 py-2.5 text-sm font-semibold text-gray-700 hover:text-primary hover:bg-surface rounded-lg transition-colors"
+              className="block px-4 py-2.5 text-sm font-semibold text-gray-300 hover:text-primary hover:bg-surface-2 rounded-lg transition-colors"
             >
               All Products
             </Link>
 
             {/* Mobile categories — collapsible */}
             <div className="px-3 pt-2">
-              <p className="text-xs font-bold text-gray-600 uppercase tracking-wider px-1 mb-2">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1 mb-2">
                 Categories
               </p>
               <div className="space-y-0.5">
@@ -284,21 +284,21 @@ const Navbar = () => {
                     key={cat._id}
                     to={`/products?category=${cat._id}`}
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-surface rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-primary hover:bg-surface-2 rounded-lg transition-colors"
                   >
                     {cat.image ? (
                       <img
-                        src={cat.image}
+                        src={cat.image?.replace("/upload/", "/upload/q_auto,f_auto,w_50/")}
                         alt=""
+                        crossOrigin="anonymous"
+                        width={20}
+                        height={20}
                         className="w-5 h-5 rounded-full object-cover"
                       />
                     ) : (
                       <div
                         className="w-5 h-5 rounded-full shrink-0"
-                        style={{
-                          background:
-                            "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                        }}
+                        style={{ background: "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)" }}
                       />
                     )}
                     {cat.name}
@@ -312,11 +312,12 @@ const Navbar = () => {
               <Link
                 to={`/products?category=${giftCategory._id}`}
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 mx-3 px-3 py-2.5 text-sm font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors border border-amber-200"
+                className="flex items-center gap-2 mx-3 px-3 py-2.5 text-sm font-semibold text-amber-400 rounded-lg transition-colors"
+                style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}
               >
                 <Gift className="w-4 h-4 text-amber-500" />
                 {giftCategory.name} 🎁
-              </Link>
+                      </Link>
             )}
           </div>
         )}

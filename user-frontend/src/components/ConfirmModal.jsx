@@ -19,22 +19,22 @@ const ConfirmModal = ({
 
   const typeConfig = {
     danger: {
-      icon: <Trash2 className="w-8 h-8 text-red-500" />,
-      btnClass: "bg-red-600 hover:bg-red-700 shadow-red-100",
-      bgClass: "bg-red-50",
-      accent: "border-red-100",
+      icon: <Trash2 className="w-8 h-8 text-red-400" />,
+      btnClass: "bg-red-600 hover:bg-red-700 shadow-red-900/30",
+      bgClass: "bg-red-500/10",
+      accent: "border-red-500/20",
     },
     warning: {
-      icon: <AlertCircle className="w-8 h-8 text-amber-500" />,
-      btnClass: "bg-amber-600 hover:bg-amber-700 shadow-amber-100",
-      bgClass: "bg-amber-50",
-      accent: "border-amber-100",
+      icon: <AlertCircle className="w-8 h-8 text-amber-400" />,
+      btnClass: "bg-amber-600 hover:bg-amber-700 shadow-amber-900/30",
+      bgClass: "bg-amber-500/10",
+      accent: "border-amber-500/20",
     },
     info: {
-      icon: <HelpCircle className="w-8 h-8 text-blue-500" />,
-      btnClass: "bg-blue-600 hover:bg-blue-700 shadow-blue-100",
-      bgClass: "bg-blue-50",
-      accent: "border-blue-100",
+      icon: <HelpCircle className="w-8 h-8 text-blue-400" />,
+      btnClass: "bg-blue-600 hover:bg-blue-700 shadow-blue-900/30",
+      bgClass: "bg-blue-500/10",
+      accent: "border-blue-500/20",
     },
   };
 
@@ -44,12 +44,12 @@ const ConfirmModal = ({
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Card */}
-      <div className="relative bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transition-all transform scale-100 border border-gray-100">
+      <div className="relative rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transition-all transform scale-100" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
         <div className="p-8 text-center">
           {/* Animated Icon Container */}
           <div
@@ -58,10 +58,10 @@ const ConfirmModal = ({
             {config.icon}
           </div>
 
-          <h3 className="text-2xl font-bold text-gray-900 mb-3 font-heading">
+          <h3 className="text-2xl font-bold text-white mb-3 font-heading">
             {title}
           </h3>
-          <p className="text-gray-500 text-sm mb-10 leading-relaxed px-2">
+          <p className="text-gray-400 text-sm mb-10 leading-relaxed px-2">
             {message}
           </p>
 
@@ -69,7 +69,6 @@ const ConfirmModal = ({
             <button
               onClick={() => {
                 onConfirm();
-                // onClose(); // Let the parent handle closing after confirm if needed
               }}
               disabled={loading}
               className={`w-full px-6 py-3.5 rounded-2xl text-white font-bold text-base transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 ${config.btnClass}`}
@@ -79,7 +78,8 @@ const ConfirmModal = ({
             <button
               onClick={onClose}
               disabled={loading}
-              className="w-full px-6 py-3.5 rounded-2xl border border-gray-100 text-gray-500 font-bold text-base hover:bg-gray-50 transition-colors"
+              className="w-full px-6 py-3.5 rounded-2xl text-gray-400 font-bold text-base hover:bg-surface-2 transition-colors"
+              style={{ border: "1px solid rgba(255,102,0,0.1)" }}
             >
               {cancelText}
             </button>
@@ -90,7 +90,7 @@ const ConfirmModal = ({
         <button
           onClick={onClose}
           disabled={loading}
-          className="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-full hover:bg-surface-2 text-gray-400 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>

@@ -18,7 +18,7 @@ const Footer = () => {
     api
       .get("/categories")
       .then((r) => setCategories(r.data.categories || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const giftCategory = categories.find((c) =>
@@ -29,9 +29,9 @@ const Footer = () => {
   );
 
   return (
-    <footer className="bg-gray-950 text-gray-300 pt-14 pb-6">
-      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 mb-10">
+    <footer className="text-gray-300 pt-2 pb-6" style={{ background: "#080610" }}>
+      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 pt-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-10 mb-10">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link
@@ -40,7 +40,7 @@ const Footer = () => {
               aria-label="V Crackers Home"
             >
               <img
-                src="/v-crackers-logo.png"
+                src="/v-crackers-logo.webp"
                 alt="V Crackers Logo"
                 width={64}
                 height={64}
@@ -90,9 +90,9 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-heading font-semibold text-white text-sm mb-4">
+            <h3 className="font-heading font-semibold text-white text-sm mb-4">
               Quick Links
-            </h4>
+            </h3>
             <ul className="space-y-2">
               {[
                 { label: "About Us", to: "/about" },
@@ -114,11 +114,11 @@ const Footer = () => {
           </div>
 
           {/* Categories — Dynamic */}
-          <div>
-            <h4 className="font-heading font-semibold text-white text-sm mb-4">
+          <div className="col-span-1 lg:col-span-2">
+            <h3 className="font-heading font-semibold text-white text-sm mb-4">
               Categories
-            </h4>
-            <ul className="space-y-2">
+            </h3>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
               {otherCategories.map((cat) => (
                 <li key={cat._id}>
                   <Link
@@ -131,7 +131,7 @@ const Footer = () => {
               ))}
               {/* Gift Boxes — highlighted */}
               {giftCategory && (
-                <li>
+                <li className="sm:col-span-2">
                   <Link
                     to={`/products?category=${giftCategory._id}`}
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors mt-1"
@@ -146,9 +146,9 @@ const Footer = () => {
 
           {/* Policies (New) */}
           <div className="col-span-1">
-            <h4 className="font-heading font-semibold text-white text-sm mb-4">
+            <h3 className="font-heading font-semibold text-white text-sm mb-4">
               Policies
-            </h4>
+            </h3>
             <ul className="space-y-2">
               {[
                 { label: "Privacy Policy", to: "/privacy-policy" },
@@ -171,9 +171,9 @@ const Footer = () => {
 
           {/* Contact */}
           <div className="col-span-1">
-            <h4 className="font-heading font-semibold text-white text-sm mb-4">
+            <h3 className="font-heading font-semibold text-white text-sm mb-4">
               Contact Us
-            </h4>
+            </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm text-gray-400">
                 <MapPin className="w-5 h-5 text-primary mt-1 shrink-0" />
@@ -206,16 +206,16 @@ const Footer = () => {
                   href="mailto:vcrackerssivakasi@gmail.com"
                   className="hover:text-primary transition-colors break-all"
                 >
-                vcrackerssivakasi@gmail.com
+                  vcrackerssivakasi@gmail.com
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <p>© {new Date().getFullYear()} V Crackers. All rights reserved.</p>
-          <p>🎆 Celebrate responsibly. Keep products away from children.</p>
+          <p>🎇 Celebrate responsibly. Keep products away from children.</p>
         </div>
       </div>
     </footer>

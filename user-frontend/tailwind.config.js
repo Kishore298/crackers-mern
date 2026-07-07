@@ -13,11 +13,16 @@ module.exports = {
           DEFAULT: "#ff6600",
           light: "#ffcc33",
         },
+        /* ── Dark Diwali palette ── */
         surface: {
-          DEFAULT: "#FFF8F5",
-          2: "#FFF0E8",
+          DEFAULT: "#0f0d1a",
+          2: "#1a1726",
         },
-        border: "#FFD4B8",
+        "dark-bg": "#0a0814",
+        "dark-card": "#13111f",
+        "dark-card-2": "#1a1726",
+        "dark-border": "rgba(255,102,0,0.12)",
+        border: "rgba(255,102,0,0.12)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
@@ -26,6 +31,9 @@ module.exports = {
       boxShadow: {
         primary: "0 4px 14px rgba(139, 0, 0, 0.35)",
         "primary-lg": "0 8px 32px rgba(139, 0, 0, 0.25)",
+        "glow-sm": "0 0 15px rgba(255,102,0,0.15)",
+        "glow-md": "0 0 30px rgba(255,102,0,0.2)",
+        "glow-lg": "0 4px 40px rgba(255,102,0,0.3)",
       },
       backgroundImage: {
         "fire-gradient": "linear-gradient(140deg, #8b0000, #ff6600, #ffcc33)",
@@ -35,6 +43,7 @@ module.exports = {
       animation: {
         "fade-in-up": "fadeInUp 0.4s ease",
         "bounce-subtle": "bounceSubtle 1s ease infinite",
+        "twinkle": "twinkle 2s ease-in-out infinite",
       },
       keyframes: {
         fadeInUp: {
@@ -44,6 +53,10 @@ module.exports = {
         bounceSubtle: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
+        },
+        twinkle: {
+          "0%, 100%": { opacity: "0.3" },
+          "50%": { opacity: "1" },
         },
       },
     },
