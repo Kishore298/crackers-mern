@@ -543,7 +543,7 @@ const HomePage = () => {
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left — 2×2 feature cards */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 order-2 lg:order-1">
               {[
                 {
                   iconBg: "rgba(76,175,80,0.1)",
@@ -606,7 +606,7 @@ const HomePage = () => {
             </div>
 
             {/* Right — Safety content */}
-            <div>
+            <div className="order-1 lg:order-2">
               <p
                 className="text-sm font-bold uppercase tracking-widest mb-3"
                 style={{ color: "#ff6600" }}
