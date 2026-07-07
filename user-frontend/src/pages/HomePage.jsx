@@ -17,7 +17,7 @@ const DiscountBanner = ({ discount }) => {
     <section className="w-full md:max-w-7xl mx-auto px-4 sm:px-6 py-6">
       <div
         className="relative rounded-2xl overflow-hidden min-h-[200px] flex items-stretch"
-        style={{ background: "#6B0F0F" }}
+        style={{ background: "#520606ff" }}
       >
         {/* Left content */}
         <div className="relative z-10 flex flex-col justify-center px-6 sm:px-10 py-8 w-full sm:w-3/5 gap-3">
@@ -36,11 +36,11 @@ const DiscountBanner = ({ discount }) => {
               className="font-heading font-black text-2xl sm:text-3xl leading-tight"
               style={{ color: "#F5C518" }}
             >
-              Flat {discount.percentage}% OFF <span className="text-xl sm:text-2xl text-white block mt-1">+ exclusive cashbacks</span>
+              Flat {discount.percentage}% OFF <span className="text-lg tracking-[1px] sm:text-2xl text-white block mt-1">+ exclusive cashbacks</span>
             </p>
           </div>
 
-          <p className="text-white/75 text-sm leading-relaxed max-w-xs">
+          <p className="text-gray-200 text-sm leading-relaxed max-w-xs">
             On all products sitewide. Celebrate more, spend less!
           </p>
 
@@ -56,9 +56,9 @@ const DiscountBanner = ({ discount }) => {
         </div>
 
         {/* Right image */}
-        <div className="absolute right-0 top-0 bottom-0 w-full sm:w-2/5 opacity-20 sm:opacity-100 pointer-events-none">
+        <div className="absolute right-0 top-0 bottom-0 w-full sm:w-2/5 opacity-50 md:opacity-100 pointer-events-none">
           <img
-            src="/family-celeb-festive.webp"
+            src="/diwali-celebration.webp"
             alt="V Crackers Celebration Family"
             width={400}
             height={200}
@@ -75,7 +75,7 @@ const DiscountBanner = ({ discount }) => {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to right, #6B0F0F 0%, transparent 35%)",
+                "linear-gradient(to right, #520606ff 0%, transparent 0%)",
             }}
           />
         </div>
@@ -531,7 +531,7 @@ const HomePage = () => {
             <div ref={observerTargetRef} className="h-10 w-full flex items-center justify-center">
               {loadingMore && <Spinner />}
               {!hasMore && categories.length > 0 && (
-                <p className="text-gray-600 text-sm">You've reached the end of the catalog.</p>
+                <p className="text-gray-400 text-sm">You've reached the end of the catalog.</p>
               )}
             </div>
           </div>

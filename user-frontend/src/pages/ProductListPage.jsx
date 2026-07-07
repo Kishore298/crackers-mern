@@ -20,7 +20,7 @@ const Spinner = () => (
 
 const ProductListPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Filters state mapping from URL
   const searchFilter = searchParams.get("search") || "";
   const categoryFilter = searchParams.get("category") || "";
@@ -54,14 +54,14 @@ const ProductListPage = () => {
     api
       .get("/categories")
       .then((r) => setAllCategories(r.data.categories || []))
-      .catch(() => {});
+      .catch(() => { });
     api
       .get("/discount")
       .then((r) => {
         const d = r.data.discount;
         if (d?.isActive) setDiscountPct(d.percentage);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Fetch Grouped Categories
@@ -78,13 +78,13 @@ const ProductListPage = () => {
       params.set("limit", 5);
 
       const { data } = await api.get(`/categories/with-products?${params}`);
-      
+
       if (pageNum === 1) {
         setGroupedCategories(data.categories || []);
       } else {
         setGroupedCategories((prev) => [...prev, ...(data.categories || [])]);
       }
-      
+
       setHasMore(data.hasMore);
       setPage(pageNum);
     } catch (e) {
@@ -117,11 +117,11 @@ const ProductListPage = () => {
       },
       { threshold: 0.1 }
     );
-    
+
     if (observerTarget.current) {
       observer.observe(observerTarget.current);
     }
-    
+
     return () => observer.disconnect();
   }, []);
 
@@ -216,9 +216,9 @@ const ProductListPage = () => {
                 style={
                   !categoryFilter
                     ? {
-                        background:
-                          "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                      }
+                      background:
+                        "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+                    }
                     : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,102,0,0.1)" }
                 }
               >
@@ -235,9 +235,9 @@ const ProductListPage = () => {
                   style={
                     categoryFilter === cat._id
                       ? {
-                          background:
-                            "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                        }
+                        background:
+                          "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+                      }
                       : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,102,0,0.1)" }
                   }
                 >
@@ -309,13 +309,13 @@ const ProductListPage = () => {
                         )}
                         <div>
                           <h3 className="font-heading font-bold text-white text-lg sm:text-xl flex items-center gap-2">
-                            {cat.name} 
+                            {cat.name}
                             <span className="text-sm font-normal text-gray-400">({cat.productCount})</span>
                           </h3>
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Category Body (Products Grid) */}
                     <div className="p-4 sm:p-6" style={{ borderTop: "1px solid rgba(255,102,0,0.06)" }}>
                       {cat.products && cat.products.length > 0 ? (
@@ -336,7 +336,7 @@ const ProductListPage = () => {
                     </div>
                   </div>
                 ))}
-                
+
                 {/* Intersection Observer Target */}
                 <div ref={observerTarget} className="h-10 w-full flex items-center justify-center">
                   {loadingMore && <Spinner />}

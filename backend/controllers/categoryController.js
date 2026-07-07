@@ -8,27 +8,25 @@ const slugify = (text) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-const CATEGORY_ORDER = [
-  "Single  sound crackers",
-  "Premium Bombs",
-  "Paper Bombs",
-  "K-Series",
-  "Flower Pots",
-  "Special Mud Pots",
-  "Ground Chakkars",
-  "Premium Rockets",
-  "Twinkling Star and Special Candles",
-  "Sparklers",
-  "Colour Matches",
-  "Fancy Skyshots",
-  "Peacock Series",
-  "2026 Special Fountains and New Arrivals"
+const CATEGORY_ORDER_SLUGS = [
+  "single-sound-crackers",
+  "premium-bomb",
+  "paper-bomb",
+  "k-series",
+  "flowerpots",
+  "special-mud-pots",
+  "ground-chakkar",
+  "rockets",
+  "twinkling-stars-and-color-candles",
+  "sparklers",
+  "color-matches",
+  "skyshots",
+  "peacock-series",
+  "2026-special-fountains-and-new-arrivals"
 ];
 
-const getSortIndex = (name) => {
-  const index = CATEGORY_ORDER.findIndex(
-    (cat) => cat.toLowerCase().replace(/\s+/g, " ").trim() === name.toLowerCase().replace(/\s+/g, " ").trim()
-  );
+const getSortIndex = (slug) => {
+  const index = CATEGORY_ORDER_SLUGS.indexOf(slug);
   return index === -1 ? 999 : index;
 };
 
@@ -38,8 +36,8 @@ const getCategories = async (req, res) => {
     const filter = req.query.all === "true" ? {} : { isActive: true };
     const categories = await Category.find(filter);
     categories.sort((a, b) => {
-      const indexA = getSortIndex(a.name);
-      const indexB = getSortIndex(b.name);
+      const indexA = getSortIndex(a.slug);
+      const indexB = getSortIndex(b.slug);
       if (indexA === 999 && indexB === 999) {
         return a.name.localeCompare(b.name);
       }
@@ -162,8 +160,8 @@ const getCategoriesWithProducts = async (req, res) => {
 
     const allCategories = await Category.find(catFilter);
     allCategories.sort((a, b) => {
-      const indexA = getSortIndex(a.name);
-      const indexB = getSortIndex(b.name);
+      const indexA = getSortIndex(a.slug);
+      const indexB = getSortIndex(b.slug);
       if (indexA === 999 && indexB === 999) {
         return a.name.localeCompare(b.name);
       }
