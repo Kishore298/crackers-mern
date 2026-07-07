@@ -321,13 +321,25 @@ const HomePage = () => {
 
             {/* Left content (Text & Buttons) */}
             <div className="flex-1 py-12 sm:py-20 max-w-xl text-center md:text-left relative z-10">
-              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4 sm:mb-6 shadow-sm" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />
+              <div
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4 sm:mb-6 shadow-sm"
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                }}
+              >
+                <img
+                  src="../golden-diya.webp"
+                  alt="Golden Diya"
+                  className="w-5 h-5 object-contain select-none"
+                  draggable={false}
+                />
+
                 <span className="text-[10px] sm:text-xs font-bold text-gray-300 tracking-wider uppercase">
                   Premium Diwali Collection 2026
                 </span>
               </div>
-              <h1 className="font-heading font-black text-3xl sm:text-5xl md:text-6xl leading-tight mb-3 sm:mb-4">
+              <h1 className="font-heading font-black text-xl sm:text-3xl md:text-3xl lg:text-6xl leading-tight mb-3 sm:mb-4">
                 <span className="text-white">Celebrate with </span>
                 <br className="hidden md:block" />
                 <span className="fire-gradient-text">Luminous Joy</span>
