@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
@@ -59,6 +59,23 @@ const FloatingWhatsApp = () => (
 );
 
 function App() {
+  const [toastPosition, setToastPosition] = useState("bottom-right");
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setToastPosition("top-right");
+      } else {
+        setToastPosition("bottom-right");
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <HelmetProvider>
       <BrowserRouter>
@@ -67,7 +84,7 @@ function App() {
           <CartProvider>
             <NotificationProvider>
               <Toaster
-                position="top-right"
+                position={toastPosition}
                 toastOptions={{
                   duration: 3000,
                   style: {

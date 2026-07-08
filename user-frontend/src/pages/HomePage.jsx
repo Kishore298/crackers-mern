@@ -410,7 +410,7 @@ const HomePage = () => {
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-32">
             {[
-              { icon: Truck, text: "Free Delivery above ₹3500" },
+              { icon: Truck, text: "₹0 Delivery charges on orders above ₹5000" },
               { icon: Shield, text: "100% Safe & Certified" },
               { icon: Zap, text: "Premium Quality" },
               { icon: Percent, text: "Discounted Prices" },
@@ -445,7 +445,7 @@ const HomePage = () => {
         />
 
         {/* Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6 p-4 rounded-2xl" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 p-4 rounded-2xl" style={{ background: "#13111f", border: "1px solid rgba(255, 102, 0, 0.47)" }}>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
             <input
@@ -479,7 +479,7 @@ const HomePage = () => {
             {categories.map((cat) => {
               const isCollapsed = collapsedCategories[cat._id];
               return (
-                <div key={cat._id} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+                <div key={cat._id} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255, 102, 0, 0.47)" }}>
                   {/* Accordion Header */}
                   <button
                     onClick={() => toggleCategory(cat._id)}

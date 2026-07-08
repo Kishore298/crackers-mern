@@ -3,4 +3,4 @@ Disallow: /profile
 Disallow: /orders
 Disallow: /checkout
 
-Sitemap: https://vcrackers.com/sitemap.xml
+Sitemap: https://vcrackers.in/sitemap.xml
