@@ -229,11 +229,19 @@
     transparent
   );
   transform: skewX(-20deg);
-  animation: shimmerBtn 2s infinite;
+  animation: shimmerBtn 4s infinite;
   pointer-events: none;
 }
 @keyframes shimmerBtn {
-  0% { left: -100%; }
-  55% { left: 200%; }
-  100% { left: 200%; }
+  0% {
+    left: -100%;
+  }
+
+  75% {
+    left: 200%;
+  }
+
+  100% {
+    left: 200%;
+  }
 }

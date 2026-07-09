@@ -37,7 +37,7 @@ const ProductListPage = () => {
   const [discountPct, setDiscountPct] = useState(0);
   const [totalProductsCount, setTotalProductsCount] = useState(0);
 
-  const observerTarget = useRef(null);
+  const observerRef = useRef(null);
 
   // Set filter and reset URL params
   const setFilter = (key, val) => {
@@ -105,29 +105,27 @@ const ProductListPage = () => {
     fetchGroupedCategories(1);
   }, [fetchGroupedCategories]);
 
-  // Use refs for current state to avoid observer recreation loop
-  const stateRef = useRef({ hasMore, loading, loadingMore, page, fetchGroupedCategories });
-  useEffect(() => {
-    stateRef.current = { hasMore, loading, loadingMore, page, fetchGroupedCategories };
-  }, [hasMore, loading, loadingMore, page, fetchGroupedCategories]);
+  // Infinite Scroll logic using robust callback-ref pattern
+  const loadMoreCategories = useCallback(() => {
+    if (loadingMore || !hasMore || loading) return;
+    fetchGroupedCategories(page + 1);
+  }, [page, hasMore, loadingMore, loading, fetchGroupedCategories]);
 
-  // Infinite Scroll Observer
+  const loadMoreRef = useRef(loadMoreCategories);
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const state = stateRef.current;
-        if (entries[0].isIntersecting && state.hasMore && !state.loading && !state.loadingMore) {
-          state.fetchGroupedCategories(state.page + 1);
+    loadMoreRef.current = loadMoreCategories;
+  }, [loadMoreCategories]);
+
+  const observerTargetRef = useCallback((node) => {
+    if (observerRef.current) observerRef.current.disconnect();
+    if (node) {
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreRef.current();
         }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
+      }, { threshold: 0.1 });
+      observerRef.current.observe(node);
     }
-
-    return () => observer.disconnect();
   }, []);
 
 
@@ -343,7 +341,7 @@ const ProductListPage = () => {
                 ))}
 
                 {/* Intersection Observer Target */}
-                <div ref={observerTarget} className="h-10 w-full flex items-center justify-center">
+                <div ref={observerTargetRef} className="h-10 w-full flex items-center justify-center">
                   {loadingMore && <Spinner />}
                   {!hasMore && groupedCategories.length > 0 && (
                     <p className="text-gray-400 text-sm">You've reached the end of the catalog.</p>
