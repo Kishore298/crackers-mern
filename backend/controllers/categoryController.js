@@ -211,9 +211,12 @@ const getCategoriesWithProducts = async (req, res) => {
     // If search is used, filter out empty categories in the result (though pagination might be weird if many are empty).
     // Note: To be fully accurate with category pagination and search, we should ideally aggregate, but this works for now as long as we fetch enough.
 
+    const totalProducts = await Product.countDocuments(productFilter);
+
     res.json({
       success: true,
       categories: result,
+      totalProducts,
       hasMore: skip + categories.length < totalCategories,
       page,
       totalPages: Math.ceil(totalCategories / limit)

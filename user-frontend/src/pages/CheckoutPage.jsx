@@ -67,7 +67,7 @@ const CheckoutPage = () => {
       } catch {}
     };
     fetchProfile();
-  }, [user, cartItems.length, navigate, canCheckout, MIN_CART_VALUE]);
+  }, [user, cartItems.length, navigate, canCheckout, MIN_CART_VALUE, orderPlaced]);
 
   const addAddress = async () => {
     try {

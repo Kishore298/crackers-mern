@@ -47,7 +47,7 @@ const DiscountBanner = ({ discount }) => {
           <div className="flex flex-wrap items-center gap-4 mt-1">
             <Link
               to="/products"
-              className="font-bold px-6 py-2.5 rounded-full text-sm shadow-md shrink-0 transition-colors"
+              className="font-bold px-6 py-2.5 rounded-full text-sm shadow-md shrink-0 hover:scale-105 hover:shadow-lg hover:brightness-110 transition-all duration-300"
               style={{ background: "#F5C518", color: "#000" }}
             >
               Shop Now
@@ -480,8 +480,8 @@ const HomePage = () => {
               </Link>
               <Link
                 to={combosCategory ? `/products?category=${combosCategory._id}` : "/products"}
-                className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm hover:bg-white/10 transition-colors shadow-lg"
-                style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(6px)" }}
+                className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm hover:bg-white/10 hover:scale-105 hover:shadow-glow-sm transition-all duration-300 shadow-lg animate-shimmer-btn"
+                style={{ background: "rgba(255, 102, 0, 0.08)", border: "1px solid rgba(255, 102, 0, 0.4)", backdropFilter: "blur(6px)" }}
               >
                 🎁 View Stunning Combos
               </Link>

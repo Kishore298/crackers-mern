@@ -35,6 +35,7 @@ const ProductListPage = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [discountPct, setDiscountPct] = useState(0);
+  const [totalProductsCount, setTotalProductsCount] = useState(0);
 
   const observerTarget = useRef(null);
 
@@ -83,6 +84,10 @@ const ProductListPage = () => {
         setGroupedCategories(data.categories || []);
       } else {
         setGroupedCategories((prev) => [...prev, ...(data.categories || [])]);
+      }
+
+      if (data.totalProducts !== undefined) {
+        setTotalProductsCount(data.totalProducts);
       }
 
       setHasMore(data.hasMore);
@@ -139,8 +144,8 @@ const ProductListPage = () => {
     ? `Explore our wide range of premium ${activeCatName}. Best quality festive products from Sivakasi at V Crackers.`
     : "Browse the complete collection of V Crackers celebration packs, gift boxes, and festive items.";
 
-  // Calculate total products shown
-  const totalProductsShown = groupedCategories.reduce((acc, cat) => acc + (cat.products?.length || 0), 0);
+  // Display actual total products in DB matching filter
+  const totalProductsShown = totalProductsCount;
 
   return (
     <div className="min-h-screen relative" style={{ background: "#0a0814" }}>
@@ -151,7 +156,7 @@ const ProductListPage = () => {
           <h1 className="font-heading font-bold text-2xl sm:text-3xl text-white">
             {activeCatName ? `${activeCatName} 🎇` : "All Products 🎇"}
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">{totalProductsShown} products shown</p>
+          <p className="text-gray-400 mt-1 text-sm">{totalProductsShown} {totalProductsShown === 1 ? 'product' : 'products'} available</p>
         </div>
       </div>
 

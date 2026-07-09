@@ -209,3 +209,31 @@
   color: #ff6600 !important;
   font-size: 24px !important;
 }
+
+/* Button glass glare shimmer */
+.animate-shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+.animate-shimmer-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shimmerBtn 2s infinite;
+  pointer-events: none;
+}
+@keyframes shimmerBtn {
+  0% { left: -100%; }
+  55% { left: 200%; }
+  100% { left: 200%; }
+}
