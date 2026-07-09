@@ -19,7 +19,7 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const posRoutes = require("./routes/posRoutes");
 const stockRoutes = require("./routes/stockRoutes");
-const bannerRoutes = require("./routes/bannerRoutes");
+// const bannerRoutes = require("./routes/bannerRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const discountRoutes = require("./routes/discountRoutes");
@@ -41,8 +41,8 @@ const server = http.createServer(app);
 initSocket(server);
 
 // Razorpay webhook (keep before body parser)
-const { razorpayWebhook } = require("./controllers/paymentController");
-app.post("/api/payment/webhook", express.raw({ type: "*/*" }), razorpayWebhook);
+// const { razorpayWebhook } = require("./controllers/paymentController");
+// app.post("/api/payment/webhook", express.raw({ type: "*/*" }), razorpayWebhook);
 
 // Security
 app.use(helmet());
@@ -99,7 +99,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/pos", posRoutes);
 app.use("/api/stock", stockRoutes);
 app.use("/api/discount", discountRoutes);
-app.use("/api/banners", bannerRoutes);
+// app.use("/api/banners", bannerRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/users", userRoutes);

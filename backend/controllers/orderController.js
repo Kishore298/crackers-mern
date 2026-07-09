@@ -324,6 +324,45 @@ const rejectCancellationRequest = async (req, res) => {
   }
 };
 
+// ─── POST /api/orders/:id/resend-whatsapp (admin) ──────────────────
+const resendWhatsappReceipt = async (req, res) => {
+  try {
+    const order = await Sale.findById(req.params.id).populate("customer", "name email phone");
+    if (!order)
+      return res.status(404).json({ success: false, message: "Order not found" });
+
+    const customerPhone = order.customer?.phone || order.billingInfo?.phone;
+    if (!customerPhone)
+      return res.status(400).json({ success: false, message: "Customer phone not available" });
+
+    const customerName = order.customer?.name || order.billingInfo?.name || "Customer";
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const trackingLink = `${frontendUrl}/orders/${order._id}`;
+
+    // Generate PDF
+    const pdfBuffer = await generateReceiptPDF(order, {
+      name: customerName,
+      email: order.customer?.email || order.billingInfo?.email || "",
+      phone: customerPhone,
+    });
+
+    // Send via WhatsApp
+    await whatsapp.sendOrderReceipt(customerPhone, {
+      name: customerName,
+      orderId: order.invoiceNo,
+      amount: order.finalPayable,
+      trackingLink,
+      pdfBuffer,
+      filename: `Receipt-${order.invoiceNo}.pdf`,
+    });
+
+    res.json({ success: true, message: "WhatsApp receipt sent successfully." });
+  } catch (err) {
+    console.error("[WhatsApp] Manual resend failed:", err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   getOrders,
   getOrderById,
@@ -331,4 +370,5 @@ module.exports = {
   requestCancellation,
   adminCancelOrder,
   rejectCancellationRequest,
+  resendWhatsappReceipt,
 };

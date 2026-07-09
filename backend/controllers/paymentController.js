@@ -53,7 +53,7 @@ const deductStock = async (items, saleId, userId) => {
 };
 
 // ─── Shared helper: create Razorpay Payment Link for COD ────────────
-const createRazorpayPaymentLink = async (sale, customer) => {
+/* const createRazorpayPaymentLink = async (sale, customer) => {
   try {
     const link = await razorpay.paymentLink.create({
       amount      : Math.round(sale.finalPayable * 100), // paise
@@ -78,7 +78,7 @@ const createRazorpayPaymentLink = async (sale, customer) => {
     console.error("[Razorpay] Payment link creation failed:", err.message);
     return null;
   }
-};
+}; */
 
 // ─── Helper: send receipts & notifications (fire-and-forget) ────────
 const sendPostOrderComms = async (sale, customer) => {
@@ -99,6 +99,8 @@ const sendPostOrderComms = async (sale, customer) => {
       whatsapp.sendOrderReceipt(customer.phone, {
         name     : customer.name,
         orderId  : sale.invoiceNo,
+        amount   : sale.finalPayable,
+        trackingLink,
         pdfBuffer,
         filename : `Receipt-${sale.invoiceNo}.pdf`,
       }).catch((e) => console.error("[WhatsApp] Receipt send failed:", e.message));
@@ -204,16 +206,7 @@ const verifyPayment = async (req, res) => {
     // Fire-and-forget: email + WhatsApp receipt
     sendPostOrderComms(sale, customer);
 
-    // Also send a plain order-confirmation WhatsApp (no PDF needed — receipt is PDF)
-    if (customer?.phone) {
-      const trackingLink = `${process.env.FRONTEND_URL || "http://localhost:3000"}/orders/${sale._id}`;
-      whatsapp.sendOrderConfirmation(customer.phone, {
-        name        : customer.name,
-        orderId     : sale.invoiceNo,
-        amount      : serverFinalPayable,
-        trackingLink,
-      }).catch((e) => console.error("[WhatsApp] Order confirmation failed:", e.message));
-    }
+    // (Order confirmation text + PDF receipt are now combined in sendPostOrderComms)
 
     // Admin notification via Socket.IO
     try {
@@ -229,6 +222,22 @@ const verifyPayment = async (req, res) => {
       getIO().to("admin").emit("new_order", adminNotif);
     } catch (e) {
       console.error("[Socket] Admin notification failed:", e.message);
+    }
+
+    // WhatsApp admin notification
+    try {
+      const adminPhone = process.env.ADMIN_PHONE_NUMBER;
+      if (adminPhone) {
+        const adminLink = `${process.env.ADMIN_FRONTEND_URL || "https://admin.vcrackers.in"}/orders`;
+        whatsapp.sendAdminOrderNotification(adminPhone, {
+          customerName: customer?.name || "Customer",
+          orderId: sale.invoiceNo,
+          amount: serverFinalPayable,
+          adminLink,
+        }).catch((e) => console.error("[WhatsApp] Admin notification failed:", e.message));
+      }
+    } catch (e) {
+      console.error("[WhatsApp] Admin notification block error:", e.message);
     }
 
     res.status(201).json({ success: true, sale, message: "Order placed successfully" });
@@ -249,7 +258,7 @@ const verifyPayment = async (req, res) => {
  *  6. Send payment link via WhatsApp so customer can pay online if desired
  *  7. Notify admin
  */
-const placeCODOrder = async (req, res) => {
+/* const placeCODOrder = async (req, res) => {
   try {
     const {
       cartItems,
@@ -360,14 +369,14 @@ const placeCODOrder = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
-};
+}; */
 
 // ─── POST /api/payment/resend-payment-link/:orderId (admin) ─────────
 /**
  * Admin can manually resend/regenerate the Razorpay payment link
  * for a COD order (in case the customer lost it).
  */
-const resendCODPaymentLink = async (req, res) => {
+/* const resendCODPaymentLink = async (req, res) => {
   try {
     const sale = await Sale.findById(req.params.orderId).populate("customer", "name email phone");
     if (!sale)
@@ -406,7 +415,7 @@ const resendCODPaymentLink = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
-};
+}; */
 
 // ─── POST /api/payment/webhook (Razorpay webhook) ───────────────────
 /**
@@ -417,7 +426,7 @@ const resendCODPaymentLink = async (req, res) => {
  * NOTE: This route is mounted in index.js BEFORE express.json()
  * so req.body is a raw Buffer (from express.raw). We parse it here.
  */
-const razorpayWebhook = async (req, res) => {
+/* const razorpayWebhook = async (req, res) => {
   try {
     // req.body is a raw Buffer (sent via express.raw middleware in index.js)
     const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
@@ -494,12 +503,12 @@ const razorpayWebhook = async (req, res) => {
     console.error("[Webhook] Error:", err.message);
     res.status(500).json({ success: false, message: err.message });
   }
-};
+}; */
 
 module.exports = {
   createPaymentOrder,
   verifyPayment,
-  placeCODOrder,
-  resendCODPaymentLink,
-  razorpayWebhook,
+  // placeCODOrder,
+  // resendCODPaymentLink,
+  // razorpayWebhook,
 };

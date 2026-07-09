@@ -7,6 +7,7 @@ const {
   requestCancellation,
   adminCancelOrder,
   rejectCancellationRequest,
+  resendWhatsappReceipt,
 } = require("../controllers/orderController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { handleMethodOverride } = require("../middleware/methodOverride");
@@ -27,5 +28,8 @@ router.post("/:id/status", protect, adminOnly, handleMethodOverride({
 router.post("/:id/cancel-request", protect, requestCancellation);       // user
 router.post("/:id/cancel", protect, adminOnly, adminCancelOrder);        // admin
 router.post("/:id/cancel-reject", protect, adminOnly, rejectCancellationRequest); // admin
+
+// Resend WhatsApp Receipt
+router.post("/:id/resend-whatsapp", protect, adminOnly, resendWhatsappReceipt); // admin
 
 module.exports = router;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Search, ChevronDown, X, AlertTriangle, CheckCircle } from "lucide-react";
+import { Search, ChevronDown, X, AlertTriangle, CheckCircle, Send } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 
@@ -79,6 +79,16 @@ const OrdersPage = () => {
       toast.error(err?.response?.data?.message || "Action failed");
     } finally {
       setCancelLoading(false);
+    }
+  };
+
+  const handleResendWhatsapp = async (orderId) => {
+    const toastId = toast.loading("Sending WhatsApp receipt...");
+    try {
+      await api.post(`/orders/${orderId}/resend-whatsapp`);
+      toast.success("WhatsApp receipt sent successfully!", { id: toastId });
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to send receipt", { id: toastId });
     }
   };
 
@@ -264,6 +274,16 @@ const OrdersPage = () => {
                             ) : (
                               <p className="text-gray-400">POS / Walk-in</p>
                             )}
+
+                            <div className="mt-4 pt-4 border-t border-orange-200">
+                              <button
+                                onClick={() => handleResendWhatsapp(order._id)}
+                                className="text-xs bg-green-100 text-green-700 font-bold px-3 py-1.5 rounded-lg hover:bg-green-200 transition-colors flex items-center gap-1.5 w-fit"
+                              >
+                                <Send className="w-3 h-3" />
+                                Resend WhatsApp Details
+                              </button>
+                            </div>
                           </div>
 
                           {/* Cancellation request */}

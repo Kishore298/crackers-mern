@@ -194,6 +194,14 @@ const getCategoriesWithProducts = async (req, res) => {
       const catProducts = products.filter(
         (p) => p.category && p.category._id.toString() === cat._id.toString()
       );
+
+      // Sort so out of stock products are placed at the end
+      catProducts.sort((a, b) => {
+        const aInStock = a.stock > 0 ? 1 : 0;
+        const bInStock = b.stock > 0 ? 1 : 0;
+        return bInStock - aInStock; 
+      });
+
       return {
         ...cat.toObject(),
         products: catProducts,

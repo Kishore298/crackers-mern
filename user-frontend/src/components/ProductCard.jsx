@@ -113,7 +113,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
           )}
           {product.stock === 0 && (
             <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/20 text-red-400">
-              Out of stock
+              Coming soon
             </span>
           )}
         </div>
@@ -166,7 +166,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             style={{ background: "#1a1726", color: "#555" }}
           >
             <ShoppingCart className="w-4 h-4" />
-            Out of Stock
+            Coming soon
           </button>
         )}
       </div>

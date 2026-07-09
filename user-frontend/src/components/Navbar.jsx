@@ -59,7 +59,7 @@ const Navbar = () => {
   return (
     <header className="sticky top-0 z-50 border-b shadow-sm" style={{ background: "#0d0b1a", borderColor: "rgba(255,102,0,0.1)" }}>
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-[70px] md:h-[100px]">
+        <div className="flex items-center justify-between h-[64px] md:h-[94px]">
           {/* Logo */}
           <Link
             to="/"
@@ -317,7 +317,7 @@ const Navbar = () => {
               >
                 <Gift className="w-4 h-4 text-amber-500" />
                 {giftCategory.name} 🎁
-                      </Link>
+              </Link>
             )}
           </div>
         )}

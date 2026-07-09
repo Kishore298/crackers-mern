@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+// import Slider from "react-slick";
+// import "slick-carousel/slick/slick.css";
+// import "slick-carousel/slick/slick-theme.css";
 import { ArrowRight, ChevronRight, TrendingUp, ChevronDown, Search } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
@@ -122,32 +122,32 @@ const SectionHead = ({ tag, title, sub, to }) => (
   </div>
 );
 
-const CustomPrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <button
-      className={className}
-      style={{ ...style, display: "block", zIndex: 2, left: "20px" }}
-      onClick={onClick}
-      aria-label="Previous Slide"
-    />
-  );
-};
+// const CustomPrevArrow = (props) => {
+//   const { className, style, onClick } = props;
+//   return (
+//     <button
+//       className={className}
+//       style={{ ...style, display: "block", zIndex: 2, left: "20px" }}
+//       onClick={onClick}
+//       aria-label="Previous Slide"
+//     />
+//   );
+// };
 
-const CustomNextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <button
-      className={className}
-      style={{ ...style, display: "block", zIndex: 2, right: "20px" }}
-      onClick={onClick}
-      aria-label="Next Slide"
-    />
-  );
-};
+// const CustomNextArrow = (props) => {
+//   const { className, style, onClick } = props;
+//   return (
+//     <button
+//       className={className}
+//       style={{ ...style, display: "block", zIndex: 2, right: "20px" }}
+//       onClick={onClick}
+//       aria-label="Next Slide"
+//     />
+//   );
+// };
 
 const HomePage = () => {
-  const [banners, setBanners] = useState([]);
+  // const [banners, setBanners] = useState([]);
   const [discount, setDiscount] = useState(null);
   const [initLoading, setInitLoading] = useState(true);
 
@@ -204,11 +204,12 @@ const HomePage = () => {
   useEffect(() => {
     const fetchGlobalData = async () => {
       try {
-        const [bannerRes, discountRes] = await Promise.all([
-          api.get("/banners"),
-          api.get("/discount"),
-        ]);
-        setBanners(bannerRes.data.banners || []);
+        // const [bannerRes, discountRes] = await Promise.all([
+        //   api.get("/banners"),
+        //   api.get("/discount"),
+        // ]);
+        const discountRes = await api.get("/discount");
+        // setBanners(bannerRes.data.banners || []);
         setDiscount(discountRes.data.discount || null);
       } catch (e) {
         console.error(e);
@@ -252,23 +253,23 @@ const HomePage = () => {
     }));
   };
 
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 600,
-    autoplay: true,
-    autoplaySpeed: 4000,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    pauseOnHover: true,
-    arrows: banners.length > 1,
-    prevArrow: <CustomPrevArrow />,
-    nextArrow: <CustomNextArrow />,
-  };
+  // const sliderSettings = {
+  //   dots: true,
+  //   infinite: true,
+  //   speed: 600,
+  //   autoplay: true,
+  //   autoplaySpeed: 4000,
+  //   slidesToShow: 1,
+  //   slidesToScroll: 1,
+  //   pauseOnHover: true,
+  //   arrows: banners.length > 1,
+  //   prevArrow: <CustomPrevArrow />,
+  //   nextArrow: <CustomNextArrow />,
+  // };
 
   const discountPct = discount?.isActive ? discount.percentage : 0;
-  const giftCategory = categories.find((c) =>
-    c.name.toLowerCase().includes("gift"),
+  const combosCategory = categories.find((c) =>
+    c.name.toLowerCase().includes("combo"),
   );
 
   return (
@@ -277,7 +278,7 @@ const HomePage = () => {
         title="Buy Premium Sivakasi Festive Products Online"
         description="V Crackers offers the best selection of celebration packs, gift boxes, and festive products at competitive prices. Celebration starts here."
       />
-      {/* ══ Hero Banner ══ */}
+      {/* ══ Hero Banner (Commented out for new responsive banners) ══ 
       {banners.length > 0 ? (
         <div className="relative">
           <Slider {...sliderSettings}>
@@ -309,17 +310,15 @@ const HomePage = () => {
           </Slider>
         </div>
       ) : (
-        /* ── Restored 2-column Hero with Sparkles ── */
         <section
           className="relative overflow-hidden min-h-[350px] md:min-h-[500px] lg:min-h-[600px]"
           style={{ background: "linear-gradient(to right, #0a0814, #13111f)" }}
         >
 
-
-          {/* Content overlay */}
+          // Content overlay
           <div className="relative z-10 w-full md:max-w-[90%] mx-auto px-5 sm:px-10 flex flex-col md:flex-row items-center min-h-[350px] md:min-h-[500px] lg:min-h-[600px] gap-8">
 
-            {/* Left content (Text & Buttons) */}
+            // Left content (Text & Buttons)
             <div className="flex-1 py-12 sm:py-20 max-w-xl text-center md:text-left relative z-10">
               <div
                 className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4 sm:mb-6 shadow-sm"
@@ -362,15 +361,15 @@ const HomePage = () => {
                   Shop Collection <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
-                  to={giftCategory ? `/products?category=${giftCategory._id}` : "/products"}
+                  to={combosCategory ? `/products?category=${combosCategory._id}` : "/products"}
                   className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm hover:bg-white/10 transition-colors"
                   style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)" }}
                 >
-                  🎁 View Gift Boxes
+                  🎁 View Stunning Combos
                 </Link>
               </div>
 
-              {/* Trust badges */}
+              // Trust badges
               <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center md:justify-start">
                 {[
                   { icon: "💥", text: "Premium Crackers" },
@@ -387,9 +386,9 @@ const HomePage = () => {
               </div>
             </div>
 
-            {/* Right image */}
+            // Right image
             <div className="hidden md:flex flex-1 items-center justify-center relative">
-              {/* Glowing aura behind image */}
+              // Glowing aura behind image
               <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full z-0 pointer-events-none" />
               <img
                 src="/festive-banner.webp"
@@ -404,6 +403,109 @@ const HomePage = () => {
           </div>
         </section>
       )}
+      */}
+
+      {/* ══ NEW RESPONSIVE HERO SECTION ══ */}
+      <section className="relative w-full min-h-[calc(100vh-64px)] overflow-hidden flex items-center">
+        {/* Mobile Background */}
+        <img
+          src="/mobile.png"
+          alt="Hero Banner Mobile"
+          className="absolute inset-0 w-full h-full object-cover sm:hidden"
+          loading="eager"
+          fetchpriority="high"
+        />
+        {/* Tablet Background */}
+        <img
+          src="/tablet.png"
+          alt="Hero Banner Tablet"
+          className="absolute inset-0 w-full h-full object-cover hidden sm:block lg:hidden"
+          loading="eager"
+          fetchpriority="high"
+        />
+        {/* Desktop Background */}
+        <img
+          src="/desktop.png"
+          alt="Hero Banner Desktop"
+          className="absolute inset-0 w-full h-full object-cover hidden lg:block"
+          loading="eager"
+          fetchpriority="high"
+        />
+
+        {/* Content layer */}
+        <div className="relative z-10 w-full md:max-w-[90%] mx-auto px-5 sm:px-10 flex items-center h-full">
+          <div className="w-full flex-1 py-12 sm:py-20 max-w-xl flex flex-col items-center text-center md:items-start md:text-left md:ml-12 lg:ml-0">
+            <div
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4 sm:mb-6 shadow-sm"
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                backdropFilter: "blur(4px)"
+              }}
+            >
+              <img
+                src="../golden-diya.webp"
+                alt="Golden Diya"
+                className="w-5 h-5 object-contain select-none drop-shadow-md"
+                draggable={false}
+                fetchPriority="high"
+              />
+              <span className="text-[10px] sm:text-xs font-bold text-gray-200 tracking-wider uppercase drop-shadow-sm">
+                Premium Diwali Collection 2026
+              </span>
+            </div>
+
+            <h1 className="font-heading font-black text-2xl sm:text-4xl md:text-4xl lg:text-6xl leading-tight mb-3 sm:mb-4 drop-shadow-lg">
+              <span className="text-white">Celebrate with </span>
+              <br className="hidden lg:block" />
+              <span className="fire-gradient-text drop-shadow-lg">Luminous Joy</span>
+            </h1>
+
+            <p className="text-gray-100 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-full md:max-w-lg" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.8)" }}>
+              Experience the magic of Diwali with our premium, eco-friendly,
+              and safe celebration products. Delivered straight to your doorstep with
+              festive care.
+            </p>
+
+            <div className="flex flex-wrap gap-3 mb-6 sm:mb-8 justify-center md:justify-start">
+              <Link
+                to="/products"
+                className="inline-flex items-center gap-2 font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm shadow-lg hover:scale-105 transition-transform"
+                style={{
+                  background:
+                    "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+                }}
+              >
+                Shop Collection <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                to={combosCategory ? `/products?category=${combosCategory._id}` : "/products"}
+                className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm hover:bg-white/10 transition-colors shadow-lg"
+                style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(6px)" }}
+              >
+                🎁 View Stunning Combos
+              </Link>
+            </div>
+
+            {/* Trust badges */}
+            <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center hidden">
+              {[
+                { icon: "💥", text: "Premium Crackers" },
+                { icon: "🚚", text: "Fast Delivery" },
+                { icon: "🛡️", text: "Safe & Certified" },
+              ].map(({ icon, text }) => (
+                <span
+                  key={text}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-gray-200 drop-shadow-md"
+                  style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}
+                >
+                  {icon} {text}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ══ Features strip ══ */}
       <div style={{ background: "#0f0d1a", borderTop: "1px solid rgba(255,102,0,0.08)", borderBottom: "1px solid rgba(255,102,0,0.08)" }}>

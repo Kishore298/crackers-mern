@@ -14,10 +14,10 @@ const FormData = require("form-data");
  */
 class WhatsAppService {
   constructor() {
-    this.phoneId  = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    this.token    = process.env.WHATSAPP_ACCESS_TOKEN;
-    this.version  = process.env.WHATSAPP_API_VERSION || "v21.0";
-    this.baseUrl  = `https://graph.facebook.com/${this.version}/${this.phoneId}/messages`;
+    this.phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+    this.token = process.env.WHATSAPP_ACCESS_TOKEN;
+    this.version = process.env.WHATSAPP_API_VERSION || "v21.0";
+    this.baseUrl = `https://graph.facebook.com/${this.version}/${this.phoneId}/messages`;
     this.mediaUrl = `https://graph.facebook.com/${this.version}/${this.phoneId}/media`;
   }
 
@@ -191,16 +191,18 @@ class WhatsAppService {
    * Meta template category: UTILITY
    * Template header type  : DOCUMENT
    *
-   * Body params → [name, orderId]
+   * Body params → [name, orderId, amount, trackingLink]
    *
    * @param {string} phone   – recipient
    * @param {Object} opts
    * @param {string} opts.name       – customer name
    * @param {string} opts.orderId    – invoice / order number
+   * @param {number|string} opts.amount – order amount
+   * @param {string} opts.trackingLink – link to track order
    * @param {Buffer} opts.pdfBuffer  – raw PDF bytes
    * @param {string} [opts.filename] – filename shown in chat
    */
-  async sendOrderReceipt(phone, { name, orderId, pdfBuffer, filename }) {
+  async sendOrderReceipt(phone, { name, orderId, amount, trackingLink, pdfBuffer, filename }) {
     const pdfFilename = filename || `Receipt-${orderId}.pdf`;
 
     // 1. Upload PDF
@@ -231,6 +233,8 @@ class WhatsAppService {
         parameters: [
           { type: "text", text: name },
           { type: "text", text: orderId },
+          { type: "text", text: `Rs.${amount}` },
+          { type: "text", text: trackingLink },
         ],
       },
     ];
@@ -254,11 +258,11 @@ class WhatsAppService {
 
     // Human-readable labels
     const statusLabels = {
-      processing : "Being Prepared",
-      packed     : "Packed & Ready",
-      shipped    : "Out for Delivery",
-      delivered  : "Delivered",
-      cancelled  : "Cancelled",
+      processing: "Being Prepared",
+      packed: "Packed & Ready",
+      shipped: "Out for Delivery",
+      delivered: "Delivered",
+      cancelled: "Cancelled",
     };
     const statusLabel = statusLabels[status] || status;
 
@@ -293,29 +297,60 @@ class WhatsAppService {
    * Body params   → [name, orderId, amount]
    * Button params → [paymentLinkSlug]
    */
-  async sendCODPaymentLink(phone, { name, orderId, amount, paymentLink }) {
-    const templateName =
-      process.env.WHATSAPP_PAYMENT_LINK_TEMPLATE_NAME || "cod_payment_link";
 
-    // Extract dynamic slug from Razorpay short URL
-    // e.g. https://rzp.io/rzp/AbCd1234 → "rzp/AbCd1234"
-    const slugMatch = paymentLink.match(/rzp\.io\/(.+)$/);
-    const linkSlug  = slugMatch ? slugMatch[1] : paymentLink;
+
+  // async sendCODPaymentLink(phone, { name, orderId, amount, paymentLink }) {
+  //   const templateName =
+  //     process.env.WHATSAPP_PAYMENT_LINK_TEMPLATE_NAME || "cod_payment_link";
+
+  //   // Extract dynamic slug from Razorpay short URL
+  //   // e.g. https://rzp.io/rzp/AbCd1234 → "rzp/AbCd1234"
+  //   const slugMatch = paymentLink.match(/rzp\.io\/(.+)$/);
+  //   const linkSlug = slugMatch ? slugMatch[1] : paymentLink;
+
+  //   const components = [
+  //     {
+  //       type: "body",
+  //       parameters: [
+  //         { type: "text", text: name },
+  //         { type: "text", text: orderId },
+  //         { type: "text", text: `Rs.${amount}` },
+  //       ],
+  //     },
+  //     {
+  //       type: "button",
+  //       sub_type: "url",
+  //       index: "0",
+  //       parameters: [{ type: "text", text: linkSlug }],
+  //     },
+  //   ];
+
+  //   return this.sendTemplate(phone, templateName, components);
+  // }
+
+  // ─────────────────────────────────────────────────────────────────
+  // UTILITY  –  Admin New Order Notification
+  // ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Notify admin of a new order.
+   * Meta template category: UTILITY
+   *
+   * Body params → [customerName, orderId, amount, adminLink]
+   */
+  async sendAdminOrderNotification(phone, { customerName, orderId, amount, adminLink }) {
+    const templateName =
+      process.env.WHATSAPP_ADMIN_ORDER_TEMPLATE_NAME || "admin_new_order";
 
     const components = [
       {
         type: "body",
         parameters: [
-          { type: "text", text: name },
+          { type: "text", text: customerName },
           { type: "text", text: orderId },
           { type: "text", text: `Rs.${amount}` },
+          { type: "text", text: adminLink },
         ],
-      },
-      {
-        type: "button",
-        sub_type: "url",
-        index: "0",
-        parameters: [{ type: "text", text: linkSlug }],
       },
     ];
 
