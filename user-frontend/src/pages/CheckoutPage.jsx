@@ -24,6 +24,7 @@ const CheckoutPage = () => {
   const [selectedAddr, setSelectedAddr] = useState(null);
   const [showAddAddr, setShowAddAddr] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
 
   const [newAddr, setNewAddr] = useState({
     fullName: "",
@@ -40,6 +41,8 @@ const CheckoutPage = () => {
   const finalAmount = total; // total already has slab discount applied
 
   useEffect(() => {
+    if (orderPlaced) return;
+
     if (!user) {
       navigate("/login?redirect=/checkout");
       return;
@@ -144,6 +147,7 @@ const CheckoutPage = () => {
               finalPayable: finalAmount,
             });
             if (verifyData.success) {
+              setOrderPlaced(true);
               clearCart();
               toast.success("Order placed successfully! 🎇");
               navigate(`/order-success/${verifyData.sale._id}`);

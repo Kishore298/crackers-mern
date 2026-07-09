@@ -4,6 +4,7 @@ const Sale     = require("../models/Sale");
 const Product  = require("../models/Product");
 const StockLedger = require("../models/StockLedger");
 const Coupon   = require("../models/Coupon");
+const Discount = require("../models/Discount");
 const User     = require("../models/User");
 const { sendOrderConfirmationEmail } = require("../config/emailService");
 const { generateReceiptPDF }        = require("../config/pdfService");
@@ -18,6 +19,11 @@ const razorpay = new Razorpay({
 // ─── Shared helper: validate stock & build item array ──────────────
 const buildValidatedItems = async (cartItems) => {
   const items = [];
+  
+  // Fetch global discount to match frontend effective price calculation
+  const globalDiscount = await Discount.findOne({ isActive: true });
+  const discountPct = globalDiscount ? globalDiscount.percentage : 0;
+
   for (const ci of cartItems) {
     const product = await Product.findById(ci.product);
     if (!product || !product.isActive)
@@ -25,7 +31,11 @@ const buildValidatedItems = async (cartItems) => {
     if (product.stock < ci.quantity)
       throw Object.assign(new Error(`Insufficient stock for ${product.name}`), { status: 400 });
 
-    const price = product.discountedPrice || product.price;
+    const basePrice = product.price;
+    const price = discountPct > 0 
+      ? Math.round(basePrice * (1 - discountPct / 100))
+      : (product.discountedPrice ?? basePrice);
+
     items.push({
       product : product._id,
       name    : product.name,

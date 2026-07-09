@@ -306,7 +306,7 @@ const OrderSuccessPage = () => {
                     <div>
                       <p className="font-semibold text-white">{item.name}</p>
                       <p className="text-gray-400 text-xs">
-                        ₹{item.price} Ã— {item.quantity}
+                        ₹{item.price} × {item.quantity}
                       </p>
                     </div>
                     <span className="font-bold text-white">
@@ -344,8 +344,8 @@ const OrderSuccessPage = () => {
                 {order.paymentMethod === "cod"
                   ? "Cash on Delivery"
                   : order.paymentMethod === "upi"
-                  ? "UPI"
-                  : "Online (Razorpay)"}
+                    ? "UPI"
+                    : "Online (Razorpay)"}
               </p>
               {order.paymentMethod === "cod" && order.paymentStatus === "pending" && (
                 <div className="mt-3 p-3 rounded-xl" style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}>
