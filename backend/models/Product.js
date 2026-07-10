@@ -24,6 +24,13 @@ const productSchema = new mongoose.Schema(
     },
     safetyInstructions: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
+    isCombo: { type: Boolean, default: false },
+    comboProducts: [
+      {
+        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        quantity: { type: Number, required: true, default: 1 },
+      },
+    ],
   },
   { timestamps: true },
 );

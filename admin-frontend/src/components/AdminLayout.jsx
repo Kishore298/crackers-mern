@@ -18,6 +18,7 @@ import {
   Bell,
   Send,
   TrendingUp,
+  Gift,
 } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import NotificationBell from "./NotificationBell";
@@ -26,6 +27,7 @@ const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/categories", icon: Tag, label: "Categories" },
   { to: "/products", icon: Package, label: "Products" },
+  { to: "/combos", icon: Gift, label: "Combos" },
   { to: "/orders", icon: ShoppingBag, label: "Orders" },
   { to: "/users", icon: Users, label: "Customers" },
   { to: "/pos", icon: Monitor, label: "POS Billing" },

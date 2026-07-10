@@ -53,6 +53,14 @@ const getProducts = async (req, res) => {
     const filter = { isActive: true };
     if (category) filter.category = category;
     if (search) filter.name = { $regex: search, $options: "i" };
+    
+    // Support combo filtering (if isCombo=true is passed, fetch combos. Else fetch normal products)
+    if (req.query.isCombo === "true") {
+      filter.isCombo = true;
+    } else {
+      filter.isCombo = { $ne: true };
+    }
+
     if (min || max) {
       filter.discountedPrice = {};
       if (min) filter.discountedPrice.$gte = Number(min);
@@ -70,6 +78,7 @@ const getProducts = async (req, res) => {
     const total = await Product.countDocuments(filter);
     const products = await Product.find(filter)
       .populate("category", "name slug")
+      .populate("comboProducts.product", "name images price discountedPrice stock")
       .sort(sortOption)
       .skip(skip)
       .limit(Number(limit));
@@ -94,6 +103,12 @@ const getAdminProducts = async (req, res) => {
     if (search) filter.name = { $regex: search, $options: "i" };
     if (category) filter.category = category;
     if (isActive !== undefined && isActive !== "") filter.isActive = isActive === "true";
+    
+    if (req.query.isCombo === "true") {
+      filter.isCombo = true;
+    } else if (req.query.isCombo === "false") {
+      filter.isCombo = { $ne: true };
+    }
 
     const sortMap = {
       price_asc: { price: 1 },
@@ -108,6 +123,7 @@ const getAdminProducts = async (req, res) => {
     const total = await Product.countDocuments(filter);
     const products = await Product.find(filter)
       .populate("category", "name slug")
+      .populate("comboProducts.product", "name images price discountedPrice stock")
       .sort(sortOption)
       .skip(skip)
       .limit(Number(limit));
@@ -123,7 +139,7 @@ const getProductBySlug = async (req, res) => {
     const product = await Product.findOne({
       slug: req.params.slug,
       isActive: true,
-    }).populate("category", "name slug");
+    }).populate("category", "name slug").populate("comboProducts.product");
     if (!product)
       return res
         .status(404)
@@ -163,6 +179,8 @@ const createProduct = async (req, res) => {
       category,
       safetyInstructions,
       youtubeId,
+      isCombo,
+      comboProducts,
     } = req.body;
     if (!name || !price || !stock || !category)
       return res.status(400).json({
@@ -191,6 +209,8 @@ const createProduct = async (req, res) => {
       images,
       video: { youtubeId: extractYouTubeId(youtubeId) },
       safetyInstructions,
+      isCombo: isCombo === "true" || isCombo === true,
+      comboProducts: comboProducts ? (Array.isArray(comboProducts) ? comboProducts : JSON.parse(comboProducts)) : [],
     });
 
     res.status(201).json({ success: true, product });
@@ -217,10 +237,20 @@ const updateProduct = async (req, res) => {
       "category",
       "safetyInstructions",
       "isActive",
+      "isCombo",
     ];
     fields.forEach((f) => {
-      if (req.body[f] !== undefined) product[f] = req.body[f];
+      if (req.body[f] !== undefined) {
+        if (f === "isCombo") product[f] = req.body[f] === "true" || req.body[f] === true;
+        else product[f] = req.body[f];
+      }
     });
+
+    if (req.body.comboProducts !== undefined) {
+      product.comboProducts = Array.isArray(req.body.comboProducts) 
+        ? req.body.comboProducts 
+        : JSON.parse(req.body.comboProducts);
+    }
     if (req.body.youtubeId !== undefined)
       product.video.youtubeId = extractYouTubeId(req.body.youtubeId);
 

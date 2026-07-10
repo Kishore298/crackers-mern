@@ -32,9 +32,14 @@ const buildValidatedItems = async (cartItems) => {
       throw Object.assign(new Error(`Insufficient stock for ${product.name}`), { status: 400 });
 
     const basePrice = product.price;
-    const price = discountPct > 0 
-      ? Math.round(basePrice * (1 - discountPct / 100))
-      : (product.discountedPrice ?? basePrice);
+    let price;
+    if (product.isCombo) {
+      price = product.price;
+    } else {
+      price = discountPct > 0 
+        ? Math.round(basePrice * (1 - discountPct / 100))
+        : (product.discountedPrice ?? basePrice);
+    }
 
     items.push({
       product : product._id,

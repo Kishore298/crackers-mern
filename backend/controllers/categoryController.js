@@ -153,10 +153,16 @@ const getCategoriesWithProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
-    const { search, category, sort } = req.query;
+    const { search, category, sort, isCombo } = req.query;
 
     let catFilter = { isActive: true };
-    if (category) catFilter._id = category;
+    if (category) {
+      if (category.match(/^[0-9a-fA-F]{24}$/)) {
+        catFilter._id = category;
+      } else {
+        catFilter.slug = category;
+      }
+    }
 
     const allCategories = await Category.find(catFilter);
     allCategories.sort((a, b) => {
@@ -168,15 +174,40 @@ const getCategoriesWithProducts = async (req, res) => {
       return indexA - indexB;
     });
 
-    const totalCategories = allCategories.length;
-    const categories = allCategories.slice(skip, skip + limit);
+    // 1. Identify which categories actually have matching products
+    let totalProductFilter = {
+      category: { $in: allCategories.map(c => c._id) },
+      isActive: true,
+    };
+    if (search) totalProductFilter.name = { $regex: search, $options: "i" };
+    if (isCombo === "true") totalProductFilter.isCombo = true;
+    else if (isCombo === "false") totalProductFilter.isCombo = { $ne: true };
+
+    // Get the exact total number of matching products
+    const totalProducts = await Product.countDocuments(totalProductFilter);
+    const validCatIds = await Product.distinct("category", totalProductFilter);
+
+    // 2. Filter categories to only those that contain matching products (if searching or filtering by combos)
+    let filteredCategories = allCategories;
+    if (search || isCombo === "true" || sort) {
+      filteredCategories = allCategories.filter(c =>
+        validCatIds.some(id => id.toString() === c._id.toString())
+      );
+    }
+
+    // 3. Paginate the filtered categories
+    const totalCategories = filteredCategories.length;
+    const categories = filteredCategories.slice(skip, skip + limit);
     const categoryIds = categories.map((c) => c._id);
 
+    // 4. Fetch the products for the paginated categories
     let productFilter = {
       category: { $in: categoryIds },
       isActive: true,
     };
     if (search) productFilter.name = { $regex: search, $options: "i" };
+    if (isCombo === "true") productFilter.isCombo = true;
+    else if (isCombo === "false") productFilter.isCombo = { $ne: true };
 
     const sortMap = {
       price_asc: { discountedPrice: 1 },
@@ -199,7 +230,7 @@ const getCategoriesWithProducts = async (req, res) => {
       catProducts.sort((a, b) => {
         const aInStock = a.stock > 0 ? 1 : 0;
         const bInStock = b.stock > 0 ? 1 : 0;
-        return bInStock - aInStock; 
+        return bInStock - aInStock;
       });
 
       return {
@@ -207,17 +238,7 @@ const getCategoriesWithProducts = async (req, res) => {
         products: catProducts,
         productCount: catProducts.length,
       };
-    }).filter(cat => !(search || sort) || cat.productCount > 0 || !search); 
-    // If search is used, filter out empty categories in the result (though pagination might be weird if many are empty).
-    // Note: To be fully accurate with category pagination and search, we should ideally aggregate, but this works for now as long as we fetch enough.
-
-    let totalProductFilter = {
-      category: { $in: allCategories.map(c => c._id) },
-      isActive: true,
-    };
-    if (search) totalProductFilter.name = { $regex: search, $options: "i" };
-    
-    const totalProducts = await Product.countDocuments(totalProductFilter);
+    }).filter(cat => cat.productCount > 0 || (!search && !sort && isCombo !== "true"));
 
     res.json({
       success: true,

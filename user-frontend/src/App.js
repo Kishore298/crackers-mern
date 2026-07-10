@@ -15,6 +15,7 @@ import "./index.css";
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ProductListPage = lazy(() => import("./pages/ProductListPage"));
 const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
+const ComboDetailPage = lazy(() => import("./pages/ComboDetailPage"));
 const CartPage = lazy(() => import("./pages/CartPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
@@ -91,6 +92,10 @@ function App() {
                     <Route
                       path="/products/:slug"
                       element={<ProductDetailPage />}
+                    />
+                    <Route
+                      path="/combos/:slug"
+                      element={<ComboDetailPage />}
                     />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/login" element={<LoginPage />} />

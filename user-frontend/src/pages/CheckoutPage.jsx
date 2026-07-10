@@ -67,6 +67,7 @@ const CheckoutPage = () => {
       } catch {}
     };
     fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, cartItems.length, navigate, canCheckout, MIN_CART_VALUE, orderPlaced]);
 
   const addAddress = async () => {

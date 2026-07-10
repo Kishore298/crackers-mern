@@ -4,32 +4,21 @@ import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
 
-const ProductCard = ({ product, discountPct = 0 }) => {
+const ComboCard = ({ combo, discountPct = 0 }) => {
   const { addToCart } = useCart();
   const [qty, setQty] = useState(1);
 
-  const basePrice = product.price;
-  const effectivePrice =
-    discountPct > 0
-      ? Math.round(basePrice * (1 - discountPct / 100))
-      : (product.discountedPrice ?? basePrice);
-
-  const showDiscount =
-    discountPct > 0 ||
-    (product.discountedPrice && product.discountedPrice < basePrice);
-  const displayPct =
-    discountPct > 0
-      ? discountPct
-      : product.discountedPrice
-        ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
-        : 0;
+  const basePrice = combo.price;
+  const effectivePrice = combo.price;
+  const showDiscount = false;
+  const displayPct = 0;
 
   const handleAdd = () => {
-    addToCart({ ...product, effectivePrice }, qty);
+    addToCart({ ...combo, effectivePrice }, qty);
     setQty(1);
   };
 
-  const maxQty = product.stock || 1;
+  const maxQty = combo.stock || 1;
 
   return (
     <motion.div
@@ -43,19 +32,19 @@ const ProductCard = ({ product, discountPct = 0 }) => {
     >
       {/* Image */}
       <Link
-        to={`/products/${product.slug}`}
-        className="relative overflow-hidden block aspect-[4/3]"
+        to={`/combos/${combo.slug}`}
+        className="relative overflow-hidden block aspect-[16/9] md:aspect-[3/2]"
         style={{ background: "#0f0d1a" }}
       >
-        {product.images?.[0]?.url ? (
+        {combo.images?.[0]?.url ? (
           <img
-            src={product.images[0].url?.replace("/upload/", "/upload/q_auto,f_auto,w_400/")}
-            alt={product.name}
+            src={combo.images[0].url?.replace("/upload/", "/upload/q_auto,f_auto,w_600/")}
+            alt={combo.name}
             crossOrigin="anonymous"
-            width={240}
-            height={180}
+            width={400}
+            height={300}
             loading="lazy"
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div
@@ -69,6 +58,15 @@ const ProductCard = ({ product, discountPct = 0 }) => {
 
         {/* Badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+          <span
+            className="px-2 py-0.5 rounded-full text-xs font-extrabold text-white shadow shadow-yellow-500/50"
+            style={{
+              background: "linear-gradient(140deg, #d4af37, #ffcc33, #d4af37)",
+              color: "#4a3200"
+            }}
+          >
+            COMBO PACK
+          </span>
           {showDiscount && displayPct > 0 && (
             <span
               className="px-2 py-0.5 rounded-full text-xs font-bold text-white shadow"
@@ -83,10 +81,10 @@ const ProductCard = ({ product, discountPct = 0 }) => {
       </Link>
 
       {/* Content */}
-      <div className="p-2 md:p-4 flex flex-col flex-1 gap-1 md:gap-2">
-        <Link to={`/products/${product.slug}`}>
-          <h3 className="font-heading font-semibold text-white text-xs sm:text-sm md:text-base leading-snug hover:text-primary transition-colors line-clamp-2">
-            {product.name}
+      <div className="p-3 md:p-5 flex flex-col flex-1 gap-2 md:gap-3">
+        <Link to={`/combos/${combo.slug}`}>
+          <h3 className="font-heading font-bold text-white text-sm sm:text-base md:text-lg leading-snug hover:text-primary transition-colors line-clamp-2">
+            {combo.name}
           </h3>
         </Link>
 
@@ -106,12 +104,12 @@ const ProductCard = ({ product, discountPct = 0 }) => {
               ₹{basePrice}
             </span>
           )}
-          {product.stock <= 10 && product.stock > 0 && (
+          {combo.stock <= 10 && combo.stock > 0 && (
             <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400">
-              Only {product.stock} left!
+              Only {combo.stock} left!
             </span>
           )}
-          {product.stock === 0 && (
+          {combo.stock === 0 && (
             <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/20 text-red-400">
               Coming soon
             </span>
@@ -119,7 +117,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
         </div>
 
         {/* Quantity + Add to Cart */}
-        {product.stock > 0 ? (
+        {combo.stock > 0 ? (
           <div className="flex items-center gap-1 md:gap-2 mt-1">
             {/* Quantity Selector */}
             <div className="flex items-center rounded-xl overflow-hidden" style={{ border: "1px solid rgba(255,102,0,0.15)" }}>
@@ -149,7 +147,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             {/* Add to Cart */}
             <button
               onClick={handleAdd}
-              aria-label={`Add ${product.name} to cart`}
+              aria-label={`Add ${combo.name} to cart`}
               className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-2 rounded-xl text-[10px] md:text-md lg:text-lg font-semibold transition-all duration-200 text-white"
               style={{
                 background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
@@ -174,4 +172,4 @@ const ProductCard = ({ product, discountPct = 0 }) => {
   );
 };
 
-export default ProductCard;
+export default ComboCard;

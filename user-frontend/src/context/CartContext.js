@@ -100,7 +100,16 @@ export const CartProvider = ({ children }) => {
   const updateQty = (productId, quantity) => {
     if (quantity < 1) return removeFromCart(productId);
     setCartItems((prev) =>
-      prev.map((i) => (i._id === productId ? { ...i, quantity } : i)),
+      prev.map((i) => {
+        if (i._id === productId) {
+          if (quantity > i.stock) {
+            toast.error("Not enough stock!");
+            return i;
+          }
+          return { ...i, quantity };
+        }
+        return i;
+      })
     );
   };
 

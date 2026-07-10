@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Filter, Search } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
+import ComboCard from "../components/ComboCard";
 import SEO from "../components/SEO";
 
 /* ─── tiny spinner ─── */
@@ -47,6 +48,10 @@ const ProductListPage = () => {
     } else {
       newParams.delete(key);
     }
+
+    if (key === "category") newParams.delete("filter");
+    if (key === "filter") newParams.delete("category");
+
     setSearchParams(newParams);
   };
 
@@ -75,6 +80,14 @@ const ProductListPage = () => {
       if (searchFilter) params.set("search", searchFilter);
       if (categoryFilter) params.set("category", categoryFilter);
       if (sortFilter) params.set("sort", sortFilter);
+      
+      const filterParam = searchParams.get("filter");
+      if (filterParam === "combos") {
+        params.set("isCombo", "true");
+      } else {
+        params.set("isCombo", "false");
+      }
+
       params.set("page", pageNum);
       params.set("limit", 5);
 
@@ -136,7 +149,15 @@ const ProductListPage = () => {
     { value: "newest", label: "Newest First" },
   ];
 
-  const activeCatName = allCategories.find((c) => c._id === categoryFilter)?.name;
+  const sortedCategories = [...allCategories].sort((a, b) => {
+    const isComboA = a.name.toLowerCase().includes("combo");
+    const isComboB = b.name.toLowerCase().includes("combo");
+    if (isComboA && !isComboB) return -1;
+    if (!isComboA && isComboB) return 1;
+    return 0;
+  });
+
+  const activeCatName = allCategories.find((c) => c.slug === categoryFilter || c._id === categoryFilter)?.name;
   const seoTitle = activeCatName ? `Buy ${activeCatName} Online` : "All Products";
   const seoDesc = activeCatName
     ? `Explore our wide range of premium ${activeCatName}. Best quality festive products from Sivakasi at V Crackers.`
@@ -152,9 +173,9 @@ const ProductListPage = () => {
       <div className="py-8" style={{ background: "#0f0d1a", borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
           <h1 className="font-heading font-bold text-2xl sm:text-3xl text-white">
-            {activeCatName ? `${activeCatName} 🎇` : "All Products 🎇"}
+            {searchParams.get("filter") === "combos" ? "Stunning Combos 🎇" : (activeCatName ? `${activeCatName} 🎇` : "All Products 🎇")}
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">{totalProductsShown} {totalProductsShown === 1 ? 'product' : 'products'} available</p>
+          <p className="text-gray-400 mt-1 text-sm">{totalProductsShown} {totalProductsShown === 1 ? 'item' : 'items'} available</p>
         </div>
       </div>
 
@@ -215,9 +236,9 @@ const ProductListPage = () => {
                   setFilter("category", "");
                   setShowFilter(false);
                 }}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${!categoryFilter ? "text-white" : "text-gray-400"}`}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${!categoryFilter && searchParams.get("filter") !== "combos" ? "text-white" : "text-gray-400"}`}
                 style={
-                  !categoryFilter
+                  !categoryFilter && searchParams.get("filter") !== "combos"
                     ? {
                       background:
                         "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
@@ -227,26 +248,36 @@ const ProductListPage = () => {
               >
                 All
               </button>
-              {allCategories.map((cat) => (
-                <button
-                  key={cat._id}
-                  onClick={() => {
-                    setFilter("category", cat._id);
-                    setShowFilter(false);
-                  }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${categoryFilter === cat._id ? "text-white" : "text-gray-400"}`}
-                  style={
-                    categoryFilter === cat._id
-                      ? {
-                        background:
-                          "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+              {sortedCategories.map((cat) => {
+                const isComboCat = cat.name.toLowerCase().includes("combo");
+                const isActive = categoryFilter === cat.slug || categoryFilter === cat._id || (isComboCat && searchParams.get("filter") === "combos");
+                
+                return (
+                  <button
+                    key={cat._id}
+                    onClick={() => {
+                      if (isComboCat) {
+                        setFilter("filter", "combos");
+                      } else {
+                        setFilter("category", cat.slug);
                       }
-                      : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,102,0,0.1)" }
-                  }
-                >
-                  {cat.name}
-                </button>
-              ))}
+                      setShowFilter(false);
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${isActive ? "text-white" : "text-gray-400"}`}
+                    style={
+                      isActive
+                        ? {
+                          background:
+                            "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+                        }
+                        : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,102,0,0.1)" }
+                    }
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
+
             </div>
           </div>
         )}
@@ -258,22 +289,34 @@ const ProductListPage = () => {
               <h3 className="font-heading font-semibold text-sm text-white mb-4">
                 Categories
               </h3>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 max-h-[60vh] overflow-y-auto scrollbar-hide">
                 <button
                   onClick={() => setFilter("category", "")}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${!categoryFilter ? "bg-primary text-white font-semibold" : "text-gray-400 hover:bg-surface-2 hover:text-primary"}`}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${!categoryFilter && searchParams.get("filter") !== "combos" ? "bg-primary text-white font-semibold" : "text-gray-400 hover:bg-surface-2 hover:text-primary"}`}
                 >
                   All Products
                 </button>
-                {allCategories.map((cat) => (
-                  <button
-                    key={cat._id}
-                    onClick={() => setFilter("category", cat._id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${categoryFilter === cat._id ? "bg-primary text-white font-semibold" : "text-gray-400 hover:bg-surface-2 hover:text-primary"}`}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
+                {sortedCategories.map((cat) => {
+                  const isComboCat = cat.name.toLowerCase().includes("combo");
+                  const isActive = categoryFilter === cat.slug || categoryFilter === cat._id || (isComboCat && searchParams.get("filter") === "combos");
+
+                  return (
+                    <button
+                      key={cat._id}
+                      onClick={() => {
+                        if (isComboCat) {
+                          setFilter("filter", "combos");
+                        } else {
+                          setFilter("category", cat.slug);
+                        }
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${isActive ? "bg-primary text-white font-semibold" : "text-gray-400 hover:bg-surface-2 hover:text-primary"}`}
+                    >
+                      {cat.name}
+                    </button>
+                  );
+                })}
+
               </div>
             </div>
           </aside>
@@ -324,11 +367,19 @@ const ProductListPage = () => {
                       {cat.products && cat.products.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                           {cat.products.map((p) => (
-                            <ProductCard
-                              key={p._id}
-                              product={p}
-                              discountPct={discountPct}
-                            />
+                            p.isCombo ? (
+                              <ComboCard
+                                key={p._id}
+                                combo={p}
+                                discountPct={discountPct}
+                              />
+                            ) : (
+                              <ProductCard
+                                key={p._id}
+                                product={p}
+                                discountPct={discountPct}
+                              />
+                            )
                           ))}
                         </div>
                       ) : (

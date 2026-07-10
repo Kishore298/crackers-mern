@@ -38,7 +38,9 @@ const createPosBill = async (req, res) => {
 
       // Apply global discount to base price, or use product's own discountedPrice
       let price;
-      if (discountPct > 0) {
+      if (product.isCombo) {
+        price = product.price;
+      } else if (discountPct > 0) {
         price = Math.round(product.price * (1 - discountPct / 100));
       } else {
         price = product.discountedPrice || product.price;

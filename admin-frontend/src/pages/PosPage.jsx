@@ -23,6 +23,20 @@ const PosPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [billing, setBilling] = useState(false);
   const [lastBill, setLastBill] = useState(null);
+  const [discountPct, setDiscountPct] = useState(0);
+
+  useEffect(() => {
+    api.get("/discount").then((r) => {
+      const d = r.data.discount;
+      if (d?.isActive) setDiscountPct(d.percentage);
+    }).catch(() => {});
+  }, []);
+
+  const getEffectivePrice = (p) => {
+    if (p.isCombo) return p.price;
+    if (discountPct > 0) return Math.round(p.price * (1 - discountPct / 100));
+    return p.discountedPrice || p.price;
+  };
 
   // Customer lookup
   const [customerSuggestions, setCustomerSuggestions] = useState([]);
@@ -91,7 +105,7 @@ const PosPage = () => {
   };
 
   const subtotal = cart.reduce(
-    (sum, item) => sum + (item.discountedPrice || item.price) * item.qty,
+    (sum, item) => sum + getEffectivePrice(item) * item.qty,
     0,
   );
   const discountAmt = Math.min(Number(manualDiscount) || 0, subtotal);
@@ -107,7 +121,7 @@ const PosPage = () => {
           product: i._id,
           quantity: i.qty,
           name: i.name,
-          price: i.discountedPrice || i.price,
+          price: getEffectivePrice(i),
         })),
         paymentMethod,
         billingInfo: { name: customerName, phone: customerPhone, email: customerEmail },
@@ -173,9 +187,16 @@ const PosPage = () => {
                     </p>
                     <p className="text-xs text-gray-400">Stock: {p.stock}</p>
                   </div>
-                  <span className="font-bold text-primary shrink-0">
-                    ₹{p.discountedPrice || p.price}
-                  </span>
+                  <div className="flex flex-col items-end shrink-0">
+                    <span className="font-bold text-primary">
+                      ₹{getEffectivePrice(p)}
+                    </span>
+                    {getEffectivePrice(p) < p.price && (
+                      <span className="text-xs text-gray-400 line-through">
+                        ₹{p.price}
+                      </span>
+                    )}
+                  </div>
                 </button>
               ))}
             </div>
@@ -207,7 +228,12 @@ const PosPage = () => {
                       {item.name}
                     </p>
                     <p className="text-xs text-primary font-bold mt-0.5">
-                      ₹{(item.discountedPrice || item.price) * item.qty}
+                      ₹{getEffectivePrice(item) * item.qty}
+                      {getEffectivePrice(item) < item.price && (
+                        <span className="text-gray-400 line-through ml-2 font-normal">
+                          ₹{item.price * item.qty}
+                        </span>
+                      )}
                     </p>
                   </div>
                   <div className="flex items-center border border-orange-100 rounded-lg overflow-hidden">

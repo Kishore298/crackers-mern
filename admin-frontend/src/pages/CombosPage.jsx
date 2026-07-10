@@ -14,11 +14,13 @@ const EMPTY_FORM = {
   safetyInstructions: "",
   youtubeId: "",
   isActive: true,
+  comboProducts: [],
 };
 
-const ProductsPage = () => {
+const CombosPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [allProducts, setAllProducts] = useState([]); // for combo linking
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -39,7 +41,7 @@ const ProductsPage = () => {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page, limit: 20 });
+      const params = new URLSearchParams({ page, limit: 20, isCombo: true });
       if (search) params.set("search", search);
       if (categoryFilter) params.set("category", categoryFilter);
       if (activeFilter !== "") params.set("isActive", activeFilter);
@@ -60,6 +62,13 @@ const ProductsPage = () => {
       .get("/categories")
       .then((r) => setCategories(r.data.categories || []))
       .catch(() => {});
+    // Fetch normal products for linking
+    api
+      .get("/products/admin?limit=1000&isCombo=false")
+      .then((r) => setAllProducts(r.data.products || []))
+      .catch(() => {});
+      
+    // Fetch global discount
     api
       .get("/discount")
       .then((r) => {
@@ -87,6 +96,10 @@ const ProductsPage = () => {
       safetyInstructions: p.safetyInstructions || "",
       youtubeId: p.video?.youtubeId || "",
       isActive: p.isActive,
+      comboProducts: p.comboProducts ? p.comboProducts.map(cp => ({
+        product: cp.product?._id || cp.product || cp._id || cp,
+        quantity: cp.quantity || 1
+      })) : [],
     });
     setImageFiles([]);
     setEditingImages(p.images ? [...p.images] : []);
@@ -143,8 +156,13 @@ const ProductsPage = () => {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
-        if (v !== "") fd.append(k, v);
+        if (k === "comboProducts") {
+          fd.append(k, JSON.stringify(v));
+        } else if (v !== "") {
+          fd.append(k, v);
+        }
       });
+      fd.append("isCombo", "true");
       imageFiles.forEach((f) => fd.append("images", f));
       const config = { headers: { "Content-Type": "multipart/form-data" } };
       if (editing) {
@@ -192,10 +210,10 @@ const ProductsPage = () => {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h2 className="font-heading font-bold text-xl text-gray-900">
-          Products <span className="text-gray-400 font-normal text-base">({total})</span>
+          Combos <span className="text-gray-400 font-normal text-base">({total})</span>
         </h2>
         <button onClick={openAdd} className="btn-fire text-sm px-4 py-2">
-          <Plus className="w-4 h-4" /> Add Product
+          <Plus className="w-4 h-4" /> Add Combo
         </button>
       </div>
 
@@ -235,7 +253,7 @@ const ProductsPage = () => {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              {["Product", "Category", "Price", "Stock", "Status", ""].map(
+              {["Combo Name", "Category", "Price", "Stock", "Status", ""].map(
                 (h) => (
                   <th
                     key={h}
@@ -329,7 +347,7 @@ const ProductsPage = () => {
             {!loading && products.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-16 text-center text-gray-400">
-                  No products found
+                  No combos found
                 </td>
               </tr>
             )}
@@ -367,7 +385,7 @@ const ProductsPage = () => {
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl z-10 my-4">
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-heading font-bold text-lg text-gray-900">
-                {editing ? "Edit Product" : "Add Product"}
+                {editing ? "Edit Combo" : "Add Combo"}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
@@ -380,7 +398,7 @@ const ProductsPage = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
                   <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                    Product Name *
+                    Combo Name *
                   </label>
                   <input
                     value={form.name}
@@ -446,6 +464,62 @@ const ProductsPage = () => {
                     ))}
                   </select>
                 </div>
+                
+                {/* Combo Products Multi-Select */}
+                <div className="col-span-2">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">
+                    Select Products in this Combo
+                  </label>
+                  <div className="border border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                    {allProducts.map((ap) => {
+                      const selectedItem = form.comboProducts.find((cp) => cp.product === ap._id);
+                      const isSelected = !!selectedItem;
+                      return (
+                        <div key={ap._id} className="flex items-center gap-3 hover:bg-gray-50 p-1 rounded">
+                          <label className="flex items-center gap-2 cursor-pointer flex-1">
+                            <input
+                              type="checkbox"
+                              className="accent-primary"
+                              checked={isSelected}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setForm({ ...form, comboProducts: [...form.comboProducts, { product: ap._id, quantity: 1 }] });
+                                } else {
+                                  setForm({ ...form, comboProducts: form.comboProducts.filter(cp => cp.product !== ap._id) });
+                                }
+                              }}
+                            />
+                            <span className="text-sm text-gray-700">{ap.name} (₹{getEffectivePrice(ap)})</span>
+                          </label>
+                          {isSelected && (
+                            <div className="flex items-center gap-2 shrink-0">
+                              <label className="text-xs text-gray-500 font-medium">Qty:</label>
+                              <input
+                                type="number"
+                                min="1"
+                                max={ap.stock}
+                                value={selectedItem.quantity}
+                                onChange={(e) => {
+                                  let newQty = parseInt(e.target.value) || 1;
+                                  if (newQty > ap.stock) newQty = ap.stock;
+                                  setForm({
+                                    ...form,
+                                    comboProducts: form.comboProducts.map(cp => 
+                                      cp.product === ap._id ? { ...cp, quantity: newQty } : cp
+                                    )
+                                  });
+                                }}
+                                className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary bg-white"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {allProducts.length === 0 && <span className="text-xs text-gray-400">No products available.</span>}
+                  </div>
+                </div>
+
                 <div className="col-span-2">
                   <label className="text-xs font-semibold text-gray-600 block mb-1.5">
                     Description
@@ -599,4 +673,4 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage;
+export default CombosPage;

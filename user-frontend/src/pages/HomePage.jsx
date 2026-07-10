@@ -361,9 +361,9 @@ const HomePage = () => {
                   Shop Collection <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
-                  to={combosCategory ? `/products?category=${combosCategory._id}` : "/products"}
-                  className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm hover:bg-white/10 transition-colors"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)" }}
+                  to="/products?filter=combos"
+                  className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm hover:bg-white/10 hover:scale-105 hover:shadow-glow-sm transition-all duration-300 shadow-lg animate-shimmer-btn"
+                  style={{ background: "rgba(255, 102, 0, 0.08)", border: "1px solid rgba(255, 102, 0, 0.4)", backdropFilter: "blur(6px)" }}
                 >
                   🎁 View Stunning Combos
                 </Link>
@@ -462,9 +462,7 @@ const HomePage = () => {
             </h1>
 
             <p className="text-gray-100 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-full md:max-w-lg" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.8)" }}>
-              Experience the magic of Diwali with our premium, eco-friendly,
-              and safe celebration products. Delivered straight to your doorstep with
-              festive care.
+              Experience the magic of Diwali with our premium celebration products. Delivered with festive care across India to make your celebrations brighter, safer, and more memorable.
             </p>
 
             <div className="flex flex-wrap gap-3 mb-6 sm:mb-8 justify-center md:justify-start">
@@ -479,7 +477,7 @@ const HomePage = () => {
                 Shop Collection <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                to={combosCategory ? `/products?category=${combosCategory._id}` : "/products"}
+                to="/products?filter=combos"
                 className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm hover:bg-white/10 hover:scale-105 hover:shadow-glow-sm transition-all duration-300 shadow-lg animate-shimmer-btn"
                 style={{ background: "rgba(255, 102, 0, 0.08)", border: "1px solid rgba(255, 102, 0, 0.4)", backdropFilter: "blur(6px)" }}
               >

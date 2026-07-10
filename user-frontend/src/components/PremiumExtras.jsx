@@ -73,9 +73,6 @@ const PremiumExtras = () => {
           <a href="https://youtube.com/@leocrackers-sivakasi?si=mQ6IhVeWEWq8pQEN" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-[#FF0000] text-white shadow-[0_0_15px_rgba(255,0,0,0.4)] hover:shadow-[0_0_20px_rgba(255,0,0,0.7)] transition-all duration-300 hover:scale-110 flex items-center justify-center" aria-label="YouTube">
             <FaYoutube className="text-xl md:text-2xl" />
           </a>
-          <a href="https://www.facebook.com/share/1Cfww3EkBU/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-[#1877F2] text-white shadow-[0_0_15px_rgba(24,119,242,0.4)] hover:shadow-[0_0_20px_rgba(24,119,242,0.7)] transition-all duration-300 hover:scale-110 flex items-center justify-center" aria-label="Facebook">
-            <FaFacebook className="text-xl md:text-2xl" />
-          </a>
         </div>
       </div>
 

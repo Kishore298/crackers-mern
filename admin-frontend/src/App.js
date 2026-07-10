@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import CategoriesPage from "./pages/CategoriesPage";
 import ProductsPage from "./pages/ProductsPage";
+import CombosPage from "./pages/CombosPage";
 import OrdersPage from "./pages/OrdersPage";
 import PosPage from "./pages/PosPage";
 import StockPage from "./pages/StockPage";
@@ -42,6 +43,7 @@ function AppRoutes() {
         <Route index element={<DashboardPage />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="products" element={<ProductsPage />} />
+        <Route path="combos" element={<CombosPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="pos" element={<PosPage />} />
         <Route path="stock" element={<StockPage />} />
