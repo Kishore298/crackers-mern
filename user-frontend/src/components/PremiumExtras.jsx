@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaArrowUp, FaInstagram, FaYoutube, FaFacebook, FaChevronRight, FaChevronLeft } from 'react-icons/fa';
+import { FaArrowUp, FaInstagram, FaYoutube, FaChevronRight, FaChevronLeft } from 'react-icons/fa';
 
 const PremiumExtras = () => {
   const [scrollProgress, setScrollProgress] = useState(0);

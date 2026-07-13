@@ -74,8 +74,16 @@ const ComboDetailPage = () => {
   let totalOriginalValue = 0;
   if (product.comboProducts && product.comboProducts.length > 0) {
     totalOriginalValue = product.comboProducts.reduce((sum, cp) => {
-      const itemPrice = cp.product?.price || cp.product?.discountedPrice || 0;
-      return sum + (itemPrice * (cp.quantity || 1));
+      const pData = cp.product;
+      if (!pData) return sum;
+      const base = pData.price || 0;
+      let effective = base;
+      if (discountPct > 0) {
+        effective = Math.round(base * (1 - discountPct / 100));
+      } else {
+        effective = pData.discountedPrice ?? base;
+      }
+      return sum + (effective * (cp.quantity || 1));
     }, 0);
   }
 
@@ -266,6 +274,14 @@ const ComboDetailPage = () => {
                   {product.comboProducts.map((cp, idx) => {
                     const pData = cp.product;
                     if (!pData) return null;
+                    const base = pData.price || 0;
+                    let effective = base;
+                    if (discountPct > 0) {
+                      effective = Math.round(base * (1 - discountPct / 100));
+                    } else {
+                      effective = pData.discountedPrice ?? base;
+                    }
+                    
                     return (
                       <li key={pData._id || idx} className="flex items-center gap-3 bg-white/5 rounded-xl p-2 border border-white/10">
                         <div className="w-12 h-12 rounded-lg bg-black/40 overflow-hidden flex-shrink-0 flex items-center justify-center">
@@ -277,8 +293,14 @@ const ComboDetailPage = () => {
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-white">{cp.quantity} × {pData.name}</p>
-                          <p className="text-xs text-gray-400 line-through inline-block mr-2">₹{pData.price}</p>
-                          <p className="text-xs text-primary font-bold inline-block">₹{pData.discountedPrice || pData.price}</p>
+                          {effective < base ? (
+                            <>
+                              <p className="text-xs text-gray-400 line-through inline-block mr-2">₹{base}</p>
+                              <p className="text-xs text-primary font-bold inline-block">₹{effective}</p>
+                            </>
+                          ) : (
+                            <p className="text-xs text-primary font-bold inline-block">₹{base}</p>
+                          )}
                         </div>
                       </li>
                     );

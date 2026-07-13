@@ -268,9 +268,6 @@ const HomePage = () => {
   // };
 
   const discountPct = discount?.isActive ? discount.percentage : 0;
-  const combosCategory = categories.find((c) =>
-    c.name.toLowerCase().includes("combo"),
-  );
 
   return (
     <div className="animate-fade-in-up">
@@ -477,7 +474,7 @@ const HomePage = () => {
                 Shop Collection <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                to="/products?filter=combos"
+                to="/combos"
                 className="inline-flex items-center gap-2 font-bold px-5 sm:px-7 py-3 sm:py-4 rounded-full text-white text-xs sm:text-sm hover:bg-white/10 hover:scale-105 hover:shadow-glow-sm transition-all duration-300 shadow-lg animate-shimmer-btn"
                 style={{ background: "rgba(255, 102, 0, 0.08)", border: "1px solid rgba(255, 102, 0, 0.4)", backdropFilter: "blur(6px)" }}
               >
