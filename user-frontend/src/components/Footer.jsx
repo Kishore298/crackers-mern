@@ -122,7 +122,7 @@ const Footer = () => {
               {otherCategories.map((cat) => (
                 <li key={cat._id}>
                   <Link
-                    to={`/products?category=${cat._id}`}
+                    to={`/products?category=${cat.slug}`}
                     className="text-sm text-gray-400 hover:text-primary transition-colors"
                   >
                     {cat.name}
@@ -133,7 +133,7 @@ const Footer = () => {
               {giftCategory && (
                 <li className="sm:col-span-2">
                   <Link
-                    to={`/products?category=${giftCategory._id}`}
+                    to={`/products?category=${giftCategory.slug}`}
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors mt-1"
                   >
                     <Gift className="w-3.5 h-3.5" />

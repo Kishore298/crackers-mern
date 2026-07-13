@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Filter, Search } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
@@ -21,7 +21,6 @@ const Spinner = () => (
 
 const ProductListPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   // Filters state mapping from URL
   const searchFilter = searchParams.get("search") || "";
@@ -83,7 +82,10 @@ const ProductListPage = () => {
       if (sortFilter) params.set("sort", sortFilter);
       
       const filterParam = searchParams.get("filter");
-      if (filterParam === "combos") {
+      const activeCat = allCategories.find((c) => c.slug === categoryFilter || c._id === categoryFilter);
+      const isComboCategory = activeCat?.name.toLowerCase().includes("combo");
+
+      if (filterParam === "combos" || isComboCategory) {
         params.set("isCombo", "true");
       } else {
         params.set("isCombo", "false");
@@ -112,7 +114,7 @@ const ProductListPage = () => {
       if (pageNum === 1) setLoading(false);
       else setLoadingMore(false);
     }
-  }, [searchFilter, categoryFilter, sortFilter, searchParams]);
+  }, [searchFilter, categoryFilter, sortFilter, searchParams, allCategories]);
 
   // Re-fetch on filter changes
   useEffect(() => {
@@ -258,7 +260,7 @@ const ProductListPage = () => {
                     key={cat._id}
                     onClick={() => {
                       if (isComboCat) {
-                        navigate("/combos");
+                        setFilter("filter", "combos");
                       } else {
                         setFilter("category", cat.slug);
                       }
@@ -306,7 +308,7 @@ const ProductListPage = () => {
                       key={cat._id}
                       onClick={() => {
                         if (isComboCat) {
-                          navigate("/combos");
+                          setFilter("filter", "combos");
                         } else {
                           setFilter("category", cat.slug);
                         }

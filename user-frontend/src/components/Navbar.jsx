@@ -114,7 +114,7 @@ const Navbar = () => {
                   {otherCategories.map((cat) => (
                     <Link
                       key={cat._id}
-                      to={`/products?category=${cat._id}`}
+                      to={`/products?category=${cat.slug}`}
                       onClick={() => setCatOpen(false)}
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:bg-surface-2 hover:text-primary transition-colors"
                     >
@@ -140,7 +140,7 @@ const Navbar = () => {
                     <>
                       <div className="my-1" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }} />
                       <Link
-                        to={`/products?category=${giftCategory._id}`}
+                        to={`/products?category=${giftCategory.slug}`}
                         onClick={() => setCatOpen(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-amber-400 hover:bg-surface-2 transition-colors"
                       >
@@ -156,7 +156,7 @@ const Navbar = () => {
             {/* Gift Boxes — separate prominent link */}
             {giftCategory && (
               <Link
-                to={`/products?category=${giftCategory._id}`}
+                to={`/products?category=${giftCategory.slug}`}
                 className="flex items-center gap-1.5 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
               >
                 <Gift className="w-4 h-4" />
@@ -282,7 +282,7 @@ const Navbar = () => {
                 {otherCategories.map((cat) => (
                   <Link
                     key={cat._id}
-                    to={`/products?category=${cat._id}`}
+                    to={`/products?category=${cat.slug}`}
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:text-primary hover:bg-surface-2 rounded-lg transition-colors"
                   >
@@ -310,7 +310,7 @@ const Navbar = () => {
             {/* Gift Boxes — highlighted */}
             {giftCategory && (
               <Link
-                to={`/products?category=${giftCategory._id}`}
+                to={`/products?category=${giftCategory.slug}`}
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2 mx-3 px-3 py-2.5 text-sm font-semibold text-amber-400 rounded-lg transition-colors"
                 style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}
