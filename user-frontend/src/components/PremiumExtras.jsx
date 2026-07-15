@@ -67,10 +67,10 @@ const PremiumExtras = () => {
             <FaChevronLeft className="text-sm" />
           </button>
 
-          <a href="https://www.instagram.com/leo_crackers_sivakasi?igsh=eDBwcG5jcXd5c3Rs&utm_source=qr" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-[0_0_15px_rgba(220,39,67,0.4)] hover:shadow-[0_0_20px_rgba(220,39,67,0.7)] transition-all duration-300 hover:scale-110 flex items-center justify-center" aria-label="Instagram">
+          <a href="https://www.instagram.com/v_crackers001?igsh=MzBydDUxMzhrM2hv" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-[0_0_15px_rgba(220,39,67,0.4)] hover:shadow-[0_0_20px_rgba(220,39,67,0.7)] transition-all duration-300 hover:scale-110 flex items-center justify-center" aria-label="Instagram">
             <FaInstagram className="text-xl md:text-2xl" />
           </a>
-          <a href="https://youtube.com/@leocrackers-sivakasi?si=mQ6IhVeWEWq8pQEN" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-[#FF0000] text-white shadow-[0_0_15px_rgba(255,0,0,0.4)] hover:shadow-[0_0_20px_rgba(255,0,0,0.7)] transition-all duration-300 hover:scale-110 flex items-center justify-center" aria-label="YouTube">
+          <a href="https://youtube.com/@vcrackerssivakasi?si=tRhvgMfJgpWxoJB6" target="_blank" rel="noopener noreferrer" className="p-3 rounded-full bg-[#FF0000] text-white shadow-[0_0_15px_rgba(255,0,0,0.4)] hover:shadow-[0_0_20px_rgba(255,0,0,0.7)] transition-all duration-300 hover:scale-110 flex items-center justify-center" aria-label="YouTube">
             <FaYoutube className="text-xl md:text-2xl" />
           </a>
         </div>

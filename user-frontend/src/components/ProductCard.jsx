@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 const ProductCard = ({ product, discountPct = 0 }) => {
   const { addToCart } = useCart();
   const [qty, setQty] = useState(1);
+  const FORCE_COMING_SOON = true;
+  const isAvailable = !FORCE_COMING_SOON && product.stock > 0;
 
   const basePrice = product.price;
   const effectivePrice =
@@ -106,12 +108,12 @@ const ProductCard = ({ product, discountPct = 0 }) => {
               ₹{basePrice}
             </span>
           )}
-          {product.stock <= 10 && product.stock > 0 && (
+          {isAvailable && product.stock <= 10 && (
             <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400">
               Only {product.stock} left!
             </span>
           )}
-          {product.stock === 0 && (
+          {!isAvailable && (
             <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/20 text-red-400">
               Coming soon
             </span>
@@ -119,7 +121,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
         </div>
 
         {/* Quantity + Add to Cart */}
-        {product.stock > 0 ? (
+        {isAvailable ? (
           <div className="flex items-center gap-1 md:gap-2 mt-1">
             {/* Quantity Selector */}
             <div className="flex items-center rounded-xl overflow-hidden" style={{ border: "1px solid rgba(255,102,0,0.15)" }}>

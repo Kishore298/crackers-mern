@@ -85,7 +85,8 @@ const ProductDetailPage = () => {
       : product.discountedPrice
         ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
         : 0;
-  const inStock = product.stock > 0;
+  const FORCE_COMING_SOON = true;
+  const inStock = !FORCE_COMING_SOON && product.stock > 0;
 
   const productSchema = {
     "@context": "https://schema.org/",
@@ -227,7 +228,7 @@ const ProductDetailPage = () => {
               />
               {inStock
                 ? `In Stock (${product.stock} units available)`
-                : "Out of Stock"}
+                : FORCE_COMING_SOON ? "Coming Soon" : "Out of Stock"}
             </div>
 
             {product.description && (
@@ -237,7 +238,7 @@ const ProductDetailPage = () => {
             )}
 
             {/* Qty + Add to Cart */}
-            {inStock && (
+            {inStock ? (
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center rounded-xl overflow-hidden" style={{ border: "2px solid rgba(255,102,0,0.15)" }}>
                   <button
@@ -265,6 +266,15 @@ const ProductDetailPage = () => {
                   <ShoppingCart className="w-5 h-5" /> Add to Cart
                 </button>
               </div>
+            ) : (
+              <button
+                disabled
+                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-base font-semibold mt-2 opacity-50 cursor-not-allowed"
+                style={{ background: "#1a1726", color: "#555", border: "1px solid rgba(255,255,255,0.05)" }}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Coming Soon
+              </button>
             )}
 
             {/* Safety */}

@@ -30,7 +30,7 @@ const Footer = () => {
 
   return (
     <footer className="text-gray-300 pt-2 pb-6" style={{ background: "#080610" }}>
-      <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 pt-10">
+      <div className="w-full md:max-w-[98%] mx-auto px-4 sm:px-6 pt-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-10 mb-10">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
@@ -178,8 +178,8 @@ const Footer = () => {
               <li className="flex items-start gap-3 text-sm text-gray-400">
                 <MapPin className="w-5 h-5 text-primary mt-1 shrink-0" />
                 <span className="leading-relaxed">
-                  V Crackers <br />
-                  4/468-G, Sithalakshmi Nagar, <br />
+                  V Crackers, 4/468-G, <br />
+                  Sithalakshmi Nagar, <br />
                   Kongalapuram, Sivakasi - 626123
                 </span>
               </li>

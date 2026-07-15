@@ -160,6 +160,8 @@ const HomePage = () => {
   // Search & sort state
   const [searchFilter, setSearchFilter] = useState("");
   const [sortFilter, setSortFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [allCategories, setAllCategories] = useState([]);
 
   // Accordion state
   const [collapsedCategories, setCollapsedCategories] = useState({});
@@ -175,6 +177,7 @@ const HomePage = () => {
       const params = new URLSearchParams();
       if (searchFilter) params.set("search", searchFilter);
       if (sortFilter) params.set("sort", sortFilter);
+      if (categoryFilter) params.set("category", categoryFilter);
       params.set("page", pageNum);
       params.set("limit", 5);
 
@@ -198,19 +201,23 @@ const HomePage = () => {
       if (pageNum === 1) setInitLoading(false);
       else setLoadingMore(false);
     }
-  }, [searchFilter, sortFilter]);
+  }, [searchFilter, sortFilter, categoryFilter]);
 
   // Initial fetch for banners, discount, and page 1 categories
   useEffect(() => {
     const fetchGlobalData = async () => {
       try {
-        // const [bannerRes, discountRes] = await Promise.all([
-        //   api.get("/banners"),
-        //   api.get("/discount"),
-        // ]);
-        const discountRes = await api.get("/discount");
-        // setBanners(bannerRes.data.banners || []);
+        const [discountRes, catsRes] = await Promise.all([
+          api.get("/discount"),
+          api.get("/categories")
+        ]);
         setDiscount(discountRes.data.discount || null);
+        
+        // Sort categories by order if available
+        const sorted = (catsRes.data.categories || []).sort((a, b) => {
+          return (a.order || 999) - (b.order || 999);
+        });
+        setAllCategories(sorted);
       } catch (e) {
         console.error(e);
       }
@@ -556,6 +563,23 @@ const HomePage = () => {
             />
           </div>
           <select
+            value={categoryFilter}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+              setPage(1);
+            }}
+            aria-label="Filter by Category"
+            className="hidden lg:block px-4 py-2.5 rounded-xl text-sm outline-none shadow-sm"
+            style={{ background: "#0f0d1a", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.1)" }}
+          >
+            <option value="">All Categories</option>
+            {allCategories.map((cat) => (
+              <option key={cat._id} value={cat.slug}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          <select
             value={sortFilter}
             onChange={(e) => setSortFilter(e.target.value)}
             aria-label="Sort products"
@@ -567,6 +591,55 @@ const HomePage = () => {
             <option value="price_desc">Price: High to Low</option>
             <option value="newest">Newest First</option>
           </select>
+        </div>
+
+        {/* Zomato-style Category Slider */}
+        <div className="flex overflow-x-auto gap-4 pb-4 mb-6 scrollbar-hide snap-x lg:hidden">
+          <button
+            onClick={() => {
+              setCategoryFilter("");
+              setPage(1);
+            }}
+            className="flex flex-col items-center gap-2 min-w-[72px] snap-start group"
+          >
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center p-0.5 transition-all ${!categoryFilter ? "bg-gradient-to-br from-[#8b0000] via-[#ff6600] to-[#ffcc33]" : "bg-transparent border border-white/10 group-hover:border-primary/50"}`}>
+              <div className="w-full h-full rounded-full bg-[#13111f] flex items-center justify-center text-xl">
+                🎇
+              </div>
+            </div>
+            <span className={`text-xs font-semibold whitespace-nowrap transition-colors ${!categoryFilter ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`}>
+              All
+            </span>
+          </button>
+          
+          {allCategories.map((cat) => {
+            const isComboCat = cat.name.toLowerCase().includes("combo");
+            const isActive = categoryFilter === cat.slug || categoryFilter === cat._id;
+            
+            return (
+              <button
+                key={cat._id}
+                onClick={() => {
+                  setCategoryFilter(cat.slug);
+                  setPage(1);
+                }}
+                className="flex flex-col items-center gap-2 min-w-[72px] snap-start group"
+              >
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center p-0.5 transition-all ${isActive ? "bg-gradient-to-br from-[#8b0000] via-[#ff6600] to-[#ffcc33]" : "bg-transparent border border-white/10 group-hover:border-primary/50"}`}>
+                  <div className="w-full h-full rounded-full overflow-hidden bg-[#13111f] flex items-center justify-center">
+                    {cat.image ? (
+                      <img src={cat.image?.replace("/upload/", "/upload/q_auto,f_auto,w_100/")} alt={cat.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                    ) : (
+                      <span className="text-xl">{isComboCat ? '🎁' : '✨'}</span>
+                    )}
+                  </div>
+                </div>
+                <span className={`text-xs font-semibold whitespace-nowrap transition-colors ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`}>
+                  {cat.name}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {initLoading ? (
