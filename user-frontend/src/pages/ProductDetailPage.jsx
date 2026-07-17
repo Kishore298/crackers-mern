@@ -52,7 +52,7 @@ const ProductDetailPage = () => {
         const d = r.data.discount;
         if (d?.isActive) setDiscountPct(d.percentage);
       })
-      .catch(() => {});
+      .catch(() => { });
     setQty(1);
     setActiveImg(0);
   }, [slug]);
@@ -109,8 +109,8 @@ const ProductDetailPage = () => {
 
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
-      <SEO 
-        title={product.name} 
+      <SEO
+        title={product.name}
         description={product.description || `Buy ${product.name} online at V Crackers. Premium quality products from Sivakasi.`}
         schemaMarkup={productSchema}
         ogImage={product.images?.[0]?.url}
@@ -153,6 +153,7 @@ const ProductDetailPage = () => {
                   }}
                 />
               )}
+              {/* Prices currently hidden
               {showDiscount && displayPct > 0 && (
                 <span
                   className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-bold text-white"
@@ -162,7 +163,8 @@ const ProductDetailPage = () => {
                 >
                   -{displayPct}% OFF
                 </span>
-              )}
+              )} 
+              */}
             </div>
             {product.images?.length > 1 && (
               <div className="flex gap-2.5 mt-3">
@@ -199,6 +201,7 @@ const ProductDetailPage = () => {
 
             {/* Price */}
             <div className="flex items-end gap-3">
+              {/* Prices currently hidden
               <span className="text-3xl font-bold text-primary">
                 ₹{effectivePrice}
               </span>
@@ -216,7 +219,8 @@ const ProductDetailPage = () => {
                 >
                   You save ₹{basePrice - effectivePrice}
                 </span>
-              )}
+              )} 
+              */}
             </div>
 
             {/* Stock */}

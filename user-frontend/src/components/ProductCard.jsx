@@ -71,6 +71,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
 
         {/* Badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+          {/* Prices currently hidden
           {showDiscount && displayPct > 0 && (
             <span
               className="px-2 py-0.5 rounded-full text-xs font-bold text-white shadow"
@@ -80,7 +81,8 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             >
               -{displayPct}%
             </span>
-          )}
+          )} 
+          */}
         </div>
       </Link>
 
@@ -100,6 +102,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
 
         {/* Pricing */}
         <div className="flex items-center gap-2 mt-auto">
+          {/* Prices currently hidden
           <span className="text-base font-bold text-primary">
             ₹{effectivePrice}
           </span>
@@ -112,7 +115,8 @@ const ProductCard = ({ product, discountPct = 0 }) => {
             <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400">
               Only {product.stock} left!
             </span>
-          )}
+          )} 
+          */}
           {!isAvailable && (
             <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/20 text-red-400">
               Coming soon

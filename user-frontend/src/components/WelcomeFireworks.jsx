@@ -4,17 +4,16 @@ const WelcomeFireworks = () => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [isVisible, setIsVisible] = useState(() => {
-    return !sessionStorage.getItem("hasSeenFireworks_v10");
+    return !sessionStorage.getItem("hasSeenFireworks_v12");
   });
-  const [showLogo, setShowLogo] = useState(false);
   const [shouldShake, setShouldShake] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
   useEffect(() => {
     if (!isVisible) return;
-    
+
     // Mark as seen so next page load won't show it
-    sessionStorage.setItem("hasSeenFireworks_v10", "true");
+    sessionStorage.setItem("hasSeenFireworks_v12", "true");
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -80,23 +79,23 @@ const WelcomeFireworks = () => {
             Math.random() * 15 + 5,
             0.1, 0.92, true, true
           ));
-          this.color = Math.random() > 0.5 ? "#ffffff" : "#ffcc00"; 
+          this.color = Math.random() > 0.5 ? "#ffffff" : "#ffcc00";
         }
       }
       draw(ctx) {
         ctx.save();
         ctx.globalAlpha = this.alpha;
-        
+
         // Draw the sweeping trail segment
         ctx.beginPath();
         ctx.moveTo(this.lastX, this.lastY);
         ctx.lineTo(this.x, this.y);
         ctx.strokeStyle = this.color;
         // Extremely thin, elegant lines
-        ctx.lineWidth = this.isSpark ? 0.3 : 0.8; 
+        ctx.lineWidth = this.isSpark ? 0.3 : 0.8;
         ctx.lineCap = "round";
         ctx.stroke();
-        
+
         // Glowing core dot
         if (this.glow) {
           ctx.beginPath();
@@ -106,7 +105,7 @@ const WelcomeFireworks = () => {
           ctx.shadowBlur = this.isSpark ? 4 : 8;
           ctx.shadowColor = this.color;
         }
-        
+
         ctx.restore();
       }
     }
@@ -169,7 +168,7 @@ const WelcomeFireworks = () => {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 18 + 4; // High speed for sweeping arcs
         // Majestic burst colors
-        const color = Math.random() > 0.8 ? "#ffffff" : (Math.random() > 0.6 ? skyColors[Math.floor(Math.random()*skyColors.length)] : baseColor);
+        const color = Math.random() > 0.8 ? "#ffffff" : (Math.random() > 0.6 ? skyColors[Math.floor(Math.random() * skyColors.length)] : baseColor);
         particles.push(
           new Particle(
             x, y, color,
@@ -194,7 +193,7 @@ const WelcomeFireworks = () => {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 25 + 5;
         // Majestic multi-color + gold mix
-        const color = Math.random() > 0.4 ? "#ffcc00" : skyColors[Math.floor(Math.random()*skyColors.length)];
+        const color = Math.random() > 0.4 ? "#ffcc00" : skyColors[Math.floor(Math.random() * skyColors.length)];
         particles.push(
           new Particle(
             x, y, color,
@@ -208,8 +207,8 @@ const WelcomeFireworks = () => {
           )
         );
       }
-      
-      audio.play().catch(() => {});
+
+      audio.play().catch(() => { });
     };
 
     let timeline = {
@@ -227,27 +226,27 @@ const WelcomeFireworks = () => {
 
     const loop = () => {
       const elapsed = (Date.now() - startTime) / 1000;
-      
+
       // Use destination-out to fade previous frames, preventing ghosting shapes
       ctx.globalCompositeOperation = "destination-out";
       ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+
       // Use lighter for additive blending to make sparks glow intensely
       ctx.globalCompositeOperation = "lighter";
 
       // --- Timeline Triggers ---
-      
+
       // 0.0s - 0.5s: Burning fuse
       if (elapsed > 0 && !timeline.fuse) {
         fuseX += (canvas.width / 2 + 50) * 0.05;
         if (fuseX < canvas.width / 2) {
-          for(let i=0; i<3; i++) {
+          for (let i = 0; i < 3; i++) {
             fuseSparks.push(new Particle(
-              fuseX, fuseY, "#ffcc33", 
-              (Math.random()-0.5)*5, 
-              (Math.random()-1)*6, 
-              Math.random()*15 + 10,
+              fuseX, fuseY, "#ffcc33",
+              (Math.random() - 0.5) * 5,
+              (Math.random() - 1) * 6,
+              Math.random() * 15 + 10,
               0.1, 0.9, true, true
             ));
           }
@@ -258,17 +257,17 @@ const WelcomeFireworks = () => {
 
       // 0.5s - 1.2s: Anar (Ground Fountain)
       if (elapsed > 0.5 && elapsed < 1.2) {
-        for(let i=0; i<6; i++) {
-          const angle = -Math.PI/2 + (Math.random()-0.5)*0.6;
+        for (let i = 0; i < 6; i++) {
+          const angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.6;
           const speed = Math.random() * 20 + 5;
           particles.push(new Particle(
             canvas.width / 2, canvas.height,
-            sparkColors[Math.floor(Math.random()*sparkColors.length)],
+            sparkColors[Math.floor(Math.random() * sparkColors.length)],
             Math.cos(angle) * speed,
             Math.sin(angle) * speed,
             Math.random() * 40 + 20,
-            0.25, 
-            0.96, 
+            0.25,
+            0.96,
             false,
             true
           ));
@@ -305,15 +304,10 @@ const WelcomeFireworks = () => {
         createGrandFinale(canvas.width / 2, canvas.height * 0.35);
       }
 
-      // 5.0s: Logo Reveal
+      // 5.0s: (Optional) could trigger one last small burst here if desired, 
+      // but leaving it empty lets the finale rain fall gracefully.
       if (elapsed > 5.0 && !timeline.logo) {
         timeline.logo = true;
-        setShowLogo(true);
-        // Fade out particles instantly so logo is clear
-        particles.forEach(p => {
-          if (p.life > 15) p.life = 15;
-          p.maxLife = 15;
-        });
       }
 
       // 7.0s: Fade out
@@ -324,7 +318,7 @@ const WelcomeFireworks = () => {
       }
 
       // --- Rendering ---
-      
+
       // Draw fuse sparks
       for (let i = fuseSparks.length - 1; i >= 0; i--) {
         fuseSparks[i].update();
@@ -360,30 +354,14 @@ const WelcomeFireworks = () => {
   if (!isVisible) return null;
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0' : 'opacity-100'} ${shouldShake ? 'animate-shake' : ''}`}
-      style={{ background: "#0a0814" }} 
     >
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none mix-blend-screen"
       />
-      
-      {/* Logo Reveal */}
-      <div 
-        className={`relative z-10 flex flex-col items-center justify-center transition-all duration-1000 ease-out transform ${showLogo ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-10'}`}
-      >
-        <img 
-          src="/v-crackers-logo.webp" 
-          alt="V Crackers" 
-          className="w-32 md:w-48 h-auto drop-shadow-[0_0_20px_rgba(255,102,0,0.8)]"
-          onError={(e) => e.target.style.display = 'none'} 
-        />
-        <h1 className="mt-5 font-heading font-black text-4xl md:text-6xl text-white tracking-widest drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]">
-          WELCOME
-        </h1>
-      </div>
 
       {/* Shake Keyframes */}
       <style>{`
