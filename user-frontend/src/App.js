@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { HelmetProvider } from "react-helmet-async";
 import PremiumExtras from "./components/PremiumExtras";
+import WelcomeFireworks from "./components/WelcomeFireworks";
 import "./index.css";
 
 // Lazy loading pages for better performance
@@ -57,6 +58,7 @@ function App() {
 
   return (
     <HelmetProvider>
+      <WelcomeFireworks />
       <BrowserRouter>
         <ScrollToTop />
         <AuthProvider>

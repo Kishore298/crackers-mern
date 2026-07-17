@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ChevronRight, TrendingUp, ChevronDown, Search } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
-import { Truck, Shield, Zap, Percent } from "lucide-react";
+import { Shield, Zap, Percent } from "lucide-react";
 import SEO from "../components/SEO";
 
 /* ─── Discount banner (uses global Discount model) ─── */
@@ -212,7 +212,7 @@ const HomePage = () => {
           api.get("/categories")
         ]);
         setDiscount(discountRes.data.discount || null);
-        
+
         // Sort categories by order if available
         const sorted = (catsRes.data.categories || []).sort((a, b) => {
           return (a.order || 999) - (b.order || 999);
@@ -512,9 +512,8 @@ const HomePage = () => {
       {/* ══ Features strip ══ */}
       <div style={{ background: "#0f0d1a", borderTop: "1px solid rgba(255,102,0,0.08)", borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-32">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8 justify-items-center sm:justify-items-start">
             {[
-              { icon: Truck, text: "₹0 Delivery charges on orders above ₹5000" },
               { icon: Shield, text: "100% Safe & Certified" },
               { icon: Zap, text: "Premium Quality" },
               { icon: Percent, text: "Discounted Prices" },
@@ -548,98 +547,102 @@ const HomePage = () => {
           sub="Find exactly what you're looking for"
         />
 
-        {/* Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6 p-4 rounded-2xl" style={{ background: "#13111f", border: "1px solid rgba(255, 102, 0, 0.47)" }}>
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchFilter}
-              onChange={(e) => setSearchFilter(e.target.value)}
-              aria-label="Search products by name"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all shadow-sm"
+        {/* ══ Filter Bar (Sticky on Desktop, Scrolls on Mobile) ══ */}
+        <div className="relative lg:sticky z-40 lg:top-[94px] pt-3 pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6" style={{ background: "#0a0814" }}>
+          <div className="flex flex-col sm:flex-row gap-3 p-4 rounded-2xl" style={{ background: "#13111f", border: "1px solid rgba(255, 102, 0, 0.47)" }}>
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchFilter}
+                onChange={(e) => setSearchFilter(e.target.value)}
+                aria-label="Search products by name"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all shadow-sm"
+                style={{ background: "#0f0d1a", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.1)" }}
+              />
+            </div>
+            <select
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setPage(1);
+              }}
+              aria-label="Filter by Category"
+              className="hidden lg:block px-4 py-2.5 rounded-xl text-sm outline-none shadow-sm"
               style={{ background: "#0f0d1a", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.1)" }}
-            />
+            >
+              <option value="">All Categories</option>
+              {allCategories.map((cat) => (
+                <option key={cat._id} value={cat.slug}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={sortFilter}
+              onChange={(e) => setSortFilter(e.target.value)}
+              aria-label="Sort products"
+              className="px-4 py-2.5 rounded-xl text-sm outline-none shadow-sm"
+              style={{ background: "#0f0d1a", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.1)" }}
+            >
+              <option value="">Sort By: Relevance</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="newest">Newest First</option>
+            </select>
           </div>
-          <select
-            value={categoryFilter}
-            onChange={(e) => {
-              setCategoryFilter(e.target.value);
-              setPage(1);
-            }}
-            aria-label="Filter by Category"
-            className="hidden lg:block px-4 py-2.5 rounded-xl text-sm outline-none shadow-sm"
-            style={{ background: "#0f0d1a", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.1)" }}
-          >
-            <option value="">All Categories</option>
-            {allCategories.map((cat) => (
-              <option key={cat._id} value={cat.slug}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={sortFilter}
-            onChange={(e) => setSortFilter(e.target.value)}
-            aria-label="Sort products"
-            className="px-4 py-2.5 rounded-xl text-sm outline-none shadow-sm"
-            style={{ background: "#0f0d1a", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.1)" }}
-          >
-            <option value="">Sort By: Relevance</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-            <option value="newest">Newest First</option>
-          </select>
         </div>
 
-        {/* Zomato-style Category Slider */}
-        <div className="flex overflow-x-auto gap-4 pb-4 mb-6 scrollbar-hide snap-x lg:hidden">
-          <button
-            onClick={() => {
-              setCategoryFilter("");
-              setPage(1);
-            }}
-            className="flex flex-col items-center gap-2 min-w-[72px] snap-start group"
-          >
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center p-0.5 transition-all ${!categoryFilter ? "bg-gradient-to-br from-[#8b0000] via-[#ff6600] to-[#ffcc33]" : "bg-transparent border border-white/10 group-hover:border-primary/50"}`}>
-              <div className="w-full h-full rounded-full bg-[#13111f] flex items-center justify-center text-xl">
-                🎇
-              </div>
-            </div>
-            <span className={`text-xs font-semibold whitespace-nowrap transition-colors ${!categoryFilter ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`}>
-              All
-            </span>
-          </button>
-          
-          {allCategories.map((cat) => {
-            const isComboCat = cat.name.toLowerCase().includes("combo");
-            const isActive = categoryFilter === cat.slug || categoryFilter === cat._id;
-            
-            return (
-              <button
-                key={cat._id}
-                onClick={() => {
-                  setCategoryFilter(cat.slug);
-                  setPage(1);
-                }}
-                className="flex flex-col items-center gap-2 min-w-[72px] snap-start group"
-              >
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center p-0.5 transition-all ${isActive ? "bg-gradient-to-br from-[#8b0000] via-[#ff6600] to-[#ffcc33]" : "bg-transparent border border-white/10 group-hover:border-primary/50"}`}>
-                  <div className="w-full h-full rounded-full overflow-hidden bg-[#13111f] flex items-center justify-center">
-                    {cat.image ? (
-                      <img src={cat.image?.replace("/upload/", "/upload/q_auto,f_auto,w_100/")} alt={cat.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
-                    ) : (
-                      <span className="text-xl">{isComboCat ? '🎁' : '✨'}</span>
-                    )}
-                  </div>
+        {/* ══ Zomato-style Category Slider (Sticky on Mobile, Hidden on Desktop) ══ */}
+        <div className="sticky lg:hidden z-40 top-[64px] py-2 -mx-4 px-4 sm:-mx-6 sm:px-6 mb-6" style={{ background: "#0a0814", borderBottom: "1px solid rgba(255, 102, 0, 0.1)" }}>
+          <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide snap-x">
+            <button
+              onClick={() => {
+                setCategoryFilter("");
+                setPage(1);
+              }}
+              className="flex flex-col items-center gap-2 min-w-[72px] w-[72px] snap-start group"
+            >
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center p-0.5 transition-all ${!categoryFilter ? "bg-gradient-to-br from-[#8b0000] via-[#ff6600] to-[#ffcc33]" : "bg-transparent border border-white/10 group-hover:border-primary/50"}`}>
+                <div className="w-full h-full rounded-full bg-[#13111f] flex items-center justify-center text-xl">
+                  🎇
                 </div>
-                <span className={`text-xs font-semibold whitespace-nowrap transition-colors ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`}>
-                  {cat.name}
-                </span>
-              </button>
-            );
-          })}
+              </div>
+              <span className={`text-[10px] leading-tight font-semibold transition-colors text-center w-full ${!categoryFilter ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`} style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>
+                All
+              </span>
+            </button>
+
+            {allCategories.map((cat) => {
+              const isComboCat = cat.name.toLowerCase().includes("combo");
+              const isActive = categoryFilter === cat.slug || categoryFilter === cat._id;
+
+              return (
+                <button
+                  key={cat._id}
+                  onClick={() => {
+                    setCategoryFilter(cat.slug);
+                    setPage(1);
+                  }}
+                  className="flex flex-col items-center gap-2 min-w-[72px] w-[72px] snap-start group"
+                >
+                  <div className={`w-16 h-16 shrink-0 rounded-full flex items-center justify-center p-0.5 transition-all ${isActive ? "bg-gradient-to-br from-[#8b0000] via-[#ff6600] to-[#ffcc33]" : "bg-transparent border border-white/10 group-hover:border-primary/50"}`}>
+                    <div className="w-full h-full rounded-full overflow-hidden bg-[#13111f] flex items-center justify-center">
+                      {cat.image ? (
+                        <img src={cat.image?.replace("/upload/", "/upload/q_auto,f_auto,w_100/")} alt={cat.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                      ) : (
+                        <span className="text-xl">{isComboCat ? '🎁' : '✨'}</span>
+                      )}
+                    </div>
+                  </div>
+                  <span className={`text-[10px] leading-tight font-semibold transition-colors text-center w-full ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`} style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {cat.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {initLoading ? (
