@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { HelmetProvider } from "react-helmet-async";
 import PremiumExtras from "./components/PremiumExtras";
+import FloatingCart from "./components/FloatingCart";
 import WelcomeFireworks from "./components/WelcomeFireworks";
 import "./index.css";
 
@@ -129,6 +130,7 @@ function App() {
               </main>
               <Footer />
               <PremiumExtras />
+              <FloatingCart />
             </NotificationProvider>
           </CartProvider>
         </AuthProvider>

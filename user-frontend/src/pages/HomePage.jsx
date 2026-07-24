@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, useCallback, useRef, useLayoutEffect } from "react";
+import { Link, useNavigationType, useLocation } from "react-router-dom";
 // import Slider from "react-slick";
 // import "slick-carousel/slick/slick.css";
 // import "slick-carousel/slick/slick-theme.css";
@@ -58,7 +58,7 @@ const DiscountBanner = ({ discount }) => {
         {/* Right image */}
         <div className="absolute right-0 top-0 bottom-0 w-full sm:w-2/5 opacity-50 md:opacity-100 pointer-events-none">
           <img
-            src="/diwali-celebration.webp"
+            src="/diwali-family-celeb.webp"
             alt="V Crackers Celebration Family"
             width={400}
             height={200}
@@ -146,7 +146,12 @@ const SectionHead = ({ tag, title, sub, to }) => (
 //   );
 // };
 
+const STORAGE_KEY = "home_scroll_state";
+
 const HomePage = () => {
+  const navType = useNavigationType();
+  const location = useLocation();
+
   // const [banners, setBanners] = useState([]);
   const [discount, setDiscount] = useState(null);
   const [initLoading, setInitLoading] = useState(true);
@@ -168,20 +173,109 @@ const HomePage = () => {
 
   const observerRef = useRef(null);
 
-  // Fetch specific page based on current filters
+  // ─── Scroll Restoration ─────────────────────────────────────────
+  const isRestoringRef = useRef(false);
+  const pendingScrollYRef = useRef(null);
+
+  // Read saved state on mount (only on POP navigation)
+  const savedStateRef = useRef(() => {
+    if (navType !== "POP") return null;
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
+  // Evaluate once
+  const savedState = useRef(typeof savedStateRef.current === "function" ? savedStateRef.current() : savedStateRef.current);
+
+  // Save lightweight state to sessionStorage on changes
+  // (overwrites each time — supports multiple back navigations)
+  useEffect(() => {
+    // Don't save during restoration or initial loading
+    if (isRestoringRef.current || initLoading) return;
+
+    const state = {
+      page,
+      scrollY: window.scrollY,
+      searchFilter,
+      sortFilter,
+      categoryFilter,
+      collapsedCategories,
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [page, searchFilter, sortFilter, categoryFilter, collapsedCategories, initLoading]);
+
+  // Also save scrollY on scroll (debounced)
+  useEffect(() => {
+    let timer;
+    const handleScroll = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if (isRestoringRef.current) return;
+        try {
+          const raw = sessionStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const state = JSON.parse(raw);
+            state.scrollY = window.scrollY;
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          }
+        } catch { /* ignore */ }
+      }, 200);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  // ─── Data Fetching ──────────────────────────────────────────────
+
+  // Fetch a single page of categories
+  const fetchSinglePage = useCallback(async (pageNum, filters) => {
+    const params = new URLSearchParams();
+    if (filters.search) params.set("search", filters.search);
+    if (filters.sort) params.set("sort", filters.sort);
+    if (filters.category) params.set("category", filters.category);
+    params.set("page", pageNum);
+    params.set("limit", 5);
+    const { data } = await api.get(`/categories/with-products?${params}`);
+    return data;
+  }, []);
+
+  // Fetch pages 1..targetPage in sequence (for restoration)
+  const fetchPagesUpTo = useCallback(async (targetPage, filters) => {
+    let allCats = [];
+    let moreAvailable = true;
+
+    for (let p = 1; p <= targetPage; p++) {
+      try {
+        const data = await fetchSinglePage(p, filters);
+        const newCats = data.categories || [];
+        const existingIds = new Set(allCats.map(c => c._id));
+        allCats = [...allCats, ...newCats.filter(c => !existingIds.has(c._id))];
+        moreAvailable = data.hasMore;
+        if (!moreAvailable) break;
+      } catch (e) {
+        console.error(e);
+        break;
+      }
+    }
+
+    return { categories: allCats, hasMore: moreAvailable };
+  }, [fetchSinglePage]);
+
+  // Original fetch for normal flow
   const fetchGroupedCategories = useCallback(async (pageNum = 1, append = false) => {
     if (pageNum === 1) setInitLoading(true);
     else setLoadingMore(true);
 
     try {
-      const params = new URLSearchParams();
-      if (searchFilter) params.set("search", searchFilter);
-      if (sortFilter) params.set("sort", sortFilter);
-      if (categoryFilter) params.set("category", categoryFilter);
-      params.set("page", pageNum);
-      params.set("limit", 5);
-
-      const { data } = await api.get(`/categories/with-products?${params}`);
+      const data = await fetchSinglePage(pageNum, {
+        search: searchFilter,
+        sort: sortFilter,
+        category: categoryFilter,
+      });
 
       if (append) {
         setCategories((prev) => {
@@ -201,7 +295,7 @@ const HomePage = () => {
       if (pageNum === 1) setInitLoading(false);
       else setLoadingMore(false);
     }
-  }, [searchFilter, sortFilter, categoryFilter]);
+  }, [searchFilter, sortFilter, categoryFilter, fetchSinglePage]);
 
   // Initial fetch for banners, discount, and page 1 categories
   useEffect(() => {
@@ -225,10 +319,66 @@ const HomePage = () => {
     fetchGlobalData();
   }, []);
 
-  // Fetch categories when filters change
+  // Fetch categories — either restore from saved state or normal fetch
   useEffect(() => {
+    const saved = savedState.current;
+
+    if (saved && navType === "POP") {
+      // Restore mode: re-fetch pages 1..savedPage with saved filters
+      isRestoringRef.current = true;
+      setSearchFilter(saved.searchFilter || "");
+      setSortFilter(saved.sortFilter || "");
+      setCategoryFilter(saved.categoryFilter || "");
+      setCollapsedCategories(saved.collapsedCategories || {});
+      pendingScrollYRef.current = saved.scrollY || 0;
+
+      setInitLoading(true);
+      fetchPagesUpTo(saved.page || 1, {
+        search: saved.searchFilter || "",
+        sort: saved.sortFilter || "",
+        category: saved.categoryFilter || "",
+      }).then(({ categories: cats, hasMore: more }) => {
+        setCategories(cats);
+        setHasMore(more);
+        setPage(saved.page || 1);
+        setInitLoading(false);
+        // Mark restoration complete so normal effects don't re-fetch
+        // (savedState.current is consumed, set to null)
+        savedState.current = null;
+      });
+    } else {
+      // Normal mode: fetch page 1
+      fetchGroupedCategories(1, false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only on mount
+
+  // Re-fetch when filters change (but not on mount / restoration)
+  const filtersInitialized = useRef(false);
+  useEffect(() => {
+    if (!filtersInitialized.current) {
+      filtersInitialized.current = true;
+      return;
+    }
+    if (isRestoringRef.current) return;
     fetchGroupedCategories(1, false);
   }, [fetchGroupedCategories]);
+
+  // Restore scroll position after categories have rendered
+  useLayoutEffect(() => {
+    if (pendingScrollYRef.current !== null && !initLoading && categories.length > 0) {
+      const scrollTarget = pendingScrollYRef.current;
+      pendingScrollYRef.current = null;
+      isRestoringRef.current = false;
+
+      // Wait for DOM to fully paint before scrolling
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollTarget);
+        });
+      });
+    }
+  }, [initLoading, categories]);
 
   // Infinite Scroll logic
   const loadMoreCategories = useCallback(() => {
@@ -652,12 +802,24 @@ const HomePage = () => {
             {categories.map((cat) => {
               const isCollapsed = collapsedCategories[cat._id];
               return (
-                <div key={cat._id} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255, 102, 0, 0.47)" }}>
+                <div key={cat._id} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#13111f", border: "1px solid #2b2438" }}>
                   {/* Accordion Header */}
                   <button
                     onClick={() => toggleCategory(cat._id)}
-                    className="w-full flex items-center justify-between p-4 sm:p-5 transition-colors text-left hover:bg-surface-2"
-                    style={{ background: "rgba(255,255,255,0.02)" }}
+                    className="w-full flex items-center justify-between text-left accordion-header"
+                    style={{
+                      height: "58px",
+                      padding: "0 20px",
+                      borderRadius: "16px",
+                      background: "#171523",
+                      borderLeft: "4px solid #ff8a35",
+                      borderTop: "1px solid #2b2438",
+                      borderRight: "1px solid #2b2438",
+                      borderBottom: "1px solid #2b2438",
+                      transition: "background .2s ease, border-color .2s ease, transform .15s ease",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#1b1828"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "#171523"; }}
                   >
                     <div className="flex items-center gap-3">
                       {cat.image ? (
@@ -665,26 +827,24 @@ const HomePage = () => {
                           src={cat.image?.replace("/upload/", "/upload/q_auto,f_auto,w_100/")}
                           alt={cat.name}
                           crossOrigin="anonymous"
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-full object-cover shadow-sm"
-                          style={{ border: "1px solid rgba(255,102,0,0.15)" }}
+                          width={36}
+                          height={36}
+                          className="w-9 h-9 rounded-full object-cover shadow-sm"
+                          style={{ border: "1px solid rgba(255,138,53,0.2)" }}
                         />
                       ) : (
                         <div
-                          className="w-10 h-10 rounded-full shadow-sm"
+                          className="w-9 h-9 rounded-full shadow-sm"
                           style={{ background: "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)" }}
                         />
                       )}
-                      <div>
-                        <h3 className="font-heading font-bold text-white text-lg sm:text-xl flex items-center gap-2">
-                          {cat.name}
-                          <span className="text-sm font-normal text-gray-500">({cat.productCount})</span>
-                        </h3>
-                      </div>
+                      <h3 className="font-heading text-lg sm:text-xl flex items-center gap-2" style={{ fontWeight: 700, color: "#F8F8F8" }}>
+                        {cat.name}
+                        <span className="text-sm font-normal" style={{ color: "#A7A1B7" }}>({cat.productCount})</span>
+                      </h3>
                     </div>
                     <div className={`p-2 rounded-full shadow-sm transition-transform duration-300 ${isCollapsed ? '' : 'rotate-180'}`} style={{ background: "rgba(255,255,255,0.05)" }}>
-                      <ChevronDown className="w-5 h-5 text-gray-500" />
+                      <ChevronDown className="w-5 h-5" style={{ color: "#A7A1B7" }} />
                     </div>
                   </button>
 

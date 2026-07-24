@@ -84,6 +84,13 @@ const Navbar = () => {
               Home
             </Link>
 
+            <Link
+              to="/contact"
+              className="text-sm font-semibold text-gray-300 hover:text-primary transition-colors"
+            >
+              Contact Us
+            </Link>
+
             {/* Categories Dropdown */}
             <div
               className="relative"
@@ -271,6 +278,13 @@ const Navbar = () => {
               className="block px-4 py-2.5 text-sm font-semibold text-gray-300 hover:text-primary hover:bg-surface-2 rounded-lg transition-colors"
             >
               All Products
+            </Link>
+            <Link
+              to="/contact"
+              onClick={() => setMenuOpen(false)}
+              className="block px-4 py-2.5 text-sm font-semibold text-gray-300 hover:text-primary hover:bg-surface-2 rounded-lg transition-colors"
+            >
+              Contact Us
             </Link>
 
             {/* Mobile categories — collapsible */}

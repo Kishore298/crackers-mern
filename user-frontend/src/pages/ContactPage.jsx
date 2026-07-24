@@ -1,6 +1,6 @@
 import React from "react";
 import SEO from "../components/SEO";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 
 const ContactPage = () => {
   return (
@@ -34,10 +34,9 @@ const ContactPage = () => {
                 <div>
                   <h3 className="font-bold text-white mb-1">Our Address</h3>
                   <p className="text-gray-400 leading-relaxed">
-                    V Crackers <br/>
-                    4/468-G, Sithalakshmi Nagar, <br/>
-                    Kongalapuram, Sivakasi - 626123 <br/>
-                    Tamil Nadu, India
+                    V Crackers, 4/468-G, <br/>
+                    Sithalakshmi Nagar, <br/>
+                    Kongalapuram, Sivakasi - 626123
                   </p>
                 </div>
               </div>
@@ -49,7 +48,18 @@ const ContactPage = () => {
                 <div>
                   <h3 className="font-bold text-white mb-1">Phone Numbers</h3>
                   <a href="tel:+917824907916" className="text-gray-400 hover:text-primary block">+91 78249 07916</a>
-                  <a href="tel:+918838696953" className="text-gray-400 hover:text-primary block">+91 88386 96953</a>
+                  <a href="tel:+918778468360" className="text-gray-400 hover:text-primary block">+91 87784 68360</a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,102,0,0.1)" }}>
+                  <MessageCircle className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white mb-1">WhatsApp</h3>
+                  <a href="https://wa.me/917824907916" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary block">+91 78249 07916</a>
+                  <a href="https://wa.me/918778468360" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary block">+91 87784 68360</a>
                 </div>
               </div>
 

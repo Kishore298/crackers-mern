@@ -61,6 +61,21 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://vcrackers.in/products/minion-fountain</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products/spnka-s-special-colour-fancy</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products/mercury-s-fire-pencil</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://vcrackers.in/products/4-2-piece-fancy</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -167,26 +182,6 @@
   </url>
   <url>
     <loc>https://vcrackers.in/products/chotta-fancy</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vcrackers.in/products/10-k-platinum</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vcrackers.in/products/5-k-platinum</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vcrackers.in/products/2-k-platinum</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vcrackers.in/products/1-k-platinum</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
