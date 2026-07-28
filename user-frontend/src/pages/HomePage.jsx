@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef, useLayoutEffect } from "react";
-import { Link, useNavigationType, useLocation } from "react-router-dom";
+import { Link, useNavigationType } from "react-router-dom";
 // import Slider from "react-slick";
 // import "slick-carousel/slick/slick.css";
 // import "slick-carousel/slick/slick-theme.css";
@@ -150,7 +150,6 @@ const STORAGE_KEY = "home_scroll_state";
 
 const HomePage = () => {
   const navType = useNavigationType();
-  const location = useLocation();
 
   // const [banners, setBanners] = useState([]);
   const [discount, setDiscount] = useState(null);
@@ -172,6 +171,8 @@ const HomePage = () => {
   const [collapsedCategories, setCollapsedCategories] = useState({});
 
   const observerRef = useRef(null);
+  const productGridRef = useRef(null);
+  const pendingCategoryScrollRef = useRef(false);
 
   // ─── Scroll Restoration ─────────────────────────────────────────
   const isRestoringRef = useRef(false);
@@ -364,7 +365,7 @@ const HomePage = () => {
     fetchGroupedCategories(1, false);
   }, [fetchGroupedCategories]);
 
-  // Restore scroll position after categories have rendered
+  // Restore scroll position after categories have rendered (POP navigation only)
   useLayoutEffect(() => {
     if (pendingScrollYRef.current !== null && !initLoading && categories.length > 0) {
       const scrollTarget = pendingScrollYRef.current;
@@ -376,6 +377,24 @@ const HomePage = () => {
         requestAnimationFrame(() => {
           window.scrollTo(0, scrollTarget);
         });
+      });
+    }
+  }, [initLoading, categories]);
+
+  // Scroll to product grid after category filter fetch completes
+  useLayoutEffect(() => {
+    if (pendingCategoryScrollRef.current && !initLoading && categories.length > 0) {
+      pendingCategoryScrollRef.current = false;
+
+      requestAnimationFrame(() => {
+        if (!productGridRef.current) return;
+        // 64px navbar + ~120px sticky category carousel (mobile) / filter bar (desktop) + 16px breathing room
+        const STICKY_OFFSET = 200;
+        const top =
+          productGridRef.current.getBoundingClientRect().top +
+          window.scrollY -
+          STICKY_OFFSET;
+        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
       });
     }
   }, [initLoading, categories]);
@@ -409,6 +428,12 @@ const HomePage = () => {
       [catId]: !prev[catId]
     }));
   };
+
+  // Handle category click: set filter, scroll after fetch completes
+  const handleCategoryClick = useCallback((slug) => {
+    pendingCategoryScrollRef.current = true;
+    setCategoryFilter(slug);
+  }, []);
 
   // const sliderSettings = {
   //   dots: true,
@@ -714,10 +739,7 @@ const HomePage = () => {
             </div>
             <select
               value={categoryFilter}
-              onChange={(e) => {
-                setCategoryFilter(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => handleCategoryClick(e.target.value)}
               aria-label="Filter by Category"
               className="hidden lg:block px-4 py-2.5 rounded-xl text-sm outline-none shadow-sm"
               style={{ background: "#0f0d1a", color: "#e5e5e5", border: "1px solid rgba(255,102,0,0.1)" }}
@@ -748,10 +770,7 @@ const HomePage = () => {
         <div className="sticky lg:hidden z-40 top-[64px] py-2 -mx-4 px-4 sm:-mx-6 sm:px-6 mb-6" style={{ background: "#0a0814", borderBottom: "1px solid rgba(255, 102, 0, 0.1)" }}>
           <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide snap-x">
             <button
-              onClick={() => {
-                setCategoryFilter("");
-                setPage(1);
-              }}
+              onClick={() => handleCategoryClick("")}
               className="flex flex-col items-center gap-2 min-w-[72px] w-[72px] snap-start group"
             >
               <div className={`w-16 h-16 rounded-full flex items-center justify-center p-0.5 transition-all ${!categoryFilter ? "bg-gradient-to-br from-[#8b0000] via-[#ff6600] to-[#ffcc33]" : "bg-transparent border border-white/10 group-hover:border-primary/50"}`}>
@@ -771,10 +790,7 @@ const HomePage = () => {
               return (
                 <button
                   key={cat._id}
-                  onClick={() => {
-                    setCategoryFilter(cat.slug);
-                    setPage(1);
-                  }}
+                  onClick={() => handleCategoryClick(cat.slug)}
                   className="flex flex-col items-center gap-2 min-w-[72px] w-[72px] snap-start group"
                 >
                   <div className={`w-16 h-16 shrink-0 rounded-full flex items-center justify-center p-0.5 transition-all ${isActive ? "bg-gradient-to-br from-[#8b0000] via-[#ff6600] to-[#ffcc33]" : "bg-transparent border border-white/10 group-hover:border-primary/50"}`}>
@@ -798,7 +814,7 @@ const HomePage = () => {
         {initLoading ? (
           <Spinner />
         ) : (
-          <div className="space-y-6">
+          <div ref={productGridRef} className="space-y-6">
             {categories.map((cat) => {
               const isCollapsed = collapsedCategories[cat._id];
               return (
