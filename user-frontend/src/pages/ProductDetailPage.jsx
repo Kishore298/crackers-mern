@@ -79,12 +79,7 @@ const ProductDetailPage = () => {
   const showDiscount =
     discountPct > 0 ||
     (product.discountedPrice && product.discountedPrice < basePrice);
-  const displayPct =
-    discountPct > 0
-      ? discountPct
-      : product.discountedPrice
-        ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
-        : 0;
+
   const FORCE_COMING_SOON = true;
   const inStock = !FORCE_COMING_SOON && product.stock > 0;
 
@@ -201,7 +196,6 @@ const ProductDetailPage = () => {
 
             {/* Price */}
             <div className="flex items-end gap-3">
-              {/* Prices currently hidden
               <span className="text-3xl font-bold text-primary">
                 ₹{effectivePrice}
               </span>
@@ -210,17 +204,6 @@ const ProductDetailPage = () => {
                   ₹{basePrice}
                 </span>
               )}
-              {showDiscount && displayPct > 0 && (
-                <span
-                  className="px-2 py-0.5 rounded-full text-xs font-bold text-white"
-                  style={{
-                    background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                  }}
-                >
-                  You save ₹{basePrice - effectivePrice}
-                </span>
-              )} 
-              */}
             </div>
 
             {/* Stock */}

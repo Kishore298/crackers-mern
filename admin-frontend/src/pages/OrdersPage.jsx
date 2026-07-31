@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Search, ChevronDown, X, AlertTriangle, CheckCircle, Send } from "lucide-react";
+import { Search, X, AlertTriangle, CheckCircle, Send } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 
@@ -55,6 +55,16 @@ const OrdersPage = () => {
     try {
       await api.put(`/orders/${orderId}/status`, { orderStatus });
       toast.success(`Status updated to "${orderStatus}"`);
+      fetchOrders();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed");
+    }
+  };
+
+  const updatePaymentStatus = async (orderId, paymentStatus) => {
+    try {
+      await api.put(`/orders/${orderId}/payment-status`, { paymentStatus });
+      toast.success(`Payment status updated to "${paymentStatus}"`);
       fetchOrders();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed");
@@ -152,7 +162,7 @@ const OrdersPage = () => {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              {["Invoice", "Customer", "Type", "Amount", "Date", "Status", "Update Status"].map((h) => (
+              {["Invoice", "Customer", "Type", "Amount", "Date", "Status", "Payment", "Actions"].map((h) => (
                 <th key={h} className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   {h}
                 </th>
@@ -162,7 +172,7 @@ const OrdersPage = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="py-16 text-center">
+                <td colSpan={8} className="py-16 text-center">
                   <div className="w-8 h-8 rounded-full border-4 border-orange-100 border-t-primary animate-spin mx-auto" />
                 </td>
               </tr>
@@ -205,18 +215,36 @@ const OrdersPage = () => {
                         {order.orderStatus}
                       </span>
                     </td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                        {order.paymentStatus?.toUpperCase() || 'PENDING'}
+                      </span>
+                    </td>
                     <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-col gap-1.5">
                         {order.orderStatus !== "cancelled" && (
-                          <select
-                            value={order.orderStatus}
-                            onChange={(e) => updateStatus(order._id, e.target.value)}
-                            className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:border-primary"
-                          >
-                            {STATUSES.map((s) => (
-                              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                            ))}
-                          </select>
+                          <div className="flex flex-col gap-1">
+                            <select
+                              value={order.orderStatus}
+                              onChange={(e) => updateStatus(order._id, e.target.value)}
+                              className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:border-primary"
+                              title="Update Order Status"
+                            >
+                              {STATUSES.map((s) => (
+                                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                              ))}
+                            </select>
+                            
+                            <select
+                              value={order.paymentStatus || 'pending'}
+                              onChange={(e) => updatePaymentStatus(order._id, e.target.value)}
+                              className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:border-green-500"
+                              title="Update Payment Status"
+                            >
+                              <option value="pending">Payment: Pending</option>
+                              <option value="paid">Payment: Paid</option>
+                            </select>
+                          </div>
                         )}
                         {order.orderStatus !== "cancelled" && (
                           <button
@@ -233,7 +261,7 @@ const OrdersPage = () => {
                   {/* Expanded row */}
                   {expanding === order._id && (
                     <tr className="bg-orange-50/50">
-                      <td colSpan={7} className="px-6 py-4">
+                      <td colSpan={8} className="px-6 py-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
                           {/* Items */}
                           <div>

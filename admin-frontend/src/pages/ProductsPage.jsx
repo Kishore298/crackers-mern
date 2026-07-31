@@ -34,6 +34,7 @@ const ProductsPage = () => {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, type: "product", loading: false });
   const [discountPct, setDiscountPct] = useState(0);
+  const [uploadingExcel, setUploadingExcel] = useState(false);
   const dragIdx = useRef(null);
 
   const fetchProducts = useCallback(async () => {
@@ -178,6 +179,26 @@ const ProductsPage = () => {
     }
   };
 
+  const handleExcelUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    setUploadingExcel(true);
+    try {
+      const { data } = await api.post("/products/upload-excel", fd);
+      toast.success(data.message || "Excel processed successfully!");
+      fetchProducts();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to upload Excel");
+    } finally {
+      setUploadingExcel(false);
+      e.target.value = null;
+    }
+  };
+
   const totalPages = Math.ceil(total / 20);
 
   const openAdd = () => {
@@ -194,9 +215,16 @@ const ProductsPage = () => {
         <h2 className="font-heading font-bold text-xl text-gray-900">
           Products <span className="text-gray-400 font-normal text-base">({total})</span>
         </h2>
-        <button onClick={openAdd} className="btn-fire text-sm px-4 py-2">
-          <Plus className="w-4 h-4" /> Add Product
-        </button>
+        <div className="flex gap-2">
+          <label className={`btn-fire flex items-center justify-center text-sm px-4 py-2 cursor-pointer ${uploadingExcel ? 'opacity-50' : ''}`}>
+            <Upload className="w-4 h-4 mr-1" />
+            {uploadingExcel ? "Uploading..." : "Upload Excel"}
+            <input type="file" accept=".xlsx, .xls" className="hidden" onChange={handleExcelUpload} disabled={uploadingExcel} />
+          </label>
+          <button onClick={openAdd} className="btn-fire text-sm px-4 py-2">
+            <Plus className="w-4 h-4 mr-1" /> Add Product
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -270,8 +298,8 @@ const ProductsPage = () => {
                             className="w-full h-full object-contain"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-lg">
-                            🎆
+                          <div className="w-full h-full flex items-center justify-center p-1 bg-[#1a1726]">
+                            <img src="/v-crackers-logo.png" alt="Fallback Logo" className="w-full h-full object-contain opacity-40 grayscale" />
                           </div>
                         )}
                       </div>

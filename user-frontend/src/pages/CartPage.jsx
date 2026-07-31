@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, AlertCircle, Sparkles, TrendingUp } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, AlertCircle } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
@@ -8,8 +8,8 @@ import SEO from "../components/SEO";
 const CartPage = () => {
   const {
     cartItems, updateQty, removeFromCart, subtotal, total, itemCount,
-    slabDiscount, nextSlabHint, canCheckout, minCartShortfall,
-    MIN_CART_VALUE, DISCOUNT_SLABS,
+    canCheckout, minCartShortfall,
+    MIN_CART_VALUE,
   } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -45,8 +45,8 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
-      <SEO 
-        title="Your Shopping Cart" 
+      <SEO
+        title="Your Shopping Cart"
         description="Review your selected products before proceeding to checkout. Secure your celebration with V Crackers."
       />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
@@ -150,26 +150,7 @@ const CartPage = () => {
                   <span className="font-semibold text-white">₹{subtotal.toLocaleString("en-IN")}</span>
                 </div>
 
-                {slabDiscount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-green-400 flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5" /> Slab Discount
-                    </span>
-                    <span className="font-bold text-green-400">
-                      −₹{slabDiscount.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                )}
 
-                {nextSlabHint && (
-                  <div className="rounded-xl px-3 py-2.5 text-xs text-amber-300 flex items-start gap-2" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
-                    <TrendingUp className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-                    <span>
-                      Add <strong>₹{nextSlabHint.addMore.toLocaleString("en-IN")}</strong> more to save{" "}
-                      <strong>₹{nextSlabHint.savings.toLocaleString("en-IN")}</strong>!
-                    </span>
-                  </div>
-                )}
               </div>
 
               <div className="mt-4 pt-4 flex justify-between items-center" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
@@ -180,11 +161,7 @@ const CartPage = () => {
                   <span className="font-heading font-bold text-xl text-primary">
                     ₹{total.toLocaleString("en-IN")}
                   </span>
-                  {slabDiscount > 0 && (
-                    <p className="text-xs text-green-400 font-semibold">
-                      You save ₹{slabDiscount.toLocaleString("en-IN")}!
-                    </p>
-                  )}
+
                 </div>
               </div>
 
@@ -219,11 +196,10 @@ const CartPage = () => {
               <button
                 onClick={handleCheckout}
                 disabled={!canCheckout}
-                className={`w-full flex items-center justify-center gap-2 mt-5 py-3.5 text-base rounded-xl font-bold transition-all ${
-                  canCheckout
+                className={`w-full flex items-center justify-center gap-2 mt-5 py-3.5 text-base rounded-xl font-bold transition-all ${canCheckout
                     ? "btn-fire"
                     : "opacity-50 cursor-not-allowed"
-                }`}
+                  }`}
                 style={!canCheckout ? { background: "#1a1726", color: "#555" } : {}}
               >
                 {canCheckout ? (
@@ -233,31 +209,7 @@ const CartPage = () => {
                 )}
               </button>
 
-              <div className="mt-5 pt-4" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
-                  Discount Slabs
-                </p>
-                <div className="space-y-1">
-                  {DISCOUNT_SLABS.map((slab, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex justify-between text-xs px-2.5 py-1.5 rounded-lg transition-colors ${
-                        subtotal >= slab.min && subtotal <= slab.max
-                          ? "font-bold text-green-400"
-                          : "text-gray-400"
-                      }`}
-                      style={subtotal >= slab.min && subtotal <= slab.max ? { background: "rgba(74,222,128,0.1)" } : {}}
-                    >
-                      <span>{slab.label}</span>
-                      <span>
-                        {slab.discount > 0
-                          ? `₹${slab.discount.toLocaleString("en-IN")} OFF`
-                          : "No discount"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+
             </div>
           </div>
         </div>

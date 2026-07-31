@@ -4,7 +4,7 @@ import { ShoppingCart, ChevronRight } from "lucide-react";
 import { useCart } from "../context/CartContext";
 
 const FloatingCart = () => {
-  const { itemCount, total, slabDiscount } = useCart();
+  const { itemCount, total } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -76,12 +76,12 @@ const FloatingCart = () => {
             gap: "12px",
             padding: "12px 22px",
             borderRadius: "60px",
-            background: "linear-gradient(90deg, #ff8b2b, #ff5a00)",
+            background: "linear-gradient(90deg, #dc2626, #f43f5e)",
             color: "#fff",
             border: "none",
             cursor: "pointer",
             boxShadow:
-              "0 8px 32px rgba(255, 90, 0, 0.35), 0 2px 8px rgba(0,0,0,0.3)",
+              "0 8px 32px rgba(220, 38, 38, 0.35), 0 2px 8px rgba(0,0,0,0.3)",
             fontFamily: "Inter, system-ui, sans-serif",
             whiteSpace: "nowrap",
             minWidth: "max-content",
@@ -127,18 +127,7 @@ const FloatingCart = () => {
                 </span>
               </span>
             </div>
-            {slabDiscount > 0 && (
-              <span
-                style={{
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  color: "#d4ffcc",
-                  letterSpacing: "0.2px",
-                }}
-              >
-                You Save ₹{slabDiscount.toLocaleString("en-IN")}
-              </span>
-            )}
+
           </div>
 
           {/* Arrow */}

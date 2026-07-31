@@ -260,4 +260,6 @@ module.exports = {
   createCategory,
   updateCategory,
   deleteCategory,
+  CATEGORY_ORDER_SLUGS,
+  getSortIndex,
 };

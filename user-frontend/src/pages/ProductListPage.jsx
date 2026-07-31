@@ -223,7 +223,7 @@ const ProductListPage = () => {
                 🎇
               </div>
             </div>
-            <span className={`text-xs font-semibold whitespace-nowrap transition-colors ${!categoryFilter && searchParams.get("filter") !== "combos" ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`}>
+            <span className={`text-[10px] leading-tight font-semibold transition-colors text-center w-full ${!categoryFilter && searchParams.get("filter") !== "combos" ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`} style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>
               All
             </span>
           </button>
@@ -253,7 +253,7 @@ const ProductListPage = () => {
                     )}
                   </div>
                 </div>
-                <span className={`text-xs font-semibold whitespace-nowrap transition-colors ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`}>
+                <span className={`text-[10px] leading-tight font-semibold transition-colors text-center w-full ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-300"}`} style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {cat.name}
                 </span>
               </button>
@@ -314,9 +314,9 @@ const ProductListPage = () => {
           ) : (
             <div className="space-y-10">
               {groupedCategories.map((cat) => (
-                <div key={cat._id} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+                <div key={cat._id} className="rounded-2xl overflow-hidden shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255, 138, 53, 0.4)" }}>
                   {/* Category Header */}
-                  <div className="w-full flex items-center p-4 sm:p-5 text-left" style={{ background: "rgba(255,255,255,0.02)" }}>
+                  <div className="w-full flex items-center p-4 sm:p-5 text-left" style={{ background: "#171523", borderBottom: "1px solid rgba(255, 138, 53, 0.2)" }}>
                     <div className="flex items-center gap-3">
                       {cat.image ? (
                         <img
@@ -327,14 +327,16 @@ const ProductListPage = () => {
                         />
                       ) : (
                         <div
-                          className="w-10 h-10 rounded-full shadow-sm"
-                          style={{ background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)" }}
-                        />
+                          className="w-10 h-10 flex items-center justify-center rounded-full shadow-sm bg-[#1b1828]"
+                          style={{ border: "1px solid rgba(255,138,53,0.1)" }}
+                        >
+                          <img src="/v-crackers-logo.webp" alt="Fallback Logo" className="w-6 h-6 object-contain" />
+                        </div>
                       )}
                       <div>
-                        <h3 className="font-heading font-bold text-white text-lg sm:text-xl flex items-center gap-2">
+                        <h3 className="font-heading text-base sm:text-lg flex items-center gap-2" style={{ fontWeight: 600, color: "#ff8a35" }}>
                           {cat.name}
-                          <span className="text-sm font-normal text-gray-400">({cat.productCount})</span>
+                          <span className="text-xs font-medium" style={{ color: "rgba(255, 138, 53, 0.8)" }}>({cat.productCount})</span>
                         </h3>
                       </div>
                     </div>

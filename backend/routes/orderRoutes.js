@@ -4,6 +4,7 @@ const {
   getOrders,
   getOrderById,
   updateOrderStatus,
+  updatePaymentStatus,
   requestCancellation,
   adminCancelOrder,
   rejectCancellationRequest,
@@ -18,6 +19,7 @@ router.get("/:id", protect, getOrderById);
 
 // Status update (admin)
 router.put("/:id/status", protect, adminOnly, updateOrderStatus);
+router.put("/:id/payment-status", protect, adminOnly, updatePaymentStatus);
 
 // MILESWEB FALLBACKS
 router.post("/:id/status", protect, adminOnly, handleMethodOverride({

@@ -3,15 +3,16 @@ const router  = express.Router();
 const {
   createPaymentOrder,
   verifyPayment,
-  // placeCODOrder,
-  // resendCODPaymentLink,
-  // razorpayWebhook,
+  placeOfflineOrder,
 } = require("../controllers/paymentController");
 const { protect, adminOnly } = require("../middleware/auth");
 
 // ── Online payment (Razorpay checkout) ────────────────────────────
 router.post("/create-order", protect, createPaymentOrder);
 router.post("/verify",       protect, verifyPayment);
+
+// ── Offline payment (Manual GPay verification) ────────────────────
+router.post("/place-offline", protect, placeOfflineOrder);
 
 // ── Razorpay webhook (no auth – verified via HMAC signature) ──────
 // Register this URL in Razorpay Dashboard → Webhooks

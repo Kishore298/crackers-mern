@@ -1,7 +1,10 @@
 const Product = require("../models/Product");
 const StockLedger = require("../models/StockLedger");
 const Sale = require("../models/Sale");
+const Category = require("../models/Category");
 const { cloudinary } = require("../config/cloudinary");
+const { getSortIndex } = require("./categoryController");
+const xlsx = require("xlsx");
 
 const slugify = (text) =>
   text
@@ -117,16 +120,41 @@ const getAdminProducts = async (req, res) => {
       oldest: { createdAt: 1 },
       name: { name: 1 },
     };
-    const sortOption = sortMap[sort] || { createdAt: -1 };
+    // Default to 'category' sort if not specified
+    const sortOption = sortMap[sort] || null;
 
     const skip = (Number(page) - 1) * Number(limit);
     const total = await Product.countDocuments(filter);
-    const products = await Product.find(filter)
+    
+    let productsQuery = Product.find(filter)
       .populate("category", "name slug")
-      .populate("comboProducts.product", "name images price discountedPrice stock")
-      .sort(sortOption)
-      .skip(skip)
-      .limit(Number(limit));
+      .populate("comboProducts.product", "name images price discountedPrice stock");
+      
+    if (sortOption) {
+      productsQuery = productsQuery.sort(sortOption).skip(skip).limit(Number(limit));
+    }
+    
+    let products = await productsQuery;
+
+    // If sorting by category (default), we do an in-memory sort and then paginate
+    if (!sortOption) {
+      products.sort((a, b) => {
+        const catA = a.category ? a.category.slug : "";
+        const catB = b.category ? b.category.slug : "";
+        const indexA = getSortIndex(catA);
+        const indexB = getSortIndex(catB);
+        if (indexA === indexB) {
+          const catNameA = a.category ? a.category.name : "";
+          const catNameB = b.category ? b.category.name : "";
+          const catComp = catNameA.localeCompare(catNameB);
+          if (catComp !== 0) return catComp;
+          return a.name.localeCompare(b.name);
+        }
+        return indexA - indexB;
+      });
+      products = products.slice(skip, skip + Number(limit));
+    }
+
     res.json({ success: true, products, total });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -340,6 +368,132 @@ const deleteProductImage = async (req, res) => {
   }
 };
 
+// POST /api/products/upload-excel (admin)
+const uploadExcel = async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+    }
+
+    const file = req.files[0];
+    const workbook = xlsx.read(file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    // Start reading from row 2 (index 1) as headers
+    const json = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+
+    if (json.length < 2) {
+       return res.status(400).json({ success: false, message: "Excel sheet is empty or missing data" });
+    }
+
+    const rawHeaders = json[1] || [];
+    const headers = rawHeaders.map(h => h ? h.toString().trim().toLowerCase() : '');
+    
+    let createdCount = 0;
+    let updatedCount = 0;
+    
+    let currentCategory = '';
+    const processedProductIds = [];
+
+    for (let i = 2; i < json.length; i++) {
+      const row = json[i];
+      if (!row || row.length === 0) continue;
+
+      const rowData = {};
+      headers.forEach((header, index) => {
+        if (header) {
+          rowData[header] = row[index];
+        }
+      });
+
+      let catName = rowData['category'] || rowData['cat'];
+      if (catName) {
+        currentCategory = catName.toString().trim();
+      } else {
+        catName = currentCategory;
+      }
+      
+      const prodName = rowData['product'] || rowData['product name'] || rowData['name'];
+      
+      if (!catName || !prodName) continue;
+
+      let salesPriceRaw = rowData['sales price'];
+      let priceRaw = rowData['price'] || rowData['mrp'];
+      
+      let finalPrice = parseFloat(priceRaw) || parseFloat(salesPriceRaw) || 0;
+      let finalDiscountedPrice = parseFloat(salesPriceRaw) || finalPrice;
+
+      let stock = rowData['stock'] || rowData['cases'] || rowData['qty'] || 0;
+      let description = rowData['description'] || rowData['desc'] || '';
+      let youtubeId = rowData['youtube link'] || rowData['youtube video link'] || rowData['youtube id'] || '';
+
+      // Find or create category
+      let category = await Category.findOne({ name: { $regex: new RegExp(`^${catName}$`, 'i') } });
+      if (!category) {
+        let slug = slugify(catName);
+        // Ensure category slug is unique
+        let count = 0;
+        let tempCatSlug = slug;
+        while (await Category.findOne({ slug: tempCatSlug })) {
+           tempCatSlug = `${slug}-${++count}`;
+        }
+        category = await Category.create({ name: catName, slug: tempCatSlug });
+      }
+
+      const priceVal = finalPrice;
+      const stockVal = parseInt(stock, 10) || 0;
+      
+      const productData = {
+         name: prodName.toString().trim(),
+         category: category._id,
+         price: priceVal,
+         discountedPrice: finalDiscountedPrice,
+         stock: stockVal,
+         description: description,
+         isActive: true
+      };
+
+      if (youtubeId) {
+         productData.video = { youtubeId: extractYouTubeId(youtubeId) };
+      }
+
+      const escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const existingProduct = await Product.findOne({ name: { $regex: new RegExp(`^${escapeRegex(prodName.toString().trim())}$`, 'i') } });
+      
+      if (existingProduct) {
+         await Product.findByIdAndUpdate(existingProduct._id, productData);
+         processedProductIds.push(existingProduct._id);
+         updatedCount++;
+      } else {
+         let slug = slugify(prodName.toString().trim());
+         let count = 0;
+         let tempSlug = slug;
+         while (await Product.findOne({ slug: tempSlug })) {
+           tempSlug = `${slug}-${++count}`;
+         }
+         productData.slug = tempSlug;
+         const newProduct = await Product.create(productData);
+         processedProductIds.push(newProduct._id);
+         createdCount++;
+      }
+    }
+
+    // Delete standard products (non-combos) that were not in the Excel file
+    const deleteResult = await Product.deleteMany({
+      _id: { $nin: processedProductIds },
+      isCombo: { $ne: true }
+    });
+
+    res.json({ 
+      success: true, 
+      message: `Successfully processed ${createdCount + updatedCount} products. (${createdCount} created, ${updatedCount} updated, ${deleteResult.deletedCount} removed)` 
+    });
+  } catch (err) {
+    console.error("Excel upload error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   getProducts,
   getAdminProducts,
@@ -351,4 +505,5 @@ module.exports = {
   getLowStock,
   reorderImages,
   deleteProductImage,
+  uploadExcel,
 };

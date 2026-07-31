@@ -11,6 +11,7 @@ const {
   getLowStock,
   reorderImages,
   deleteProductImage,
+  uploadExcel,
 } = require("../controllers/productController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { uploadProduct } = require("../config/cloudinary");
@@ -21,6 +22,11 @@ router.get("/admin", protect, adminOnly, getAdminProducts);
 router.get("/low-stock", protect, adminOnly, getLowStock);
 router.get("/id/:id", getProductById);
 router.get("/:slug", getProductBySlug);
+
+const multer = require("multer");
+const uploadMem = multer({ storage: multer.memoryStorage() });
+
+router.post("/upload-excel", protect, adminOnly, uploadMem.any(), uploadExcel);
 
 router.post("/", protect, adminOnly, uploadProduct.array("images", 5), createProduct);
 

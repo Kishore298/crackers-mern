@@ -36,7 +36,7 @@ const DiscountBanner = ({ discount }) => {
               className="font-heading font-black text-2xl sm:text-3xl leading-tight"
               style={{ color: "#F5C518" }}
             >
-              Flat {discount.percentage}% OFF <span className="text-lg tracking-[1px] sm:text-2xl text-white block mt-1">+ exclusive cashbacks</span>
+              Flat {discount.percentage}% OFF
             </p>
           </div>
 
@@ -828,10 +828,7 @@ const HomePage = () => {
                       padding: "0 20px",
                       borderRadius: "16px",
                       background: "#171523",
-                      borderLeft: "4px solid #ff8a35",
-                      borderTop: "1px solid #2b2438",
-                      borderRight: "1px solid #2b2438",
-                      borderBottom: "1px solid #2b2438",
+                      border: "1px solid rgba(255, 138, 53, 0.4)",
                       transition: "background .2s ease, border-color .2s ease, transform .15s ease",
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = "#1b1828"; }}
@@ -850,13 +847,15 @@ const HomePage = () => {
                         />
                       ) : (
                         <div
-                          className="w-9 h-9 rounded-full shadow-sm"
-                          style={{ background: "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)" }}
-                        />
+                          className="w-9 h-9 flex items-center justify-center rounded-full shadow-sm bg-[#1b1828]"
+                          style={{ border: "1px solid rgba(255,138,53,0.1)" }}
+                        >
+                          <img src="/v-crackers-logo.webp" alt="Fallback Logo" className="w-5 h-5 object-contain" />
+                        </div>
                       )}
-                      <h3 className="font-heading text-lg sm:text-xl flex items-center gap-2" style={{ fontWeight: 700, color: "#F8F8F8" }}>
+                      <h3 className="font-heading text-base sm:text-lg flex items-center gap-2" style={{ fontWeight: 600, color: "#ff8a35" }}>
                         {cat.name}
-                        <span className="text-sm font-normal" style={{ color: "#A7A1B7" }}>({cat.productCount})</span>
+                        <span className="text-xs font-medium" style={{ color: "rgba(255, 138, 53, 0.8)" }}>({cat.productCount})</span>
                       </h3>
                     </div>
                     <div className={`p-2 rounded-full shadow-sm transition-transform duration-300 ${isCollapsed ? '' : 'rotate-180'}`} style={{ background: "rgba(255,255,255,0.05)" }}>

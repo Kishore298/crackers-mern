@@ -236,16 +236,7 @@ const ComboDetailPage = () => {
                   ₹{basePrice}
                 </span>
               )}
-              {showDiscount && basePrice - effectivePrice > 0 && (
-                <span
-                  className="px-2 py-0.5 rounded-full text-xs font-bold text-white"
-                  style={{
-                    background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                  }}
-                >
-                  You save ₹{basePrice - effectivePrice}
-                </span>
-              )}
+
             </div>
 
             {/* Stock */}

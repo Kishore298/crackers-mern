@@ -121,7 +121,9 @@ const CategoriesPage = () => {
                     className="w-full h-full object-contain"
                   />
                 ) : (
-                  "🎆"
+                  <div className="w-full h-full flex items-center justify-center p-2 bg-[#1a1726]">
+                    <img src="/v-crackers-logo.png" alt="Fallback Logo" className="w-full h-full object-contain" />
+                  </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">

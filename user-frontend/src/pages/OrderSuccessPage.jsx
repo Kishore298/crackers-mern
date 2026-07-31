@@ -7,7 +7,6 @@ import {
   Receipt,
   ArrowRight,
   CreditCard,
-  ExternalLink,
 } from "lucide-react";
 import api from "../services/api";
 
@@ -335,42 +334,44 @@ const OrderSuccessPage = () => {
               </div>
             )}
 
-            {/* Payment Method */}
+            {/* Payment Instructions */}
             <div className="px-6 py-4" style={{ borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
-              <h3 className="font-semibold text-sm text-gray-300 mb-2 flex items-center gap-1.5">
-                <CreditCard className="w-4 h-4 text-primary" /> Payment Method
+              <h3 className="font-semibold text-sm text-gray-300 mb-3 flex items-center gap-1.5">
+                <CreditCard className="w-4 h-4 text-primary" /> Payment Instructions
               </h3>
-              <p className="text-sm text-white capitalize">
-                {order.paymentMethod === "cod"
-                  ? "Cash on Delivery"
-                  : order.paymentMethod === "upi"
-                    ? "UPI"
-                    : "Online (Razorpay)"}
-              </p>
-              {order.paymentMethod === "cod" && order.paymentStatus === "pending" && (
-                <div className="mt-3 p-3 rounded-xl" style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}>
-                  <p className="text-xs text-blue-400 font-medium">
-                    Want to pay online instead?
-                  </p>
-                  {order.razorpayPaymentLinkUrl ? (
-                    <a
-                      href={order.razorpayPaymentLinkUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-blue-500 hover:underline"
-                    >
-                      Pay Online Now <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  ) : (
-                    <p className="text-[10px] text-blue-400/80 mt-1">
-                      Payment link will be sent to your WhatsApp shortly.
-                    </p>
-                  )}
+              
+              <div className="bg-[#1a1726] p-4 rounded-xl border border-gray-800 mb-4">
+                <p className="text-sm text-gray-300 mb-3">Please transfer the total amount via Google Pay to either of the numbers below:</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-white text-base tracking-wide">+91 97896 92606</span>
+                    <span className="text-sm text-gray-400">— Alagarsamy</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-white text-base tracking-wide">+91 88386 96953</span>
+                    <span className="text-sm text-gray-400">— Hari Prasath</span>
+                  </div>
                 </div>
-              )}
-              {order.paymentStatus === "paid" && (
-                <p className="text-xs text-green-400 font-bold mt-1 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" /> Payment Received
+              </div>
+
+              <a 
+                href="https://wa.me/919789692606" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full p-3 rounded-xl border-2 transition-all hover:bg-green-500/10"
+                style={{ borderColor: "#25D366", color: "#25D366" }}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                <span className="font-bold">Send Payment Screenshot to WhatsApp</span>
+              </a>
+
+              {order.paymentStatus === "pending" ? (
+                <p className="text-xs text-yellow-500 font-medium mt-3 text-center">
+                  * Order will be processed once payment is verified
+                </p>
+              ) : (
+                <p className="text-xs text-green-400 font-bold mt-3 flex items-center justify-center gap-1">
+                  <CheckCircle className="w-4 h-4" /> Payment Verified
                 </p>
               )}
             </div>
@@ -402,11 +403,7 @@ const OrderSuccessPage = () => {
                 <span>{order.paymentStatus === "paid" ? "Total Paid" : "Total Payable"}</span>
                 <div className="text-right">
                   <span className="text-primary">₹{order.finalPayable?.toLocaleString("en-IN")}</span>
-                  {order.slabDiscount > 0 && (
-                    <p className="text-xs text-green-400 font-semibold">
-                      You saved ₹{order.slabDiscount?.toLocaleString("en-IN")}!
-                    </p>
-                  )}
+
                 </div>
               </div>
             </div>

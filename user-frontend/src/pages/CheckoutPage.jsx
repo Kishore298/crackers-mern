@@ -7,7 +7,6 @@ import {
   Check,
   ShoppingBag,
   Loader,
-  Sparkles,
   AlertCircle,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
@@ -17,7 +16,7 @@ import toast from "react-hot-toast";
 import SEO from "../components/SEO";
 
 const CheckoutPage = () => {
-  const { cartItems, subtotal, total, clearCart, slabDiscount, canCheckout, MIN_CART_VALUE } = useCart();
+  const { cartItems, subtotal, total, clearCart, canCheckout, MIN_CART_VALUE } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [addresses, setAddresses] = useState([]);
@@ -102,70 +101,26 @@ const CheckoutPage = () => {
     setPayLoading(true);
 
     try {
-      // --- Online Flow (Razorpay) ---
-      const { data: orderData } = await api.post("/payment/create-order", {
-        amount: finalAmount,
+      // --- Offline Flow ---
+      const { data } = await api.post("/payment/place-offline", {
+        cartItems: cartItems.map((i) => ({
+          product: i._id,
+          quantity: i.quantity,
+          name: i.name,
+        })),
+        shippingAddress: addr,
       });
-      const { order, key } = orderData;
 
-      const loadScript = () =>
-        new Promise((resolve) => {
-          if (window.Razorpay) return resolve(true);
-          const s = document.createElement("script");
-          s.src = "https://checkout.razorpay.com/v1/checkout.js";
-          s.onload = () => resolve(true);
-          s.onerror = () => resolve(false);
-          document.body.appendChild(s);
-        });
-
-      const loaded = await loadScript();
-      if (!loaded) {
-        toast.error("Payment gateway unavailable");
-        setPayLoading(false);
-        return;
+      if (data.success) {
+        setOrderPlaced(true);
+        clearCart();
+        toast.success("Order placed successfully! 🎇");
+        navigate(`/order-success/${data.sale._id}`);
       }
-
-      const options = {
-        key,
-        amount: order.amount,
-        currency: "INR",
-        name: "V Crackers",
-        description: "Festive Products Order",
-        order_id: order.id,
-        prefill: { name: user.name, email: user.email, contact: user.phone },
-        theme: { color: "#ff6600" },
-        handler: async (response) => {
-          try {
-            const { data: verifyData } = await api.post("/payment/verify", {
-              ...response,
-              cartItems: cartItems.map((i) => ({
-                product: i._id,
-                quantity: i.quantity,
-                name: i.name,
-              })),
-              shippingAddress: addr,
-              totalAmount: subtotal,
-              finalPayable: finalAmount,
-            });
-            if (verifyData.success) {
-              setOrderPlaced(true);
-              clearCart();
-              toast.success("Order placed successfully! 🎇");
-              navigate(`/order-success/${verifyData.sale._id}`);
-            }
-          } catch (err) {
-            toast.error("Payment verification failed");
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setPayLoading(false);
-          },
-        },
-      };
-      new window.Razorpay(options).open();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Payment initiation failed");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to place order.");
+    } finally {
       setPayLoading(false);
     }
   };
@@ -382,16 +337,7 @@ const CheckoutPage = () => {
                 <span>Subtotal</span>
                 <span className="text-white">₹{subtotal.toLocaleString("en-IN")}</span>
               </div>
-              {slabDiscount > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-green-400 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5" /> Slab Discount
-                  </span>
-                  <span className="font-bold text-green-400">
-                    −₹{slabDiscount.toLocaleString("en-IN")}
-                  </span>
-                </div>
-              )}
+
               <div className="flex justify-between text-gray-400">
                 <span>Shipping</span>
                 <span className="text-green-400 font-semibold">FREE</span>
@@ -400,11 +346,7 @@ const CheckoutPage = () => {
                 <span>Total</span>
                 <div className="text-right">
                   <span className="text-primary">₹{finalAmount.toLocaleString("en-IN")}</span>
-                  {slabDiscount > 0 && (
-                    <p className="text-xs text-green-400 font-semibold">
-                      You save ₹{slabDiscount.toLocaleString("en-IN")}!
-                    </p>
-                  )}
+
                 </div>
               </div>
             </div>
@@ -429,11 +371,11 @@ const CheckoutPage = () => {
             >
               {payLoading ? (
                 <>
-                  <Loader className="w-4 h-4 animate-spin" /> Processing...
+                  <Loader className="w-4 h-4 animate-spin" /> Placing Order...
                 </>
               ) : (
                 <>
-                  <CreditCard className="w-5 h-5" /> Pay ₹{finalAmount.toLocaleString("en-IN")}
+                  <CreditCard className="w-5 h-5" /> Place Order
                 </>
               )}
             </button>

@@ -11,6 +11,7 @@ import { HelmetProvider } from "react-helmet-async";
 import PremiumExtras from "./components/PremiumExtras";
 import FloatingCart from "./components/FloatingCart";
 import WelcomeFireworks from "./components/WelcomeFireworks";
+import NoticePopup from "./components/NoticePopup";
 import "./index.css";
 
 // Lazy loading pages for better performance
@@ -60,6 +61,7 @@ function App() {
   return (
     <HelmetProvider>
       <WelcomeFireworks />
+      <NoticePopup />
       <BrowserRouter>
         <ScrollToTop />
         <AuthProvider>

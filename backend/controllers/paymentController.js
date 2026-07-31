@@ -188,9 +188,7 @@ const verifyPayment = async (req, res) => {
       });
     }
 
-    // Server-side slab discount (never trust frontend discount value)
-    const { discount: serverSlabDiscount, label: slabLabel } = calculateSlabDiscount(serverSubtotal);
-    const serverFinalPayable = serverSubtotal - serverSlabDiscount;
+    const serverFinalPayable = serverSubtotal;
 
     // Create sale
     const sale = await Sale.create({
@@ -198,9 +196,9 @@ const verifyPayment = async (req, res) => {
       customer         : req.user._id,
       items,
       totalAmount      : serverSubtotal,
-      discount         : serverSlabDiscount,
-      slabDiscount     : serverSlabDiscount,
-      slabLabel,
+      discount         : 0,
+      slabDiscount     : 0,
+      slabLabel        : null,
       couponCode       : couponCode || null,
       finalPayable     : serverFinalPayable,
       paymentMethod    : "online",
@@ -315,12 +313,12 @@ const verifyPayment = async (req, res) => {
       saleType     : "online",
       customer     : req.user._id,
       items,
-      totalAmount  : serverSubtotal,
-      discount     : serverSlabDiscount,
-      slabDiscount : serverSlabDiscount,
-      slabLabel,
-      couponCode   : couponCode || null,
-      finalPayable : serverFinalPayable,
+      totalAmount: serverSubtotal,
+      discount: 0,
+      slabDiscount: 0,
+      slabLabel: null,
+      couponCode: null,
+      finalPayable : serverSubtotal,
       paymentMethod: "cod",
       paymentStatus: "pending",
       orderStatus  : "processing",
@@ -520,9 +518,90 @@ const verifyPayment = async (req, res) => {
   }
 }; */
 
+// ─── POST /api/payment/place-offline (Bypass Razorpay) ────────────
+const placeOfflineOrder = async (req, res) => {
+  try {
+    const {
+      cartItems,
+      shippingAddress,
+      couponCode,
+    } = req.body;
+
+    // Validate stock
+    let items;
+    try {
+      items = await buildValidatedItems(cartItems);
+    } catch (e) {
+      return res.status(e.status || 400).json({ success: false, message: e.message });
+    }
+
+    // Server-side subtotal & validations
+    const serverSubtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
+
+    // Minimum cart value check
+    if (serverSubtotal < MIN_CART_VALUE) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum order value is ₹${MIN_CART_VALUE.toLocaleString("en-IN")} to proceed with checkout.`,
+      });
+    }
+
+    const serverFinalPayable = serverSubtotal;
+
+    // Create sale as Pending
+    const sale = await Sale.create({
+      saleType         : "online",
+      customer         : req.user._id,
+      items,
+      totalAmount      : serverSubtotal,
+      discount         : 0,
+      slabDiscount     : 0,
+      slabLabel        : null,
+      couponCode       : couponCode || null,
+      finalPayable     : serverFinalPayable,
+      paymentMethod    : "offline",
+      paymentStatus    : "pending",
+      orderStatus      : "processing",
+      shippingAddress,
+    });
+
+    // Deduct stock
+    await deductStock(items, sale._id, req.user._id);
+
+    // Fetch customer details
+    const customer = await User.findById(req.user._id).select("name email phone");
+
+    // Fire-and-forget: email + WhatsApp receipt
+    sendPostOrderComms(sale, customer);
+
+    // Admin notification
+    try {
+      const { getIO }      = require("../config/socket");
+      const Notification   = require("../models/Notification");
+      const adminNotif = await Notification.create({
+        recipientRole: "admin",
+        title        : "New Offline Order",
+        body         : `Order ${sale.invoiceNo} placed by ${customer?.name || "Customer"}. Amount: Rs.${serverFinalPayable}. Payment Pending.`,
+        type         : "order",
+        data         : { saleId: sale._id, invoiceNo: sale.invoiceNo },
+      });
+      const io = getIO();
+      io.to("admin_room").emit("newNotification", adminNotif);
+    } catch (e) {
+      console.error("Failed to notify admin via socket:", e);
+    }
+
+    res.json({ success: true, sale });
+  } catch (err) {
+    console.error("Place offline order error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   createPaymentOrder,
   verifyPayment,
+  placeOfflineOrder,
   // placeCODOrder,
   // resendCODPaymentLink,
   // razorpayWebhook,

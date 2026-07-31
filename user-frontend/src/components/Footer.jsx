@@ -8,6 +8,7 @@ import {
   Instagram,
   Youtube,
   Gift,
+  CreditCard,
 } from "lucide-react";
 import api from "../services/api";
 
@@ -210,6 +211,35 @@ const Footer = () => {
                 </a>
               </li>
             </ul>
+          </div>
+        </div>
+
+        {/* Payment Methods (New Offline Flow) */}
+        <div className="py-8" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 className="font-heading font-semibold text-white text-sm mb-2 flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-primary" /> Payment Options
+              </h3>
+              <p className="text-xs text-gray-400">
+                We accept Google Pay. After placing your order, please transfer the amount to:
+              </p>
+              <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
+                <p className="text-sm font-bold text-white tracking-wide">+91 97896 92606 <span className="text-xs text-gray-400 font-normal ml-1">— Alagarsamy</span></p>
+                <p className="text-sm font-bold text-white tracking-wide">+91 88386 96953 <span className="text-xs text-gray-400 font-normal ml-1">— Hari Prasath</span></p>
+              </div>
+            </div>
+            
+            <a 
+              href="https://wa.me/919789692606" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 p-3 rounded-xl border-2 transition-all hover:bg-green-500/10 whitespace-nowrap shrink-0"
+              style={{ borderColor: "#25D366", color: "#25D366" }}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+              <span className="font-bold text-sm">Send Payment Screenshot to WhatsApp</span>
+            </a>
           </div>
         </div>
 

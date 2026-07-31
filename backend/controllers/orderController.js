@@ -367,6 +367,7 @@ module.exports = {
   getOrders,
   getOrderById,
   updateOrderStatus,
+  updatePaymentStatus,
   requestCancellation,
   adminCancelOrder,
   rejectCancellationRequest,
