@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { BarChart2, Search, Download, TrendingUp, Package, AlertTriangle } from "lucide-react";
-import { useAdminAuth, api } from "../context/AdminAuthContext";
+import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 
 const ProductPerformancePage = () => {
-  const { admin } = useAdminAuth();
   const [data, setData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);

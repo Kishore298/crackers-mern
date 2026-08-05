@@ -8,17 +8,16 @@ import {
   Monitor,
   Archive,
   Percent,
-  Image,
   BarChart2,
   Menu,
   X,
   LogOut,
   ChevronRight,
   Users,
-  Bell,
   Send,
   TrendingUp,
   Gift,
+  Ticket,
 } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import NotificationBell from "./NotificationBell";
@@ -33,7 +32,7 @@ const navItems = [
   { to: "/pos", icon: Monitor, label: "POS Billing" },
   { to: "/stock", icon: Archive, label: "Stock" },
   { to: "/discount", icon: Percent, label: "Discount" },
-  // { to: "/banners", icon: Image, label: "Banners" },
+  { to: "/coupons", icon: Ticket, label: "Coupons" },
   { to: "/notifications", icon: Send, label: "Push Notifications" },
   { to: "/reports", icon: BarChart2, label: "Reports" },
   { to: "/product-analytics", icon: TrendingUp, label: "Product Analytics" },

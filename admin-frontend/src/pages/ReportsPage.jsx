@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { Download, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
 import {
-  BarChart,
-  Bar,
   LineChart,
   Line,
   XAxis,

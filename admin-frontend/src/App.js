@@ -12,7 +12,7 @@ import OrdersPage from "./pages/OrdersPage";
 import PosPage from "./pages/PosPage";
 import StockPage from "./pages/StockPage";
 import DiscountPage from "./pages/DiscountPage";
-import BannersPage from "./pages/BannersPage";
+import CouponsPage from "./pages/CouponsPage";
 import ReportsPage from "./pages/ReportsPage";
 import UsersPage from "./pages/UsersPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -48,7 +48,7 @@ function AppRoutes() {
         <Route path="pos" element={<PosPage />} />
         <Route path="stock" element={<StockPage />} />
         <Route path="discount" element={<DiscountPage />} />
-        {/* <Route path="banners" element={<BannersPage />} /> */}
+        <Route path="coupons" element={<CouponsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="product-analytics" element={<ProductPerformancePage />} />
         <Route path="reports" element={<ReportsPage />} />

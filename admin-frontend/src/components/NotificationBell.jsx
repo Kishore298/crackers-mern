@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Bell, Check, ExternalLink } from "lucide-react";
+import { Bell } from "lucide-react";
 import io from "socket.io-client";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
@@ -43,6 +43,7 @@ const NotificationBell = () => {
       if (socketRef.current) socketRef.current.disconnect();
       clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [admin]);
 
   useEffect(() => {
