@@ -8,7 +8,26 @@ const fs = require("fs");
  * @param {Object} customer - { name, email, phone }
  * @returns {Promise<Buffer>}
  */
-const generateReceiptPDF = (sale, customer) => {
+const generateReceiptPDF = async (sale, customer) => {
+  // Pre-fetch images before building the PDF document
+  const itemImages = [];
+  for (const item of sale.items || []) {
+    let imgBuf = null;
+    try {
+      if (item.product?.images?.[0]?.url) {
+        const url = item.product.images[0].url.replace("/upload/", "/upload/w_100,q_auto/");
+        const res = await fetch(url);
+        if (res.ok) {
+          const arrBuf = await res.arrayBuffer();
+          imgBuf = Buffer.from(arrBuf);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch image for PDF:", e.message);
+    }
+    itemImages.push(imgBuf);
+  }
+
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
     const chunks = [];
@@ -47,12 +66,13 @@ const generateReceiptPDF = (sale, customer) => {
 
     // Company details
     doc
-      .fontSize(8)
+      .fontSize(9)
       .fillColor(gray)
-      .text("Sivakasi, Tamil Nadu, India", 350, 50, { align: "right" })
-      .text("Phone: +91 98765 43210", 350, 62, { align: "right" })
-      .text("Email: info@vcrackers.com", 350, 74, { align: "right" })
-      .text("GSTIN: 33XXXXX1234X1ZX", 350, 86, { align: "right" });
+      .text("V Crackers, 4/468-G,", 350, 40, { align: "right" })
+      .text("Sithalakshmi Nagar,", 350, 52, { align: "right" })
+      .text("Kongalapuram, Sivakasi - 626123", 350, 64, { align: "right" })
+      .text("+91 78249 07916, +91 87784 68360", 350, 76, { align: "right" })
+      .text("vcrackerssivakasi@gmail.com", 350, 88, { align: "right" });
 
     // Divider
     doc
@@ -91,7 +111,7 @@ const generateReceiptPDF = (sale, customer) => {
         ? "Cash on Delivery"
         : sale.paymentMethod === "upi"
         ? "UPI"
-        : "Online (Razorpay)";
+        : "Online";
     doc.text(`Payment: ${paymentLabel}`, 350, y, { align: "right" });
 
     y += 15;
@@ -125,7 +145,7 @@ const generateReceiptPDF = (sale, customer) => {
     doc.font("Helvetica-Bold").fontSize(9).fillColor("#ffffff");
 
     doc.text("#", 58, y + 7, { width: 25 });
-    doc.text("Product", 85, y + 7, { width: 220 });
+    doc.text("Product", 125, y + 7, { width: 180 });
     doc.text("Qty", 310, y + 7, { width: 45, align: "center" });
     doc.text("Price", 360, y + 7, { width: 80, align: "right" });
     doc.text("Subtotal", 445, y + 7, { width: 90, align: "right" });
@@ -135,22 +155,34 @@ const generateReceiptPDF = (sale, customer) => {
     // Table rows
     doc.font("Helvetica").fontSize(9).fillColor(gray);
     sale.items.forEach((item, i) => {
+      const rowHeight = 36;
       const rowBg = i % 2 === 0 ? "#FAFAFA" : "#FFFFFF";
-      doc.rect(50, y, 495, 22).fill(rowBg);
+      doc.rect(50, y, 495, rowHeight).fill(rowBg);
 
       doc.fillColor(gray);
-      doc.text(`${i + 1}`, 58, y + 6, { width: 25 });
-      doc.text(item.name, 85, y + 6, { width: 220 });
-      doc.text(`${item.quantity}`, 310, y + 6, { width: 45, align: "center" });
-      doc.text(`₹${item.price.toLocaleString("en-IN")}`, 360, y + 6, {
+      doc.text(`${i + 1}`, 58, y + 13, { width: 25 });
+
+      // Item image
+      const imgBuf = itemImages[i];
+      if (imgBuf) {
+        try {
+          doc.image(imgBuf, 85, y + 3, { width: 30, height: 30 });
+        } catch (e) {
+          // Ignore image draw errors
+        }
+      }
+
+      doc.text(item.name, 125, y + 13, { width: 180 });
+      doc.text(`${item.quantity}`, 310, y + 13, { width: 45, align: "center" });
+      doc.text(`Rs. ${item.price.toLocaleString("en-IN")}`, 360, y + 13, {
         width: 80,
         align: "right",
       });
-      doc.text(`₹${item.subtotal.toLocaleString("en-IN")}`, 445, y + 6, {
+      doc.text(`Rs. ${item.subtotal.toLocaleString("en-IN")}`, 445, y + 13, {
         width: 90,
         align: "right",
       });
-      y += 22;
+      y += rowHeight;
     });
 
     // Divider
@@ -165,7 +197,7 @@ const generateReceiptPDF = (sale, customer) => {
     y += 12;
     doc.font("Helvetica").fontSize(10).fillColor(gray);
     doc.text("Subtotal:", 360, y, { width: 80, align: "right" });
-    doc.text(`₹${(sale.totalAmount || 0).toLocaleString("en-IN")}`, 445, y, {
+    doc.text(`Rs. ${(sale.totalAmount || 0).toLocaleString("en-IN")}`, 445, y, {
       width: 90,
       align: "right",
     });
@@ -174,7 +206,7 @@ const generateReceiptPDF = (sale, customer) => {
       y += 18;
       doc.fillColor("#10B981");
       doc.text("Discount:", 360, y, { width: 80, align: "right" });
-      doc.text(`- ₹${(sale.discount || 0).toLocaleString("en-IN")}`, 445, y, {
+      doc.text(`- Rs. ${(sale.discount || 0).toLocaleString("en-IN")}`, 445, y, {
         width: 90,
         align: "right",
       });
@@ -191,7 +223,7 @@ const generateReceiptPDF = (sale, customer) => {
     y += 8;
     doc.font("Helvetica-Bold").fontSize(13).fillColor(primaryColor);
     doc.text("Total Paid:", 340, y, { width: 100, align: "right" });
-    doc.text(`₹${(sale.finalPayable || 0).toLocaleString("en-IN")}`, 445, y, {
+    doc.text(`Rs. ${(sale.finalPayable || 0).toLocaleString("en-IN")}`, 445, y, {
       width: 90,
       align: "right",
     });
@@ -210,7 +242,7 @@ const generateReceiptPDF = (sale, customer) => {
       .font("Helvetica")
       .fontSize(8)
       .fillColor(lightGray)
-      .text("Thank you for shopping with V Crackers! 🎆", 50, y, {
+      .text("Thank you for shopping with V Crackers!", 50, y, {
         align: "center",
         width: 495,
       });

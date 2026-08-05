@@ -1,5 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -11,7 +11,7 @@ import { HelmetProvider } from "react-helmet-async";
 import PremiumExtras from "./components/PremiumExtras";
 import FloatingCart from "./components/FloatingCart";
 import WelcomeFireworks from "./components/WelcomeFireworks";
-import NoticePopup from "./components/NoticePopup";
+
 import "./index.css";
 
 // Lazy loading pages for better performance
@@ -22,12 +22,10 @@ const CombosPage = lazy(() => import("./pages/CombosPage"));
 const ComboDetailPage = lazy(() => import("./pages/ComboDetailPage"));
 const CartPage = lazy(() => import("./pages/CartPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
-const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const OrderSuccessPage = lazy(() => import("./pages/OrderSuccessPage"));
 const OrderHistoryPage = lazy(() => import("./pages/OrderHistoryPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
-const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 
 // Static Trust Pages
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -61,7 +59,7 @@ function App() {
   return (
     <HelmetProvider>
       <WelcomeFireworks />
-      <NoticePopup />
+
       <BrowserRouter>
         <ScrollToTop />
         <AuthProvider>
@@ -106,7 +104,8 @@ function App() {
                     />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/register" element={<Navigate to="/login" replace />} />
+                    <Route path="/forgot-password" element={<Navigate to="/login" replace />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route
                       path="/order-success/:id"
@@ -114,10 +113,6 @@ function App() {
                     />
                     <Route path="/orders" element={<OrderHistoryPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
-                    <Route
-                      path="/forgot-password"
-                      element={<ForgotPasswordPage />}
-                    />
 
                     {/* Trust / Static Pages */}
                     <Route path="/about" element={<AboutPage />} />

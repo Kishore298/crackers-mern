@@ -6,9 +6,6 @@ import {
   Plus,
   Edit2,
   Trash2,
-  Lock,
-  Eye,
-  EyeOff,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -34,13 +31,6 @@ const ProfilePage = () => {
     isDefault: false,
   });
   const [savingProfile, setSavingProfile] = useState(false);
-  const [pwdForm, setPwdForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirm: "",
-  });
-  const [showPwd, setShowPwd] = useState(false);
-  const [savingPwd, setSavingPwd] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, loading: false });
 
   useEffect(() => {
@@ -343,104 +333,7 @@ const ProfilePage = () => {
           )}
         </div>
 
-        {/* Change Password */}
-        <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
-          <h2 className="font-heading font-semibold text-lg text-white mb-5 flex items-center gap-2">
-            <Lock className="w-5 h-5 text-primary" /> Change Password
-          </h2>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (pwdForm.newPassword !== pwdForm.confirm)
-                return toast.error("Passwords do not match");
-              if (pwdForm.newPassword.length < 6)
-                return toast.error("Min 6 characters");
-              setSavingPwd(true);
-              try {
-                await api.put("/auth/change-password", {
-                  currentPassword: pwdForm.currentPassword,
-                  newPassword: pwdForm.newPassword,
-                });
-                toast.success("Password changed!");
-                setPwdForm({
-                  currentPassword: "",
-                  newPassword: "",
-                  confirm: "",
-                });
-              } catch (err) {
-                toast.error(err?.response?.data?.message || "Failed");
-              } finally {
-                setSavingPwd(false);
-              }
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-          >
-            <div className="relative">
-              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
-                Current Password
-              </label>
-              <input
-                type={showPwd ? "text" : "password"}
-                required
-                value={pwdForm.currentPassword}
-                onChange={(e) =>
-                  setPwdForm({ ...pwdForm, currentPassword: e.target.value })
-                }
-                className="input-fire pr-10"
-              />
-            </div>
-            <div className="relative">
-              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
-                New Password
-              </label>
-              <input
-                type={showPwd ? "text" : "password"}
-                required
-                minLength={6}
-                value={pwdForm.newPassword}
-                onChange={(e) =>
-                  setPwdForm({ ...pwdForm, newPassword: e.target.value })
-                }
-                className="input-fire"
-              />
-            </div>
-            <div className="relative">
-              <label className="block text-xs font-semibold text-gray-400 mb-1.5">
-                Confirm New Password
-              </label>
-              <input
-                type={showPwd ? "text" : "password"}
-                required
-                value={pwdForm.confirm}
-                onChange={(e) =>
-                  setPwdForm({ ...pwdForm, confirm: e.target.value })
-                }
-                className="input-fire"
-              />
-            </div>
-            <div className="sm:col-span-2 flex items-center gap-4 mt-2">
-              <button
-                type="submit"
-                disabled={savingPwd}
-                className="btn-fire px-6 py-2.5 rounded-xl text-sm"
-              >
-                {savingPwd ? "Updating..." : "Update Password"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPwd(!showPwd)}
-                className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-primary transition-colors"
-              >
-                {showPwd ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-                {showPwd ? "Hide" : "Show"} passwords
-              </button>
-            </div>
-          </form>
-        </div>
+
       </div>
       
       <ConfirmModal

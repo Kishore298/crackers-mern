@@ -10,7 +10,10 @@ const EMPTY_FORM = {
   discountValue: "",
   minOrderValue: "",
   maxDiscount: "",
+  startDate: "",
   expiresAt: "",
+  usageLimit: "",
+  perUserLimit: "",
   isActive: true,
   // Banner fields
   title: "",
@@ -55,7 +58,10 @@ const CouponsPage = () => {
       discountValue: c.discountValue,
       minOrderValue: c.minOrderValue || "",
       maxDiscount: c.maxDiscount || "",
-      expiresAt: c.expiresAt ? c.expiresAt.split("T")[0] : "",
+      startDate: c.startDate ? c.startDate.split("T")[0] + "T" + c.startDate.split("T")[1].slice(0, 5) : "",
+      expiresAt: c.expiresAt ? c.expiresAt.split("T")[0] + "T" + c.expiresAt.split("T")[1].slice(0, 5) : "",
+      usageLimit: c.usageLimit || "",
+      perUserLimit: c.perUserLimit || "",
       isActive: c.isActive,
       title: c.title || "",
       description: c.description || "",
@@ -77,7 +83,10 @@ const CouponsPage = () => {
         discountValue: Number(form.discountValue),
         minOrderValue: form.minOrderValue ? Number(form.minOrderValue) : 0,
         maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : null,
-        expiresAt: form.expiresAt,
+        startDate: form.startDate ? new Date(form.startDate).toISOString() : new Date().toISOString(),
+        expiresAt: new Date(form.expiresAt).toISOString(),
+        usageLimit: form.usageLimit ? Number(form.usageLimit) : 0,
+        perUserLimit: form.perUserLimit ? Number(form.perUserLimit) : 1,
         isActive: form.isActive,
         title: form.title,
         description: form.description,
@@ -322,7 +331,20 @@ const CouponsPage = () => {
                     placeholder="Leave blank for unlimited"
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">
+                    Start Date / Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={form.startDate}
+                    onChange={(e) =>
+                      setForm({ ...form, startDate: e.target.value })
+                    }
+                    className="input-admin"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
                   <label className="text-xs font-semibold text-gray-600 block mb-1.5">
                     Expiry Date / Time *
                   </label>
@@ -333,6 +355,34 @@ const CouponsPage = () => {
                       setForm({ ...form, expiresAt: e.target.value })
                     }
                     className="input-admin"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">
+                    Total Usage Limit
+                  </label>
+                  <input
+                    type="number"
+                    value={form.usageLimit}
+                    onChange={(e) =>
+                      setForm({ ...form, usageLimit: e.target.value })
+                    }
+                    className="input-admin"
+                    placeholder="0 for unlimited"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">
+                    Per User Limit
+                  </label>
+                  <input
+                    type="number"
+                    value={form.perUserLimit}
+                    onChange={(e) =>
+                      setForm({ ...form, perUserLimit: e.target.value })
+                    }
+                    className="input-admin"
+                    placeholder="1"
                   />
                 </div>
               </div>

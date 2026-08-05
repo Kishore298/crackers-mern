@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  MapPin,
   CreditCard,
+  MapPin,
   Plus,
   Check,
   ShoppingBag,
   Loader,
   AlertCircle,
+  Tag,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import GPayIcon from "../components/GPayIcon";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -25,6 +29,13 @@ const CheckoutPage = () => {
   const [payLoading, setPayLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [isApplying, setIsApplying] = useState(false);
+  const [showCouponInput, setShowCouponInput] = useState(false);
+
   const [newAddr, setNewAddr] = useState({
     fullName: "",
     phone: "",
@@ -37,7 +48,7 @@ const CheckoutPage = () => {
   });
 
 
-  const finalAmount = total; // total already has slab discount applied
+  const finalAmount = total - couponDiscount; // total already has slab discount applied
 
   useEffect(() => {
     if (orderPlaced) return;
@@ -63,7 +74,7 @@ const CheckoutPage = () => {
         setAddresses(addrs);
         const def = addrs.find((a) => a.isDefault) || addrs[0];
         if (def) setSelectedAddr(def._id);
-      } catch {}
+      } catch { }
     };
     fetchProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,13 +120,14 @@ const CheckoutPage = () => {
           name: i.name,
         })),
         shippingAddress: addr,
+        couponCode: appliedCoupon,
       });
 
       if (data.success) {
         setOrderPlaced(true);
         clearCart();
         toast.success("Order placed successfully! 🎇");
-        navigate(`/order-success/${data.sale._id}`);
+        navigate(`/order-success/${data.sale._id}`, { state: { isNewOrder: true } });
       }
     } catch (err) {
       console.error(err);
@@ -284,31 +296,33 @@ const CheckoutPage = () => {
               )}
             </div>
 
-            {/* Payment Method Selection */}
+            {/* Payment Instructions */}
             <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
               <h2 className="font-heading font-semibold text-lg text-white mb-4 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-primary" /> Payment Method
+                <CreditCard className="w-5 h-5 text-primary" /> Payment Instructions
               </h2>
-              <div className="grid grid-cols-1 gap-4">
-                <label
-                  className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all border-primary`}
-                  style={{ background: "rgba(255,102,0,0.05)" }}
-                >
-                  <input
-                    type="radio"
-                    name="payMethod"
-                    value="online"
-                    checked={true}
-                    readOnly
-                    className="accent-primary"
-                  />
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm text-white">
-                      Online Payment
-                    </p>
-                    <p className="text-xs text-gray-400">Cards, UPI, Netbanking</p>
+              <div className="bg-[#1a1726] p-4 rounded-xl border border-gray-800">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+                  <GPayIcon className="w-14 h-14 shrink-0" />
+                  <p className="text-sm text-gray-300 leading-relaxed">
+                    We accept payments via <strong className="text-white">Google Pay</strong>.
+                    After clicking "Place Order", please transfer the total amount to either of the numbers below.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 p-4 rounded-lg" style={{ background: "rgba(255,102,0,0.05)", border: "1px solid rgba(255,102,0,0.1)" }}>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-white text-base tracking-wide">+91 97896 92606</span>
+                    <span className="text-xs text-gray-400 mt-0.5">Alagarsamy</span>
                   </div>
-                </label>
+                  <div className="hidden sm:block w-px bg-gray-800"></div>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-white text-base tracking-wide">+91 88386 96953</span>
+                    <span className="text-xs text-gray-400 mt-0.5">Hari Prasath</span>
+                  </div>
+                </div>
+                <p className="text-xs text-yellow-500 font-medium mt-4 text-center">
+                  * Note: Your order will only be processed once payment is received and verified.
+                </p>
               </div>
             </div>
           </div>
@@ -342,13 +356,85 @@ const CheckoutPage = () => {
                 <span>Shipping</span>
                 <span className="text-green-400 font-semibold">FREE</span>
               </div>
+              {couponDiscount > 0 && (
+                <div className="flex justify-between text-green-400 font-semibold">
+                  <span>Coupon Discount</span>
+                  <span>-₹{couponDiscount.toLocaleString("en-IN")}</span>
+                </div>
+              )}
+
               <div className="pt-3 flex justify-between font-heading font-bold text-white text-base" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
                 <span>Total</span>
                 <div className="text-right">
                   <span className="text-primary">₹{finalAmount.toLocaleString("en-IN")}</span>
-
                 </div>
               </div>
+            </div>
+
+            {/* Collapsible Coupon UI */}
+            <div className="mt-4 pt-4" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
+              <button
+                onClick={() => setShowCouponInput(!showCouponInput)}
+                className="w-full flex items-center justify-between text-sm font-semibold text-gray-300 hover:text-white transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-primary" />
+                  Have a coupon code?
+                </span>
+                {showCouponInput ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+
+              {showCouponInput && (
+                <div className="mt-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter code"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      disabled={isApplying || appliedCoupon}
+                      className="input-fire flex-1 py-2 text-sm uppercase"
+                    />
+                    {appliedCoupon ? (
+                      <button
+                        onClick={() => {
+                          setAppliedCoupon(null);
+                          setCouponCode("");
+                          setCouponDiscount(0);
+                        }}
+                        className="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-sm font-semibold hover:bg-red-500/20 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    ) : (
+                      <button
+                        onClick={async () => {
+                          if (!couponCode) return;
+                          setIsApplying(true);
+                          try {
+                            const { data } = await api.post("/coupons/validate", {
+                              code: couponCode,
+                              orderTotal: total
+                            });
+                            setAppliedCoupon(data.couponCode);
+                            setCouponDiscount(data.discount);
+                            toast.success(data.message);
+                          } catch (err) {
+                            toast.error(err?.response?.data?.message || "Invalid coupon");
+                            setCouponCode("");
+                          } finally {
+                            setIsApplying(false);
+                          }
+                        }}
+                        disabled={isApplying || !couponCode}
+                        className="btn-fire px-4 py-2 text-sm rounded-lg disabled:opacity-50"
+                      >
+                        {isApplying ? "..." : "Apply"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Minimum cart warning */}
@@ -362,11 +448,10 @@ const CheckoutPage = () => {
             <button
               onClick={handlePayment}
               disabled={payLoading || !canCheckout}
-              className={`w-full justify-center mt-5 py-3.5 text-base rounded-xl flex items-center gap-2 font-bold transition-all ${
-                canCheckout
+              className={`w-full justify-center mt-5 py-3.5 text-base rounded-xl flex items-center gap-2 font-bold transition-all ${canCheckout
                   ? "btn-fire"
                   : "opacity-50 cursor-not-allowed"
-              }`}
+                }`}
               style={!canCheckout ? { background: "#1a1726", color: "#555" } : {}}
             >
               {payLoading ? (
@@ -379,9 +464,7 @@ const CheckoutPage = () => {
                 </>
               )}
             </button>
-            <p className="text-xs text-gray-400 text-center mt-3 flex items-center justify-center gap-1">
-              🔒 Secured by Razorpay
-            </p>
+
           </div>
         </div>
       </div>

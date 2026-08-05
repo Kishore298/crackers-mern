@@ -88,7 +88,7 @@ const receiveMessage = async (req, res) => {
             await WhatsAppMessage.findOneAndUpdate(
               { messageId },
               { status },
-              { new: true }
+              { returnDocument: "after" }
             );
             
             // Optionally emit status update to admin

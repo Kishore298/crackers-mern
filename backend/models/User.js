@@ -13,7 +13,7 @@ const addressSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
+    name: { type: String, default: "", trim: true },
     email: {
       type: String,
       unique: true,
@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
-    password: { type: String, required: true, select: false },
+    password: { type: String, select: false, default: null },
     addresses: [addressSchema],
     role: {
       type: String,
@@ -38,14 +38,7 @@ const userSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     // FCM push notification tokens
     fcmTokens: [{ type: String }],
-    // OTP fields for password reset
-    otpCode: { type: String, select: false },
-    otpExpiry: { type: Date, select: false },
-    otpVerified: { type: Boolean, default: false, select: false },
-    // WhatsApp OTP fields for Login
-    whatsappOtpCode: { type: String, select: false },
-    whatsappOtpExpiry: { type: Date, select: false },
-    whatsappOtpVerified: { type: Boolean, default: false, select: false },
+
   },
   { timestamps: true },
 );

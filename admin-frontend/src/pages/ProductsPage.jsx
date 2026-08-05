@@ -14,6 +14,8 @@ const EMPTY_FORM = {
   safetyInstructions: "",
   youtubeId: "",
   isActive: true,
+  isCombo: false,
+  comboProducts: [],
 };
 
 const ProductsPage = () => {
@@ -35,7 +37,13 @@ const ProductsPage = () => {
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, type: "product", loading: false });
   const [discountPct, setDiscountPct] = useState(0);
   const [uploadingExcel, setUploadingExcel] = useState(false);
+  const [excelErrors, setExcelErrors] = useState(null);
   const dragIdx = useRef(null);
+  const [allStandardProducts, setAllStandardProducts] = useState([]);
+  const [fetchingAllProducts, setFetchingAllProducts] = useState(false);
+  const [comboCategoryFilter, setComboCategoryFilter] = useState("");
+  const [comboProductSelect, setComboProductSelect] = useState("");
+  const [comboQty, setComboQty] = useState(1);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -88,6 +96,13 @@ const ProductsPage = () => {
       safetyInstructions: p.safetyInstructions || "",
       youtubeId: p.video?.youtubeId || "",
       isActive: p.isActive,
+      isCombo: p.isCombo || false,
+      comboProducts: p.comboProducts ? p.comboProducts.map(cp => ({
+        product: cp.product?._id || cp.product,
+        name: cp.product?.name,
+        price: cp.product?.price,
+        quantity: cp.quantity
+      })) : [],
     });
     setImageFiles([]);
     setEditingImages(p.images ? [...p.images] : []);
@@ -144,7 +159,15 @@ const ProductsPage = () => {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
-        if (v !== "") fd.append(k, v);
+        if (k === 'comboProducts') {
+          if (form.isCombo) {
+            fd.append(k, JSON.stringify(v.map(cp => ({ product: cp.product, quantity: cp.quantity }))));
+          }
+        } else if (k === 'isCombo') {
+          fd.append(k, v);
+        } else if (v !== "") {
+          fd.append(k, v);
+        }
       });
       imageFiles.forEach((f) => fd.append("images", f));
       const config = { headers: { "Content-Type": "multipart/form-data" } };
@@ -190,6 +213,9 @@ const ProductsPage = () => {
     try {
       const { data } = await api.post("/products/upload-excel", fd);
       toast.success(data.message || "Excel processed successfully!");
+      if (data.errors && data.errors.length > 0) {
+        setExcelErrors(data.errors);
+      }
       fetchProducts();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to upload Excel");
@@ -209,8 +235,55 @@ const ProductsPage = () => {
     setShowModal(true);
   };
 
+  useEffect(() => {
+    if (showModal && form.isCombo && allStandardProducts.length === 0) {
+      fetchAllStandardProducts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showModal, form.isCombo]);
+
+  const fetchAllStandardProducts = async () => {
+    if (fetchingAllProducts) return;
+    setFetchingAllProducts(true);
+    try {
+      const { data } = await api.get('/products/admin?limit=1000&isActive=true');
+      const standard = data.products.filter(p => !p.isCombo);
+      setAllStandardProducts(standard);
+    } catch {
+      toast.error("Failed to load products for combo builder");
+    } finally {
+      setFetchingAllProducts(false);
+    }
+  };
+
   return (
     <div>
+      {excelErrors && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-xl flex flex-col max-h-[80vh]">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h3 className="font-bold text-lg text-red-600 flex items-center gap-2">
+                Excel Upload Warnings ({excelErrors.length})
+              </h3>
+              <button onClick={() => setExcelErrors(null)} className="p-1 rounded-lg hover:bg-gray-100">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto bg-red-50">
+              <ul className="list-disc pl-5 space-y-1 text-sm text-red-700 font-mono">
+                {excelErrors.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-4 border-t border-gray-100 flex justify-end">
+              <button onClick={() => setExcelErrors(null)} className="btn-fire px-4 py-2 text-sm rounded-lg">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h2 className="font-heading font-bold text-xl text-gray-900">
           Products <span className="text-gray-400 font-normal text-base">({total})</span>
@@ -530,6 +603,151 @@ const ProductsPage = () => {
                     Active (visible on store)
                   </label>
                 </div>
+                
+                {/* Combo Settings */}
+                <div className="col-span-2 border-t border-gray-100 pt-4 mt-2">
+                  <div className="flex items-center gap-2 mb-4">
+                    <input
+                      type="checkbox"
+                      id="isCombo"
+                      checked={form.isCombo}
+                      onChange={(e) => setForm({ ...form, isCombo: e.target.checked })}
+                      className="accent-primary"
+                    />
+                    <label htmlFor="isCombo" className="text-xs font-semibold text-gray-600">
+                      This is a Combo Box
+                    </label>
+                  </div>
+                  
+                  {form.isCombo && (
+                    <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Filter by Category</label>
+                          <select 
+                            value={comboCategoryFilter} 
+                            onChange={e => setComboCategoryFilter(e.target.value)}
+                            className="input-admin py-1.5 text-xs"
+                          >
+                            <option value="">All Categories</option>
+                            {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                          </select>
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide block mb-1">Select Product to Add</label>
+                          <div className="flex gap-2">
+                            <select 
+                              value={comboProductSelect}
+                              onChange={e => setComboProductSelect(e.target.value)}
+                              className="input-admin py-1.5 text-xs flex-1"
+                            >
+                              <option value="">Select a product...</option>
+                              {allStandardProducts
+                                .filter(p => !comboCategoryFilter || p.category?._id === comboCategoryFilter || p.category === comboCategoryFilter)
+                                .map(p => (
+                                  <option key={p._id} value={p._id}>
+                                    {p.name} - ₹{getEffectivePrice(p)}
+                                  </option>
+                                ))}
+                            </select>
+                            <input 
+                              type="number" 
+                              min="1"
+                              value={comboQty}
+                              onChange={e => setComboQty(e.target.value)}
+                              className="input-admin py-1.5 text-xs w-16"
+                              placeholder="Qty"
+                            />
+                            <button 
+                              type="button"
+                              disabled={!comboProductSelect}
+                              onClick={() => {
+                                const selected = allStandardProducts.find(p => p._id === comboProductSelect);
+                                if (!selected) return;
+                                if (form.comboProducts.some(cp => cp.product === selected._id)) {
+                                  toast.error("Product already in combo");
+                                  return;
+                                }
+                                setForm({
+                                  ...form,
+                                  comboProducts: [
+                                    ...form.comboProducts,
+                                    { product: selected._id, name: selected.name, price: getEffectivePrice(selected), quantity: Number(comboQty) }
+                                  ]
+                                });
+                                setComboProductSelect("");
+                                setComboQty(1);
+                              }}
+                              className="btn-fire px-3 py-1.5 text-xs rounded-lg disabled:opacity-50"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Added Combo Items */}
+                      {form.comboProducts.length > 0 && (
+                        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                          <table className="w-full text-xs">
+                            <thead className="bg-gray-50 border-b border-gray-200">
+                              <tr>
+                                <th className="text-left py-2 px-3">Item</th>
+                                <th className="text-left py-2 px-3">Price</th>
+                                <th className="text-left py-2 px-3">Qty</th>
+                                <th className="text-left py-2 px-3">Total</th>
+                                <th className="text-center py-2 px-3">Act</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {form.comboProducts.map((cp, idx) => (
+                                <tr key={idx} className="border-b border-gray-100 last:border-0">
+                                  <td className="py-2 px-3 font-medium text-gray-800">{cp.name}</td>
+                                  <td className="py-2 px-3 text-gray-500">₹{cp.price}</td>
+                                  <td className="py-2 px-3">
+                                    <input 
+                                      type="number" 
+                                      min="1"
+                                      value={cp.quantity}
+                                      onChange={e => {
+                                        const newCombo = [...form.comboProducts];
+                                        newCombo[idx].quantity = Number(e.target.value);
+                                        setForm({ ...form, comboProducts: newCombo });
+                                      }}
+                                      className="border border-gray-200 rounded px-1 py-0.5 w-12 text-center focus:outline-none focus:border-primary"
+                                    />
+                                  </td>
+                                  <td className="py-2 px-3 font-semibold text-gray-700">₹{cp.price * cp.quantity}</td>
+                                  <td className="py-2 px-3 text-center">
+                                    <button 
+                                      type="button"
+                                      onClick={() => setForm({
+                                        ...form, 
+                                        comboProducts: form.comboProducts.filter((_, i) => i !== idx)
+                                      })}
+                                      className="text-red-500 hover:text-red-700"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                            <tfoot className="bg-gray-50 border-t border-gray-200 font-bold">
+                              <tr>
+                                <td colSpan="3" className="py-2 px-3 text-right">Actual Value:</td>
+                                <td colSpan="2" className="py-2 px-3 text-primary">
+                                  ₹{form.comboProducts.reduce((sum, cp) => sum + (cp.price * cp.quantity), 0)}
+                                </td>
+                              </tr>
+                            </tfoot>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 {/* Existing image reordering section */}
                 {editing && editingImages.length > 0 && (
                   <div className="col-span-2">

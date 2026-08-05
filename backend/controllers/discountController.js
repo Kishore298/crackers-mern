@@ -32,7 +32,7 @@ const setDiscount = async (req, res) => {
         label: label || "Sale",
         isActive: isActive !== false,
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
     );
 
     res.json({ success: true, discount });

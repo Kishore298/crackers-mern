@@ -16,6 +16,7 @@ const getMyNotifications = async (req, res) => {
     const query = {
       recipientRole: role,
       $or: [{ recipient: userId }, { recipient: null }],
+      deletedBy: { $ne: userId },
     };
 
     const notifications = await Notification.find(query)
@@ -53,6 +54,7 @@ const getUnreadCount = async (req, res) => {
       recipientRole: role,
       recipient: userId,
       isRead: false,
+      deletedBy: { $ne: userId },
     });
 
     // Count broadcast unread (not in readBy)
@@ -60,6 +62,7 @@ const getUnreadCount = async (req, res) => {
       recipientRole: role,
       recipient: null,
       readBy: { $ne: userId },
+      deletedBy: { $ne: userId },
     });
 
     res.json({ success: true, count: targetedCount + broadcastCount });
@@ -114,6 +117,54 @@ const markAllAsRead = async (req, res) => {
     await Notification.updateMany(
       { recipientRole: role, recipient: null, readBy: { $ne: userId } },
       { $addToSet: { readBy: userId } },
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * DELETE /api/notifications/:id
+ */
+const deleteNotification = async (req, res) => {
+  try {
+    const notification = await Notification.findById(req.params.id);
+    if (!notification)
+      return res.status(404).json({ success: false, message: "Notification not found" });
+
+    if (notification.recipient) {
+      // Targeted: permanently delete
+      await Notification.findByIdAndDelete(req.params.id);
+    } else {
+      // Broadcast: add to deletedBy
+      await Notification.findByIdAndUpdate(req.params.id, {
+        $addToSet: { deletedBy: req.user._id },
+      });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * DELETE /api/notifications/all
+ */
+const deleteAllNotifications = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const role = req.user.role === "admin" ? "admin" : "customer";
+
+    // Delete targeted
+    await Notification.deleteMany({ recipientRole: role, recipient: userId });
+
+    // Add to deletedBy for broadcast
+    await Notification.updateMany(
+      { recipientRole: role, recipient: null, deletedBy: { $ne: userId } },
+      { $addToSet: { deletedBy: userId } }
     );
 
     res.json({ success: true });
@@ -235,6 +286,8 @@ module.exports = {
   getUnreadCount,
   markAsRead,
   markAllAsRead,
+  deleteNotification,
+  deleteAllNotifications,
   sendCustomNotification,
   getSentHistory,
 };

@@ -25,7 +25,7 @@ const ProductListPage = () => {
   // Filters state mapping from URL
   const searchFilter = searchParams.get("search") || "";
   const categoryFilter = searchParams.get("category") || "";
-  const sortFilter = searchParams.get("sort") || "";
+  const sortFilter = searchParams.get("sort") || "oldest";
 
   // Data state
   const [allCategories, setAllCategories] = useState([]); // For the sidebar
@@ -146,19 +146,13 @@ const ProductListPage = () => {
 
 
   const sortOptions = [
-    { value: "", label: "Relevance" },
+    { value: "oldest", label: "Oldest First" },
+    { value: "newest", label: "Newest First" },
     { value: "price_asc", label: "Price: Low to High" },
     { value: "price_desc", label: "Price: High to Low" },
-    { value: "newest", label: "Newest First" },
   ];
 
-  const sortedCategories = [...allCategories].sort((a, b) => {
-    const isComboA = a.name.toLowerCase().includes("combo");
-    const isComboB = b.name.toLowerCase().includes("combo");
-    if (isComboA && !isComboB) return -1;
-    if (!isComboA && isComboB) return 1;
-    return 0;
-  });
+  const sortedCategories = allCategories;
 
   const activeCatName = allCategories.find((c) => c.slug === categoryFilter || c._id === categoryFilter)?.name;
   const seoTitle = activeCatName ? `Buy ${activeCatName} Online` : "All Products";

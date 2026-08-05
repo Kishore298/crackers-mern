@@ -6,7 +6,6 @@ const WelcomeFireworks = () => {
   const [isVisible, setIsVisible] = useState(() => {
     return !sessionStorage.getItem("hasSeenFireworks_v12");
   });
-  const [shouldShake, setShouldShake] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
   useEffect(() => {
@@ -185,9 +184,6 @@ const WelcomeFireworks = () => {
     };
 
     const createGrandFinale = (x, y) => {
-      setShouldShake(true);
-      setTimeout(() => setShouldShake(false), 600);
-
       const pCount = 400;
       for (let i = 0; i < pCount; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -356,24 +352,12 @@ const WelcomeFireworks = () => {
   return (
     <div
       ref={containerRef}
-      className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0' : 'opacity-100'} ${shouldShake ? 'animate-shake' : ''}`}
+      className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}
     >
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none mix-blend-screen"
       />
-
-      {/* Shake Keyframes */}
-      <style>{`
-        @keyframes shake {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          10%, 30%, 50%, 70%, 90% { transform: translate(-5px, 3px) rotate(-1.5deg); }
-          20%, 40%, 60%, 80% { transform: translate(5px, -3px) rotate(1.5deg); }
-        }
-        .animate-shake {
-          animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
-      `}</style>
     </div>
   );
 };

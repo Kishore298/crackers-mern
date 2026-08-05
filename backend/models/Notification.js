@@ -25,6 +25,7 @@ const notificationSchema = new mongoose.Schema(
     data: { type: mongoose.Schema.Types.Mixed, default: {} },
     isRead: { type: Boolean, default: false },
     readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    deletedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true },
 );

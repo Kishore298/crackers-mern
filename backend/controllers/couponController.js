@@ -38,6 +38,9 @@ const createCoupon = async (req, res) => {
       title,
       description,
       isFeatured,
+      startDate,
+      usageLimit,
+      perUserLimit,
     } = req.body;
     if (!code || !discountType || !discountValue || !expiresAt)
       return res.status(400).json({
@@ -56,6 +59,9 @@ const createCoupon = async (req, res) => {
       title,
       description,
       isFeatured,
+      startDate,
+      usageLimit,
+      perUserLimit,
     });
     res.status(201).json({ success: true, coupon });
   } catch (err) {
@@ -71,7 +77,7 @@ const createCoupon = async (req, res) => {
 const updateCoupon = async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
     if (!coupon)
@@ -116,6 +122,11 @@ const validateCoupon = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Invalid or inactive coupon" });
 
+    if (new Date() < new Date(coupon.startDate))
+      return res
+        .status(400)
+        .json({ success: false, message: "Coupon is not active yet" });
+
     if (new Date() > new Date(coupon.expiresAt))
       return res
         .status(400)
@@ -126,6 +137,20 @@ const validateCoupon = async (req, res) => {
         success: false,
         message: `Minimum order value ₹${coupon.minOrderValue} required`,
       });
+
+    if (coupon.usageLimit > 0) {
+      const totalUsed = coupon.usedBy.reduce((acc, curr) => acc + curr.count, 0);
+      if (totalUsed >= coupon.usageLimit) {
+        return res.status(400).json({ success: false, message: "Coupon usage limit reached" });
+      }
+    }
+
+    if (coupon.perUserLimit > 0 && req.user) {
+      const userUsage = coupon.usedBy.find(u => u.user.toString() === req.user._id.toString());
+      if (userUsage && userUsage.count >= coupon.perUserLimit) {
+        return res.status(400).json({ success: false, message: "You have reached the usage limit for this coupon" });
+      }
+    }
 
     let discount = 0;
     if (coupon.discountType === "percentage") {

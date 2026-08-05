@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
 
 const ProductCard = ({ product, discountPct = 0 }) => {
-  const { addToCart } = useCart();
-  const [qty, setQty] = useState(1);
+  const { addToCart, getCartItem, updateQty } = useCart();
+  const cartItem = getCartItem(product._id);
   const FORCE_COMING_SOON = false;
   const isAvailable = !FORCE_COMING_SOON && product.stock > 0;
 
@@ -27,11 +27,8 @@ const ProductCard = ({ product, discountPct = 0 }) => {
         : 0;
 
   const handleAdd = () => {
-    addToCart({ ...product, effectivePrice }, qty);
-    setQty(1);
+    addToCart({ ...product, effectivePrice }, 1);
   };
-
-  const maxQty = product.stock || 1;
 
   return (
     <motion.div
@@ -122,44 +119,42 @@ const ProductCard = ({ product, discountPct = 0 }) => {
 
         {/* Quantity + Add to Cart */}
         {isAvailable ? (
-          <div className="grid grid-cols-2 gap-1.5 md:flex md:items-center md:gap-2 mt-1 w-full">
-            {/* Quantity Selector */}
-            <div className="flex items-center justify-between rounded-xl overflow-hidden bg-dark-card" style={{ border: "1px solid rgba(255,102,0,0.15)" }}>
+          <div className="mt-1 w-full h-8 md:h-9">
+            {cartItem ? (
+              <div className="flex items-center justify-between rounded-xl overflow-hidden bg-dark-card h-full w-full" style={{ border: "1px solid rgba(255,102,0,0.3)" }}>
+                <button
+                  type="button"
+                  onClick={() => updateQty(product._id, cartItem.quantity - 1)}
+                  aria-label="Decrease quantity"
+                  className="w-10 h-full flex items-center justify-center text-primary hover:bg-primary/10 transition-colors"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="flex-1 text-center text-sm font-bold text-white">
+                  {cartItem.quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => updateQty(product._id, cartItem.quantity + 1)}
+                  aria-label="Increase quantity"
+                  className="w-10 h-full flex items-center justify-center text-primary hover:bg-primary/10 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
               <button
-                type="button"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                aria-label="Decrease quantity"
-                className="w-1/3 h-8 md:w-8 md:h-9 flex items-center justify-center text-gray-400 hover:text-white hover:bg-surface-2 transition-colors"
+                onClick={handleAdd}
+                aria-label={`Add ${product.name} to cart`}
+                className="flex items-center justify-center gap-1.5 w-full h-full rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-white"
+                style={{
+                  background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
+                }}
               >
-                <Minus className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                <ShoppingCart className="w-3.5 h-3.5" />
+                Add
               </button>
-
-              <span className="w-1/3 text-center text-xs sm:text-sm font-bold text-white">
-                {qty}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
-                aria-label="Increase quantity"
-                className="w-1/3 h-8 md:w-8 md:h-9 flex items-center justify-center text-gray-400 hover:text-white hover:bg-surface-2 transition-colors"
-              >
-                <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
-              </button>
-            </div>
-
-            {/* Add to Cart */}
-            <button
-              onClick={handleAdd}
-              aria-label={`Add ${product.name} to cart`}
-              className="flex items-center justify-center gap-1.5 md:gap-2 h-8 md:h-9 rounded-xl text-xs sm:text-sm md:text-base font-semibold transition-all duration-200 text-white md:flex-1"
-              style={{
-                background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-              }}
-            >
-              <ShoppingCart className="w-3.5 h-3.5" />
-              Add
-            </button>
+            )}
           </div>
         ) : (
           <button

@@ -72,45 +72,49 @@ const sendOrderConfirmationEmail = async (to, sale, customer) => {
     year: "numeric",
   });
 
+  const isPaid = sale.paymentStatus === "paid";
+  const statusColor = isPaid ? "#10B981" : "#F59E0B";
+  const statusText = isPaid ? "Paid ✓" : "Pending ⏳";
+
   const mailOptions = {
     from: `"V Crackers" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
     to,
-    subject: `🎆 Order Confirmed – ${sale.invoiceNo} | V Crackers`,
+    subject: `Order Confirmed – ${sale.invoiceNo} | V Crackers`,
     html: `
-      <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #FFE4D0;">
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #eaeaea; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <!-- Header -->
-        <div style="background: linear-gradient(140deg, #8b0000, #ff6600, #ffcc33); padding: 32px 24px; text-align: center;">
-          <h1 style="color: #fff; margin: 0; font-size: 26px;">🎆 V Crackers</h1>
-          <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Order Confirmation</p>
+        <div style="background-color: #1a1726; border-bottom: 3px solid #ff6600; padding: 40px 30px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px;">V Crackers</h1>
+          <p style="color: #a1a1aa; margin: 8px 0 0; font-size: 15px; text-transform: uppercase; letter-spacing: 2px;">Order Confirmation</p>
         </div>
 
         <!-- Body -->
-        <div style="padding: 28px 24px;">
-          <p style="color: #333; font-size: 15px; margin: 0 0 6px;">Hi <strong>${customer.name || "Customer"}</strong>,</p>
-          <p style="color: #555; font-size: 14px; margin: 0 0 20px;">Thank you for your order! Here are your details:</p>
+        <div style="padding: 40px 30px;">
+          <p style="color: #1f2937; font-size: 16px; margin: 0 0 10px;">Hi <strong>${customer.name || "Customer"}</strong>,</p>
+          <p style="color: #4b5563; font-size: 15px; margin: 0 0 30px; line-height: 1.6;">Thank you for choosing V Crackers! Your order has been successfully placed. Here are the details of your purchase:</p>
 
           <!-- Order Meta -->
-          <div style="background: #FFF8F5; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-            <table style="width: 100%; font-size: 13px; color: #555;">
+          <div style="background-color: #f9fafb; border: 1px solid #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+            <table style="width: 100%; font-size: 14px; color: #374151; line-height: 1.5;">
               <tr>
-                <td><strong>Invoice:</strong> ${sale.invoiceNo}</td>
-                <td style="text-align: right;"><strong>Date:</strong> ${orderDate}</td>
+                <td style="padding-bottom: 8px;"><strong>Invoice:</strong> ${sale.invoiceNo}</td>
+                <td style="text-align: right; padding-bottom: 8px;"><strong>Date:</strong> ${orderDate}</td>
               </tr>
               <tr>
-                <td><strong>Status:</strong> <span style="color: #10B981; font-weight: 600;">Paid ✓</span></td>
+                <td><strong>Status:</strong> <span style="color: ${statusColor}; font-weight: 600;">${statusText}</span></td>
                 <td style="text-align: right;"><strong>Items:</strong> ${sale.items.length}</td>
               </tr>
             </table>
           </div>
 
           <!-- Items Table -->
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
             <thead>
-              <tr style="background: #8b0000;">
-                <th style="padding: 10px 12px; text-align: left; font-size: 12px; color: #fff; text-transform: uppercase;">Product</th>
-                <th style="padding: 10px 12px; text-align: center; font-size: 12px; color: #fff; text-transform: uppercase;">Qty</th>
-                <th style="padding: 10px 12px; text-align: right; font-size: 12px; color: #fff; text-transform: uppercase;">Price</th>
-                <th style="padding: 10px 12px; text-align: right; font-size: 12px; color: #fff; text-transform: uppercase;">Subtotal</th>
+              <tr style="border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 12px 8px; text-align: left; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Product</th>
+                <th style="padding: 12px 8px; text-align: center; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Qty</th>
+                <th style="padding: 12px 8px; text-align: right; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Price</th>
+                <th style="padding: 12px 8px; text-align: right; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Subtotal</th>
               </tr>
             </thead>
             <tbody>
@@ -119,18 +123,19 @@ const sendOrderConfirmationEmail = async (to, sale, customer) => {
           </table>
 
           <!-- Totals -->
-          <div style="text-align: right; margin-bottom: 20px;">
-            <p style="font-size: 13px; color: #555; margin: 4px 0;">Subtotal: <strong>₹${(sale.totalAmount || 0).toLocaleString("en-IN")}</strong></p>
-            ${sale.discount > 0 ? `<p style="font-size: 13px; color: #10B981; margin: 4px 0;">Discount: <strong>-₹${(sale.discount || 0).toLocaleString("en-IN")}</strong></p>` : ""}
-            <p style="font-size: 18px; color: #8b0000; font-weight: 900; margin: 8px 0 0;">Total: ₹${(sale.finalPayable || 0).toLocaleString("en-IN")}</p>
+          <div style="text-align: right; margin-bottom: 30px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+            <p style="font-size: 14px; color: #4b5563; margin: 4px 0;">Subtotal: <strong>₹${(sale.totalAmount || 0).toLocaleString("en-IN")}</strong></p>
+            ${sale.discount > 0 ? `<p style="font-size: 14px; color: #10B981; margin: 4px 0;">Discount: <strong>-₹${(sale.discount || 0).toLocaleString("en-IN")}</strong></p>` : ""}
+            <p style="font-size: 20px; color: #111827; font-weight: 700; margin: 12px 0 0;">Total: ₹${(sale.finalPayable || 0).toLocaleString("en-IN")}</p>
           </div>
 
-          <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">📎 A PDF receipt is attached to this email for your records.</p>
+          <p style="color: #6b7280; font-size: 13px; text-align: center; margin: 0; font-style: italic;">A PDF receipt has been attached to this email for your convenience.</p>
         </div>
 
         <!-- Footer -->
-        <div style="background: #FFF0E8; padding: 16px 24px; text-align: center; border-top: 1px solid #FFE4D0;">
-          <p style="color: #ff6600; font-size: 12px; margin: 0; font-weight: 600;">© 2026 V Crackers – Light Up Your Celebrations! 🎇</p>
+        <div style="background-color: #f9fafb; padding: 24px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="color: #9ca3af; font-size: 12px; margin: 0;">© 2026 V Crackers – Light Up Your Celebrations!</p>
+          <p style="color: #9ca3af; font-size: 12px; margin: 4px 0 0;"><a href="${process.env.FRONTEND_URL || '#'}" style="color: #ff6600; text-decoration: none;">Visit our store</a> | Need help? Contact Support</p>
         </div>
       </div>
     `,
@@ -193,10 +198,10 @@ const sendOrderStatusEmail = async (to, sale, customerName, newStatus) => {
     to,
     subject: `${meta.emoji} Order ${meta.label} – ${sale.invoiceNo} | V Crackers`,
     html: `
-      <div style="font-family: 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #FFE4D0;">
-        <div style="background: linear-gradient(140deg, #8b0000, #ff6600, #ffcc33); padding: 28px 24px; text-align: center;">
-          <h1 style="color: #fff; margin: 0; font-size: 24px;">🎆 V Crackers</h1>
-          <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 14px;">Order Status Update</p>
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #eaeaea; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <div style="background-color: #1a1726; border-bottom: 3px solid #ff6600; padding: 32px 24px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px;">V Crackers</h1>
+          <p style="color: #a1a1aa; margin: 8px 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Order Status Update</p>
         </div>
         <div style="padding: 28px 24px;">
           <p style="color: #333; font-size: 15px; margin: 0 0 6px;">Hi <strong>${customerName || "Customer"}</strong>,</p>
@@ -245,10 +250,10 @@ const sendCancellationEmail = async (to, sale, customerName) => {
     to,
     subject: `❌ Order Cancelled – ${sale.invoiceNo} | V Crackers`,
     html: `
-      <div style="font-family: 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #FFE4D0;">
-        <div style="background: linear-gradient(140deg, #8b0000, #ff6600, #ffcc33); padding: 28px 24px; text-align: center;">
-          <h1 style="color: #fff; margin: 0; font-size: 24px;">🎆 V Crackers</h1>
-          <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 14px;">Order Cancellation</p>
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #eaeaea; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <div style="background-color: #1a1726; border-bottom: 3px solid #EF4444; padding: 32px 24px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px;">V Crackers</h1>
+          <p style="color: #fca5a5; margin: 8px 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Order Cancellation</p>
         </div>
         <div style="padding: 28px 24px;">
           <p style="color: #333; font-size: 15px; margin: 0 0 6px;">Hi <strong>${customerName || "Customer"}</strong>,</p>

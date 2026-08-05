@@ -15,13 +15,14 @@ import SEO from "../components/SEO";
 
 const ComboDetailPage = () => {
   const { slug } = useParams();
-  const { addToCart } = useCart();
+  const { addToCart, getCartItem, updateQty } = useCart();
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
-  const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
   const [loading, setLoading] = useState(true);
   const [discountPct, setDiscountPct] = useState(0);
+
+  const cartItem = product ? getCartItem(product._id) : null;
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -53,7 +54,6 @@ const ComboDetailPage = () => {
         if (d?.isActive) setDiscountPct(d.percentage);
       })
       .catch(() => {});
-    setQty(1);
     setActiveImg(0);
   }, [slug]);
 
@@ -91,7 +91,7 @@ const ComboDetailPage = () => {
   const basePrice = totalOriginalValue > product.price ? totalOriginalValue : product.price;
   const showDiscount = totalOriginalValue > product.price;
   const displayPct = 0;
-  const FORCE_COMING_SOON = true;
+  const FORCE_COMING_SOON = false;
   const inStock = !FORCE_COMING_SOON && product.stock > 0;
 
   // Merge combo images and sub-product images
@@ -150,7 +150,7 @@ const ComboDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
           {/* ── Images ── */}
           <div>
-            <div className="relative rounded-2xl overflow-hidden aspect-[4/3] sm:aspect-square" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
+            <div className="relative rounded-2xl overflow-hidden flex items-center justify-center w-full" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>
               {allImages?.[activeImg]?.url ? (
                 <img
                   src={allImages[activeImg].url?.replace("/upload/", "/upload/q_auto,f_auto,w_800/")}
@@ -160,7 +160,7 @@ const ComboDetailPage = () => {
                   height={600}
                   decoding="async"
                   fetchpriority="high"
-                  className="w-full h-full object-contain"
+                  className="w-full h-auto object-contain max-h-[75vh]"
                 />
               ) : (
                 <div
@@ -227,16 +227,20 @@ const ComboDetailPage = () => {
             </h1>
 
             {/* Price */}
-            <div className="flex items-end gap-3">
+            <div className="flex items-end gap-3 flex-wrap">
               <span className="text-3xl font-bold text-primary">
                 ₹{effectivePrice}
               </span>
               {showDiscount && (
-                <span className="text-lg text-gray-400 line-through self-end pb-0.5">
-                  ₹{basePrice}
-                </span>
+                <>
+                  <span className="text-lg text-gray-400 line-through self-end pb-0.5">
+                    ₹{basePrice}
+                  </span>
+                  <span className="px-2 py-1 rounded-md text-xs font-bold text-green-400 bg-green-400/10 self-center border border-green-400/20">
+                    You save ₹{basePrice - effectivePrice}!
+                  </span>
+                </>
               )}
-
             </div>
 
             {/* Stock */}
@@ -304,31 +308,34 @@ const ComboDetailPage = () => {
             {/* Qty + Add to Cart */}
             {inStock ? (
               <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center rounded-xl overflow-hidden" style={{ border: "2px solid rgba(255,102,0,0.15)" }}>
+                {cartItem ? (
+                  <div className="flex items-center rounded-xl overflow-hidden h-12 w-48" style={{ border: "2px solid rgba(255,102,0,0.15)" }}>
+                    <button
+                      onClick={() => updateQty(product._id, cartItem.quantity - 1)}
+                      aria-label="Decrease quantity"
+                      className="w-14 h-full flex items-center justify-center hover:bg-surface-2 transition-colors text-gray-400"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="flex-1 h-full flex items-center justify-center font-bold text-white text-lg" style={{ borderLeft: "2px solid rgba(255,102,0,0.15)", borderRight: "2px solid rgba(255,102,0,0.15)" }}>
+                      {cartItem.quantity}
+                    </span>
+                    <button
+                      onClick={() => updateQty(product._id, cartItem.quantity + 1)}
+                      aria-label="Increase quantity"
+                      className="w-14 h-full flex items-center justify-center hover:bg-surface-2 transition-colors text-gray-400"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => setQty(Math.max(1, qty - 1))}
-                    aria-label="Decrease quantity"
-                    className="px-4 py-3 hover:bg-surface-2 transition-colors text-gray-400"
+                    onClick={() => addToCart({ ...product, effectivePrice }, 1)}
+                    className="btn-fire flex-1 justify-center py-3.5 rounded-xl text-base h-12"
                   >
-                    <Minus className="w-4 h-4" />
+                    <ShoppingCart className="w-5 h-5" /> Add to Cart
                   </button>
-                  <span className="px-5 py-3 font-bold text-white" style={{ borderLeft: "2px solid rgba(255,102,0,0.15)", borderRight: "2px solid rgba(255,102,0,0.15)" }}>
-                    {qty}
-                  </span>
-                  <button
-                    onClick={() => setQty(Math.min(product.stock, qty + 1))}
-                    aria-label="Increase quantity"
-                    className="px-4 py-3 hover:bg-surface-2 transition-colors text-gray-400"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-                <button
-                  onClick={() => addToCart({ ...product, effectivePrice }, qty)}
-                  className="btn-fire flex-1 justify-center py-3.5 rounded-xl text-base"
-                >
-                  <ShoppingCart className="w-5 h-5" /> Add to Cart
-                </button>
+                )}
               </div>
             ) : (
               <button

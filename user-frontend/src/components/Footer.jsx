@@ -10,6 +10,7 @@ import {
   Gift,
   CreditCard,
 } from "lucide-react";
+import GPayIcon from "./GPayIcon";
 import api from "../services/api";
 
 const Footer = () => {
@@ -221,9 +222,15 @@ const Footer = () => {
               <h3 className="font-heading font-semibold text-white text-sm mb-2 flex items-center gap-2">
                 <CreditCard className="w-4 h-4 text-primary" /> Payment Options
               </h3>
-              <p className="text-xs text-gray-400">
-                We accept Google Pay. After placing your order, please transfer the amount to:
-              </p>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-xs text-gray-400">
+                  We accept
+                </p>
+                <GPayIcon className="w-12 h-8 mx-1" />
+                <p className="text-xs text-gray-400">
+                  Google Pay. After placing your order, please transfer the amount to:
+                </p>
+              </div>
               <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3">
                 <p className="text-sm font-bold text-white tracking-wide">+91 97896 92606 <span className="text-xs text-gray-400 font-normal ml-1">— Alagarsamy</span></p>
                 <p className="text-sm font-bold text-white tracking-wide">+91 88386 96953 <span className="text-xs text-gray-400 font-normal ml-1">— Hari Prasath</span></p>

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {
+  loginByPhone,
   register,
   login,
   getProfile,
@@ -18,6 +19,7 @@ const {
 const { protect } = require("../middleware/auth");
 const { handleMethodOverride } = require("../middleware/methodOverride");
 
+router.post("/login-phone", loginByPhone);
 router.post("/register", register);
 router.post("/login", login);
 router.post("/send-otp-whatsapp", sendOtpWhatsApp);

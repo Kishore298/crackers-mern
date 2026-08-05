@@ -9,6 +9,37 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRE || "7d",
   });
 
+// POST /api/auth/login-phone
+const loginByPhone = async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, message: "Phone number required" });
+    }
+    
+    const normalized = phone.replace(/\s/g, "");
+    let user = await User.findOne({ phone: normalized });
+    
+    if (!user) {
+      // Auto-register
+      user = await User.create({ name: normalized, phone: normalized });
+    }
+    
+    if (user.isActive === false) {
+      return res.status(403).json({ success: false, message: "Account blocked" });
+    }
+    
+    const token = signToken(user._id);
+    res.json({ 
+      success: true, 
+      token, 
+      user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role } 
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // POST /api/auth/register
 const register = async (req, res) => {
   try {
@@ -114,7 +145,7 @@ const updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { name, phone },
-      { new: true, runValidators: true },
+      { returnDocument: "after", runValidators: true },
     );
     res.json({ success: true, user });
   } catch (err) {
@@ -443,6 +474,7 @@ const changePassword = async (req, res) => {
 };
 
 module.exports = {
+  loginByPhone,
   register,
   login,
   getProfile,

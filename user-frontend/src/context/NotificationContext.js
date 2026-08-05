@@ -90,6 +90,9 @@ export const NotificationProvider = ({ children }) => {
 
   const markAsRead = async (id) => {
     try {
+      const targetNotif = notifications.find((n) => n._id === id);
+      if (targetNotif?.isRead) return;
+
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)),
       );
@@ -119,6 +122,37 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  const deleteNotification = async (id) => {
+    try {
+      const targetNotif = notifications.find((n) => n._id === id);
+      setNotifications((prev) => prev.filter((n) => n._id !== id));
+      if (targetNotif && !targetNotif.isRead) {
+        setUnreadCount((c) => Math.max(0, c - 1));
+      }
+
+      await fetch(`${API_URL}/notifications/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteAllNotifications = async () => {
+    try {
+      setNotifications([]);
+      setUnreadCount(0);
+
+      await fetch(`${API_URL}/notifications/all`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <NotificationContext.Provider
       value={{
@@ -126,6 +160,8 @@ export const NotificationProvider = ({ children }) => {
         unreadCount,
         markAsRead,
         markAllAsRead,
+        deleteNotification,
+        deleteAllNotifications,
         fetchNotifications,
       }}
     >

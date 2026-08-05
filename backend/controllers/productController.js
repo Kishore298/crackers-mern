@@ -3,7 +3,6 @@ const StockLedger = require("../models/StockLedger");
 const Sale = require("../models/Sale");
 const Category = require("../models/Category");
 const { cloudinary } = require("../config/cloudinary");
-const { getSortIndex } = require("./categoryController");
 const xlsx = require("xlsx");
 
 const slugify = (text) =>
@@ -74,8 +73,9 @@ const getProducts = async (req, res) => {
       price_asc: { discountedPrice: 1 },
       price_desc: { discountedPrice: -1 },
       newest: { createdAt: -1 },
+      oldest: { createdAt: 1 },
     };
-    const sortOption = sortMap[sort] || { createdAt: -1 };
+    const sortOption = sortMap[sort] || { createdAt: 1 };
 
     const skip = (Number(page) - 1) * Number(limit);
     const total = await Product.countDocuments(filter);
@@ -127,7 +127,7 @@ const getAdminProducts = async (req, res) => {
     const total = await Product.countDocuments(filter);
     
     let productsQuery = Product.find(filter)
-      .populate("category", "name slug")
+      .populate("category", "name slug order")
       .populate("comboProducts.product", "name images price discountedPrice stock");
       
     if (sortOption) {
@@ -139,10 +139,8 @@ const getAdminProducts = async (req, res) => {
     // If sorting by category (default), we do an in-memory sort and then paginate
     if (!sortOption) {
       products.sort((a, b) => {
-        const catA = a.category ? a.category.slug : "";
-        const catB = b.category ? b.category.slug : "";
-        const indexA = getSortIndex(catA);
-        const indexB = getSortIndex(catB);
+        const indexA = a.category && a.category.order !== undefined ? a.category.order : 9999;
+        const indexB = b.category && b.category.order !== undefined ? b.category.order : 9999;
         if (indexA === indexB) {
           const catNameA = a.category ? a.category.name : "";
           const catNameB = b.category ? b.category.name : "";
@@ -338,7 +336,7 @@ const reorderImages = async (req, res) => {
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       { $set: { images } },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!product)
       return res.status(404).json({ success: false, message: "Product not found" });
@@ -391,11 +389,13 @@ const uploadExcel = async (req, res) => {
     
     let createdCount = 0;
     let updatedCount = 0;
+    let errors = [];
     
     let currentCategory = '';
     const processedProductIds = [];
 
     for (let i = 2; i < json.length; i++) {
+      const rowNum = i + 1; // 1-indexed row number
       const row = json[i];
       if (!row || row.length === 0) continue;
 
@@ -415,15 +415,41 @@ const uploadExcel = async (req, res) => {
       
       const prodName = rowData['product'] || rowData['product name'] || rowData['name'];
       
-      if (!catName || !prodName) continue;
+      if (!prodName) {
+        errors.push(`Row ${rowNum}: Product name is missing.`);
+        continue;
+      }
+      
+      if (!catName) {
+        errors.push(`Row ${rowNum}: Category is missing and no previous category found.`);
+        continue;
+      }
 
       let salesPriceRaw = rowData['sales price'];
       let priceRaw = rowData['price'] || rowData['mrp'];
       
-      let finalPrice = parseFloat(priceRaw) || parseFloat(salesPriceRaw) || 0;
-      let finalDiscountedPrice = parseFloat(salesPriceRaw) || finalPrice;
+      let parsedPrice = parseFloat(priceRaw);
+      let parsedSalesPrice = parseFloat(salesPriceRaw);
+      
+      if (isNaN(parsedPrice) && isNaN(parsedSalesPrice)) {
+        errors.push(`Row ${rowNum}: Invalid price for product '${prodName}'.`);
+        continue;
+      }
+      
+      let finalPrice = !isNaN(parsedPrice) ? parsedPrice : parsedSalesPrice;
+      let finalDiscountedPrice = !isNaN(parsedSalesPrice) ? parsedSalesPrice : finalPrice;
 
-      let stock = rowData['stock'] || rowData['cases'] || rowData['qty'] || 0;
+      if (finalPrice <= 0) {
+        errors.push(`Row ${rowNum}: Price must be greater than 0 for product '${prodName}'.`);
+        continue;
+      }
+
+      let stockRaw = rowData['stock'] || rowData['cases'] || rowData['qty'];
+      let stockVal = parseInt(stockRaw, 10);
+      if (isNaN(stockVal) || stockVal < 0) {
+        stockVal = 0; // Default to 0 if invalid
+      }
+      
       let description = rowData['description'] || rowData['desc'] || '';
       let youtubeId = rowData['youtube link'] || rowData['youtube video link'] || rowData['youtube id'] || '';
 
@@ -431,7 +457,6 @@ const uploadExcel = async (req, res) => {
       let category = await Category.findOne({ name: { $regex: new RegExp(`^${catName}$`, 'i') } });
       if (!category) {
         let slug = slugify(catName);
-        // Ensure category slug is unique
         let count = 0;
         let tempCatSlug = slug;
         while (await Category.findOne({ slug: tempCatSlug })) {
@@ -440,13 +465,10 @@ const uploadExcel = async (req, res) => {
         category = await Category.create({ name: catName, slug: tempCatSlug });
       }
 
-      const priceVal = finalPrice;
-      const stockVal = parseInt(stock, 10) || 0;
-      
       const productData = {
          name: prodName.toString().trim(),
          category: category._id,
-         price: priceVal,
+         price: finalPrice,
          discountedPrice: finalDiscountedPrice,
          stock: stockVal,
          description: description,
@@ -460,33 +482,42 @@ const uploadExcel = async (req, res) => {
       const escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const existingProduct = await Product.findOne({ name: { $regex: new RegExp(`^${escapeRegex(prodName.toString().trim())}$`, 'i') } });
       
-      if (existingProduct) {
-         await Product.findByIdAndUpdate(existingProduct._id, productData);
-         processedProductIds.push(existingProduct._id);
-         updatedCount++;
-      } else {
-         let slug = slugify(prodName.toString().trim());
-         let count = 0;
-         let tempSlug = slug;
-         while (await Product.findOne({ slug: tempSlug })) {
-           tempSlug = `${slug}-${++count}`;
-         }
-         productData.slug = tempSlug;
-         const newProduct = await Product.create(productData);
-         processedProductIds.push(newProduct._id);
-         createdCount++;
+      try {
+        if (existingProduct) {
+           await Product.findByIdAndUpdate(existingProduct._id, productData);
+           processedProductIds.push(existingProduct._id);
+           updatedCount++;
+        } else {
+           let slug = slugify(prodName.toString().trim());
+           let count = 0;
+           let tempSlug = slug;
+           while (await Product.findOne({ slug: tempSlug })) {
+             tempSlug = `${slug}-${++count}`;
+           }
+           productData.slug = tempSlug;
+           const newProduct = await Product.create(productData);
+           processedProductIds.push(newProduct._id);
+           createdCount++;
+        }
+      } catch (err) {
+        errors.push(`Row ${rowNum}: Failed to save product '${prodName}' - ${err.message}`);
       }
     }
 
     // Delete standard products (non-combos) that were not in the Excel file
-    const deleteResult = await Product.deleteMany({
-      _id: { $nin: processedProductIds },
-      isCombo: { $ne: true }
-    });
+    let deleteCount = 0;
+    if (processedProductIds.length > 0) {
+      const deleteResult = await Product.deleteMany({
+        _id: { $nin: processedProductIds },
+        isCombo: { $ne: true }
+      });
+      deleteCount = deleteResult.deletedCount;
+    }
 
     res.json({ 
       success: true, 
-      message: `Successfully processed ${createdCount + updatedCount} products. (${createdCount} created, ${updatedCount} updated, ${deleteResult.deletedCount} removed)` 
+      message: `Successfully processed ${createdCount + updatedCount} products. (${createdCount} created, ${updatedCount} updated, ${deleteCount} removed)`,
+      errors: errors.length > 0 ? errors : undefined
     });
   } catch (err) {
     console.error("Excel upload error:", err);

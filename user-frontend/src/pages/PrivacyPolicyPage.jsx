@@ -30,7 +30,7 @@ const PrivacyPolicyPage = () => {
             <li><strong>Shipping Data:</strong> Delivery addresses, pin codes, and recipient names.</li>
             <li><strong>Order Data:</strong> Details about the products you have ordered from us.</li>
           </ul>
-          <p className="mt-4">Please note that we do not store debit/credit card or net banking details. Payments are securely processed via certified third-party payment gateways (e.g., Razorpay).</p>
+          <p className="mt-4">Please note that we do not store debit/credit card or net banking details. Payments are securely processed via offline transfers (e.g., Google Pay) with verification.</p>
         </section>
 
         <section>

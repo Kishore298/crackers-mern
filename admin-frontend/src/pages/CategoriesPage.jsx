@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Upload, GripVertical } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -24,9 +24,44 @@ const CategoriesPage = () => {
     }
   };
 
+  const [dragItemIndex, setDragItemIndex] = useState(null);
+  const [dragOverItemIndex, setDragOverItemIndex] = useState(null);
+
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const handleDragStart = (e, index) => {
+    setDragItemIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragEnter = (e, index) => {
+    setDragOverItemIndex(index);
+  };
+
+  const handleDragEnd = async () => {
+    if (dragItemIndex !== null && dragOverItemIndex !== null && dragItemIndex !== dragOverItemIndex) {
+      const newCategories = [...categories];
+      const draggedItem = newCategories[dragItemIndex];
+      newCategories.splice(dragItemIndex, 1);
+      newCategories.splice(dragOverItemIndex, 0, draggedItem);
+      
+      setCategories(newCategories);
+      
+      try {
+        const orderedIds = newCategories.map(c => c._id);
+        await api.put("/categories/reorder", { orderedIds });
+        toast.success("Order updated!");
+      } catch (err) {
+        toast.error("Failed to update order");
+        fetchCategories(); // revert
+      }
+    }
+    
+    setDragItemIndex(null);
+    setDragOverItemIndex(null);
+  };
 
   const openAdd = () => {
     setEditing(null);
@@ -108,11 +143,19 @@ const CategoriesPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {categories.map((cat) => (
+          {categories.map((cat, index) => (
             <div
               key={cat._id}
-              className="card-admin p-4 flex items-center gap-4 group hover:border-orange-200 transition-colors"
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragEnter={(e) => handleDragEnter(e, index)}
+              onDragEnd={handleDragEnd}
+              onDragOver={(e) => e.preventDefault()}
+              className={`card-admin p-4 flex items-center gap-4 group hover:border-orange-200 transition-colors cursor-move ${dragOverItemIndex === index ? "border-primary shadow-lg bg-orange-50/50" : ""} ${dragItemIndex === index ? "opacity-50" : ""}`}
             >
+              <div className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing">
+                <GripVertical className="w-5 h-5" />
+              </div>
               <div className="w-14 h-14 rounded-xl bg-surface overflow-hidden shrink-0 flex items-center justify-center text-2xl">
                 {cat.image ? (
                   <img
@@ -136,7 +179,7 @@ const CategoriesPage = () => {
                   </p>
                 )}
                 <p className="text-xs text-gray-300 mt-1 font-mono">
-                  {cat.slug}
+                  {cat.slug} <span className="ml-2 px-1.5 py-0.5 rounded-md bg-gray-100 text-[10px]">Order: {index}</span>
                 </p>
               </div>
               <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">

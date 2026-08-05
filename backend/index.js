@@ -40,9 +40,7 @@ const server = http.createServer(app);
 // Socket
 initSocket(server);
 
-// Razorpay webhook (keep before body parser)
-// const { razorpayWebhook } = require("./controllers/paymentController");
-// app.post("/api/payment/webhook", express.raw({ type: "*/*" }), razorpayWebhook);
+
 
 // Security
 app.use(helmet());

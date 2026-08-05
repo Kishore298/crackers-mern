@@ -21,7 +21,7 @@ const performCancellation = async (order, adminNote = "") => {
       });
       await StockLedger.create({
         product: item.product,
-        type: "adjustment",
+        type: "correction",
         quantity: item.quantity,
         referenceId: order._id,
         note: `Cancellation restock – ${order.invoiceNo}`,
@@ -140,10 +140,9 @@ const getOrders = async (req, res) => {
 // ─── GET /api/orders/:id ──────────────────────────────────────────
 const getOrderById = async (req, res) => {
   try {
-    const order = await Sale.findById(req.params.id).populate(
-      "customer",
-      "name email phone",
-    );
+    const order = await Sale.findById(req.params.id)
+      .populate("customer", "name email phone")
+      .populate("items.product", "images");
     if (!order)
       return res.status(404).json({ success: false, message: "Order not found" });
 
@@ -363,6 +362,54 @@ const resendWhatsappReceipt = async (req, res) => {
   }
 };
 
+const updatePaymentStatus = async (req, res) => {
+  try {
+    const { paymentStatus } = req.body;
+    if (!["pending", "paid"].includes(paymentStatus)) {
+      return res.status(400).json({ success: false, message: "Invalid payment status" });
+    }
+
+    const order = await Sale.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    order.paymentStatus = paymentStatus;
+    await order.save();
+
+    res.json({ success: true, order });
+  } catch (err) {
+    console.error("Update payment status error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// PUT /api/orders/:id/shipping-address
+const updateShippingAddress = async (req, res) => {
+  try {
+    const order = await Sale.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    
+    // Only allow if order is not delivered or cancelled
+    if (["delivered", "cancelled"].includes(order.orderStatus)) {
+      return res.status(400).json({ success: false, message: "Cannot edit address for delivered/cancelled orders" });
+    }
+    
+    // Allow the order owner or admin
+    const isOwner = order.customer?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === "admin";
+    if (!isOwner && !isAdmin) return res.status(403).json({ success: false, message: "Unauthorized" });
+    
+    const { fullName, phone, addressLine1, addressLine2, city, state, pincode } = req.body;
+    order.shippingAddress = { fullName, phone, addressLine1, addressLine2, city, state, pincode };
+    await order.save();
+    
+    res.json({ success: true, order, message: "Address updated successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   getOrders,
   getOrderById,
@@ -372,4 +419,5 @@ module.exports = {
   adminCancelOrder,
   rejectCancellationRequest,
   resendWhatsappReceipt,
+  updateShippingAddress,
 };

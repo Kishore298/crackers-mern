@@ -80,6 +80,8 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => setCartItems([]);
 
+  const getCartItem = (productId) => cartItems.find(i => i._id === productId);
+
   const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
   // effectivePrice: use pre-computed effectivePrice if present (set by ProductCard/Detail),
@@ -103,6 +105,7 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateQty,
         clearCart,
+        getCartItem,
         itemCount,
         subtotal,
         total,

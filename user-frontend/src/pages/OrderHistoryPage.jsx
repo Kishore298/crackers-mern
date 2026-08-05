@@ -9,11 +9,12 @@ import {
   Clock,
   AlertTriangle,
   X,
-  CreditCard,
-  ExternalLink,
+  MapPin,
+  Edit2
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
+import toast from "react-hot-toast";
 import SEO from "../components/SEO";
 
 const STATUS_STEPS = ["processing", "packed", "shipped", "delivered"];
@@ -37,6 +38,11 @@ const OrderHistoryPage = () => {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelLoading, setCancelLoading] = useState(false);
 
+  // Address edit modal state
+  const [editAddressModal, setEditAddressModal] = useState(null); // order object
+  const [addressForm, setAddressForm] = useState(null);
+  const [addressLoading, setAddressLoading] = useState(false);
+
   const fetchOrders = useCallback(async () => {
     try {
       const { data } = await api.get("/orders");
@@ -59,11 +65,33 @@ const OrderHistoryPage = () => {
       setCancelModal(null);
       setCancelReason("");
       fetchOrders();
+      toast.success("Cancellation request sent");
     } catch (err) {
-      alert(err?.response?.data?.message || "Request failed");
+      toast.error(err?.response?.data?.message || "Request failed");
     } finally {
       setCancelLoading(false);
     }
+  };
+
+  const handleAddressSubmit = async (e) => {
+    e.preventDefault();
+    setAddressLoading(true);
+    try {
+      await api.put(`/orders/${editAddressModal._id}/shipping-address`, addressForm);
+      setEditAddressModal(null);
+      setAddressForm(null);
+      fetchOrders();
+      toast.success("Shipping address updated");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to update address");
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const openAddressEdit = (order) => {
+    setEditAddressModal(order);
+    setAddressForm({ ...order.shippingAddress });
   };
 
   if (loading)
@@ -94,6 +122,7 @@ const OrderHistoryPage = () => {
               const isCancelled = order.orderStatus === "cancelled";
               const cancelRequested = order.cancellationRequest?.requested;
               const canRequest = order.orderStatus === "processing" && !cancelRequested;
+              const canEditAddress = !["delivered", "cancelled"].includes(order.orderStatus);
 
               // Step-tracker progress
               const currentStepIdx = STATUS_STEPS.indexOf(order.orderStatus);
@@ -127,7 +156,7 @@ const OrderHistoryPage = () => {
                       <div className="flex flex-wrap gap-2">
                         {order.items?.slice(0, 3).map((item, i) => (
                           <span key={i} className="text-xs px-2 py-1 rounded-lg text-gray-300" style={{ background: "rgba(255,255,255,0.05)" }}>
-                            {item.name} Ã—{item.quantity}
+                            {item.name} ×{item.quantity}
                           </span>
                         ))}
                         {order.items?.length > 3 && (
@@ -175,23 +204,23 @@ const OrderHistoryPage = () => {
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-3 pt-3" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
+                  <div className="flex items-center gap-3 pt-3 flex-wrap" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
                     <Link
                       to={`/order-success/${order._id}`}
                       className="text-xs text-primary font-semibold hover:underline"
                     >
                       View Details →
                     </Link>
-                    {order.paymentMethod === "cod" && order.paymentStatus === "pending" && order.razorpayPaymentLinkUrl && (
-                      <a
-                        href={order.razorpayPaymentLinkUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-400 font-bold flex items-center gap-1 hover:underline"
-                      >
-                        <CreditCard className="w-3 h-3" /> Pay Online Now <ExternalLink className="w-3 h-3" />
-                      </a>
+                    
+                    {canEditAddress && (
+                       <button
+                         onClick={() => openAddressEdit(order)}
+                         className="text-xs text-gray-400 font-semibold hover:text-white transition-colors flex items-center gap-1"
+                       >
+                         <Edit2 className="w-3 h-3" /> Edit Address
+                       </button>
                     )}
+
                     {canRequest && (
                       <button
                         onClick={() => setCancelModal(order._id)}
@@ -248,6 +277,103 @@ const OrderHistoryPage = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Address Modal */}
+      {editAddressModal && addressForm && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setEditAddressModal(null)}>
+          <div className="w-full max-w-lg rounded-2xl shadow-2xl p-6 overflow-y-auto max-h-[90vh]" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-primary" /> Edit Shipping Address
+              </h3>
+              <button onClick={() => setEditAddressModal(null)} className="p-1 rounded-lg hover:bg-surface-2 text-gray-400">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddressSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-400 block mb-1">Full Name</label>
+                  <input
+                    required
+                    value={addressForm.fullName}
+                    onChange={(e) => setAddressForm({ ...addressForm, fullName: e.target.value })}
+                    className="input-fire py-2 text-sm"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-400 block mb-1">Phone</label>
+                  <input
+                    required
+                    value={addressForm.phone}
+                    onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
+                    className="input-fire py-2 text-sm"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-semibold text-gray-400 block mb-1">Address Line 1</label>
+                  <input
+                    required
+                    value={addressForm.addressLine1}
+                    onChange={(e) => setAddressForm({ ...addressForm, addressLine1: e.target.value })}
+                    className="input-fire py-2 text-sm"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-semibold text-gray-400 block mb-1">Address Line 2 (Optional)</label>
+                  <input
+                    value={addressForm.addressLine2 || ""}
+                    onChange={(e) => setAddressForm({ ...addressForm, addressLine2: e.target.value })}
+                    className="input-fire py-2 text-sm"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-400 block mb-1">City</label>
+                  <input
+                    required
+                    value={addressForm.city}
+                    onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                    className="input-fire py-2 text-sm"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-400 block mb-1">State</label>
+                  <input
+                    required
+                    value={addressForm.state}
+                    onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
+                    className="input-fire py-2 text-sm"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-400 block mb-1">Pincode</label>
+                  <input
+                    required
+                    value={addressForm.pincode}
+                    onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value })}
+                    className="input-fire py-2 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button type="button" onClick={() => setEditAddressModal(null)} className="px-4 py-2 text-sm font-semibold text-gray-400 hover:bg-surface-2 hover:text-white transition-colors rounded-xl border border-transparent">
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addressLoading}
+                  className="btn-fire px-6 py-2 text-sm rounded-xl disabled:opacity-50"
+                >
+                  {addressLoading ? "Saving..." : "Save Address"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

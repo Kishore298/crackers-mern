@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Search, X, AlertTriangle, CheckCircle, Send } from "lucide-react";
+import { Search, X, AlertTriangle, CheckCircle, Send, Edit2, MapPin } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 
@@ -28,6 +28,11 @@ const OrdersPage = () => {
   const [cancelModal, setCancelModal] = useState(null); // { orderId, mode: 'cancel'|'reject' }
   const [cancelNote, setCancelNote] = useState("");
   const [cancelLoading, setCancelLoading] = useState(false);
+
+  // Address edit modal state
+  const [editAddressModal, setEditAddressModal] = useState(null); // order object
+  const [addressForm, setAddressForm] = useState(null);
+  const [addressLoading, setAddressLoading] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -100,6 +105,27 @@ const OrdersPage = () => {
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to send receipt", { id: toastId });
     }
+  };
+
+  const handleAddressSubmit = async (e) => {
+    e.preventDefault();
+    setAddressLoading(true);
+    try {
+      await api.put(`/orders/${editAddressModal._id}/shipping-address`, addressForm);
+      setEditAddressModal(null);
+      setAddressForm(null);
+      fetchOrders();
+      toast.success("Shipping address updated");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to update address");
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const openAddressEdit = (order) => {
+    setEditAddressModal(order);
+    setAddressForm({ ...order.shippingAddress });
   };
 
   const totalPages = Math.ceil(total / 20);
@@ -293,7 +319,18 @@ const OrdersPage = () => {
 
                           {/* Shipping */}
                           <div>
-                            <p className="font-bold text-gray-700 mb-2">Shipping Address</p>
+                            <div className="flex items-center gap-2 mb-2">
+                              <p className="font-bold text-gray-700">Shipping Address</p>
+                              {order.shippingAddress && !["delivered", "cancelled"].includes(order.orderStatus) && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); openAddressEdit(order); }}
+                                  className="text-[10px] text-primary hover:underline flex items-center gap-1 font-semibold"
+                                >
+                                  <Edit2 className="w-3 h-3" /> Edit
+                                </button>
+                              )}
+                            </div>
+                            
                             {order.shippingAddress ? (
                               <>
                                 <p className="text-gray-600">{order.shippingAddress.fullName} · {order.shippingAddress.phone}</p>
@@ -407,6 +444,103 @@ const OrdersPage = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Address Modal */}
+      {editAddressModal && addressForm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setEditAddressModal(null)}>
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 overflow-y-auto max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-primary" /> Edit Shipping Address
+              </h3>
+              <button onClick={() => setEditAddressModal(null)} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddressSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Full Name</label>
+                  <input
+                    required
+                    value={addressForm.fullName}
+                    onChange={(e) => setAddressForm({ ...addressForm, fullName: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Phone</label>
+                  <input
+                    required
+                    value={addressForm.phone}
+                    onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Address Line 1</label>
+                  <input
+                    required
+                    value={addressForm.addressLine1}
+                    onChange={(e) => setAddressForm({ ...addressForm, addressLine1: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Address Line 2 (Optional)</label>
+                  <input
+                    value={addressForm.addressLine2 || ""}
+                    onChange={(e) => setAddressForm({ ...addressForm, addressLine2: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">City</label>
+                  <input
+                    required
+                    value={addressForm.city}
+                    onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">State</label>
+                  <input
+                    required
+                    value={addressForm.state}
+                    onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Pincode</label>
+                  <input
+                    required
+                    value={addressForm.pincode}
+                    onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value })}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button type="button" onClick={() => setEditAddressModal(null)} className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addressLoading}
+                  className="btn-admin px-6 py-2 text-sm rounded-xl disabled:opacity-50"
+                >
+                  {addressLoading ? "Saving..." : "Save Address"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

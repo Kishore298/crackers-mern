@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Bell, Sparkles, ExternalLink } from "lucide-react";
+import { Bell, Sparkles, ExternalLink, Trash2 } from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
 import { useNavigate } from "react-router-dom";
 
 const NotificationBell = () => {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } =
+  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, deleteAllNotifications } =
     useNotifications();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -60,15 +60,26 @@ const NotificationBell = () => {
               <h3 className="font-heading font-bold text-white">
                 Notifications
               </h3>
-              {unreadCount > 0 && (
-                <button
-                  onClick={markAllAsRead}
-                  aria-label="Mark all notifications as read"
-                  className="text-xs font-semibold text-primary hover:text-primary-light transition-colors"
-                >
-                  Mark all read
-                </button>
-              )}
+              <div className="flex items-center gap-3">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    aria-label="Mark all notifications as read"
+                    className="text-xs font-semibold text-primary hover:text-primary-light transition-colors"
+                  >
+                    Mark all read
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    onClick={deleteAllNotifications}
+                    aria-label="Clear all notifications"
+                    className="text-xs font-semibold text-red-500 hover:text-red-400 transition-colors"
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -148,9 +159,21 @@ const NotificationBell = () => {
                       )}
                     </div>
                   </div>
-                  {!n.isRead && (
-                    <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2"></div>
-                  )}
+                  <div className="flex flex-col items-center gap-2 mt-1">
+                    {!n.isRead && (
+                      <div className="w-2 h-2 rounded-full bg-primary shrink-0"></div>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteNotification(n._id);
+                      }}
+                      className="text-gray-500 hover:text-red-500 transition-colors"
+                      aria-label="Delete notification"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}

@@ -24,6 +24,17 @@ const couponSchema = new mongoose.Schema(
     title: { type: String, default: "" }, // e.g. "Mega Diwali Sale"
     description: { type: String, default: "" }, // e.g. "On all combo gift boxes..."
     isFeatured: { type: Boolean, default: false }, // show on homepage banner
+    
+    // Usage limits
+    startDate: { type: Date, default: Date.now },
+    usageLimit: { type: Number, default: 0 }, // 0 = unlimited
+    perUserLimit: { type: Number, default: 1 }, // 0 = unlimited
+    usedBy: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        count: { type: Number, default: 1 },
+      }
+    ],
   },
   { timestamps: true },
 );

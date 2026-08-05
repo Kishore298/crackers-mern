@@ -8,41 +8,11 @@ const slugify = (text) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-const CATEGORY_ORDER_SLUGS = [
-  "single-sound-crackers",
-  "premium-bomb",
-  "paper-bomb",
-  "k-series",
-  "flowerpots",
-  "special-mud-pots",
-  "ground-chakkar",
-  "rockets",
-  "twinkling-stars-and-color-candles",
-  "sparklers",
-  "color-matches",
-  "skyshots",
-  "peacock-series",
-  "2026-special-fountains-and-new-arrivals"
-];
-
-const getSortIndex = (slug) => {
-  const index = CATEGORY_ORDER_SLUGS.indexOf(slug);
-  return index === -1 ? 999 : index;
-};
-
 // GET /api/categories (public)
 const getCategories = async (req, res) => {
   try {
     const filter = req.query.all === "true" ? {} : { isActive: true };
-    const categories = await Category.find(filter);
-    categories.sort((a, b) => {
-      const indexA = getSortIndex(a.slug);
-      const indexB = getSortIndex(b.slug);
-      if (indexA === 999 && indexB === 999) {
-        return a.name.localeCompare(b.name);
-      }
-      return indexA - indexB;
-    });
+    const categories = await Category.find(filter).sort({ order: 1, name: 1 });
     res.json({ success: true, categories });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -86,12 +56,17 @@ const createCategory = async (req, res) => {
       imagePublicId = req.file.filename;
     }
 
+    // Auto-assign order (max + 1)
+    const lastCat = await Category.findOne().sort({ order: -1 });
+    const order = lastCat ? (lastCat.order || 0) + 1 : 0;
+
     const category = await Category.create({
       name,
       slug,
       description,
       image,
       imagePublicId,
+      order,
     });
     res.status(201).json({ success: true, category });
   } catch (err) {
@@ -147,6 +122,30 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+// PUT /api/categories/reorder (admin)
+const reorderCategories = async (req, res) => {
+  try {
+    const { orderedIds } = req.body;
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ success: false, message: "orderedIds must be an array" });
+    }
+
+    const bulkOps = orderedIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { order: index },
+      },
+    }));
+
+    if (bulkOps.length > 0) {
+      await Category.bulkWrite(bulkOps);
+    }
+    res.json({ success: true, message: "Categories reordered successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // GET /api/categories/with-products (public)
 const getCategoriesWithProducts = async (req, res) => {
   try {
@@ -164,15 +163,7 @@ const getCategoriesWithProducts = async (req, res) => {
       }
     }
 
-    const allCategories = await Category.find(catFilter);
-    allCategories.sort((a, b) => {
-      const indexA = getSortIndex(a.slug);
-      const indexB = getSortIndex(b.slug);
-      if (indexA === 999 && indexB === 999) {
-        return a.name.localeCompare(b.name);
-      }
-      return indexA - indexB;
-    });
+    const allCategories = await Category.find(catFilter).sort({ order: 1, name: 1 });
 
     // 1. Identify which categories actually have matching products
     let totalProductFilter = {
@@ -213,8 +204,9 @@ const getCategoriesWithProducts = async (req, res) => {
       price_asc: { discountedPrice: 1 },
       price_desc: { discountedPrice: -1 },
       newest: { createdAt: -1 },
+      oldest: { createdAt: 1 },
     };
-    const sortOption = sortMap[sort] || { createdAt: -1 };
+    const sortOption = sortMap[sort] || { createdAt: 1 };
 
     const products = await Product.find(productFilter)
       .populate("category", "name slug")
@@ -260,6 +252,5 @@ module.exports = {
   createCategory,
   updateCategory,
   deleteCategory,
-  CATEGORY_ORDER_SLUGS,
-  getSortIndex,
+  reorderCategories,
 };
