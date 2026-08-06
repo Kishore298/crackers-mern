@@ -11,7 +11,7 @@ async function generateSitemap() {
   let categories = [];
 
   try {
-    // Fetch with high limit to bypass pagination and get all products
+    // Fetch products
     const response = await axios.get(`${API_BASE}/products?limit=1000`, { timeout: 15000 });
     if (response.data && response.data.success) {
       products = response.data.products || response.data.data || [];
@@ -19,6 +19,12 @@ async function generateSitemap() {
       products = response.data;
     } else if (response.data && Array.isArray(response.data.products)) {
       products = response.data.products;
+    }
+
+    // Fetch combos
+    const comboRes = await axios.get(`${API_BASE}/products?isCombo=true&limit=100`, { timeout: 15000 });
+    if (comboRes.data && comboRes.data.success) {
+      products = [...products, ...(comboRes.data.products || [])];
     }
 
     // Fetch categories
