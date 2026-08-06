@@ -8,6 +8,7 @@ const SITE_URL = "https://vcrackers.in";
 async function generateSitemap() {
   console.log("Generating sitemap...");
   let products = [];
+  let categories = [];
 
   try {
     // Fetch with high limit to bypass pagination and get all products
@@ -19,9 +20,20 @@ async function generateSitemap() {
     } else if (response.data && Array.isArray(response.data.products)) {
       products = response.data.products;
     }
-    console.log(`Fetched ${products.length} products for sitemap.`);
+
+    // Fetch categories
+    const catResponse = await axios.get(`${API_BASE}/categories`, { timeout: 10000 });
+    if (catResponse.data && catResponse.data.success) {
+      categories = catResponse.data.categories || [];
+    } else if (Array.isArray(catResponse.data)) {
+      categories = catResponse.data;
+    } else if (catResponse.data && Array.isArray(catResponse.data.categories)) {
+      categories = catResponse.data.categories;
+    }
+
+    console.log(`Fetched ${products.length} products and ${categories.length} categories for sitemap.`);
   } catch (error) {
-    console.warn("Could not fetch products for dynamic sitemap generation.", error.message);
+    console.warn("Could not fetch data for dynamic sitemap generation.", error.message);
     console.warn("Continuing with static routes only.");
   }
 
@@ -47,11 +59,26 @@ ${staticRoutes.map(route => `  <url>
     <changefreq>weekly</changefreq>
     <priority>${route === "" ? "1.0" : "0.8"}</priority>
   </url>`).join("\n")}
+${categories.map(c => {
+    const slug = c.slug || c._id;
+    if (!slug) return "";
+    return `  <url>
+    <loc>${SITE_URL}/products?category=${slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+  }).filter(Boolean).join("\n")}
+  <url>
+    <loc>${SITE_URL}/products?filter=combos</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 ${products.map(p => {
     const slug = p.slug || p._id;
     if (!slug) return "";
+    const urlPath = p.isCombo ? `/combos/${slug}` : `/products/${slug}`;
     return `  <url>
-    <loc>${SITE_URL}/products/${slug}</loc>
+    <loc>${SITE_URL}${urlPath}</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>`;
