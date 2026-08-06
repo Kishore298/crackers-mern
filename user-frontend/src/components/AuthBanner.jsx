@@ -21,14 +21,7 @@ const AuthBanner = ({
         />
       )}
 
-      {/* Gradient */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(140deg, #8b0000 0%, #ff6600ff 50%, #ffcc33 100%)",
-        }}
-      />
+
       {/* Abstract circles */}
       <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
       <div className="absolute -bottom-20 -left-10 w-72 h-72 bg-black/10 rounded-full blur-3xl" />
@@ -59,11 +52,17 @@ const AuthBanner = ({
       {/* Content — all centered */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-8 py-10 text-white gap-5">
         {/* Logo */}
-        <img
-          src="/v-crackers-logo.webp"
-          alt="V Crackers"
-          className="h-32 w-auto object-contain brightness-0 invert opacity-90"
-        />
+        <div className="relative">
+          <img
+            src="/v-crackers-logo.webp"
+            alt="V Crackers"
+            className="h-32 w-auto object-contain"
+          />
+          <span className="absolute -top-2 -left-4 text-xs opacity-70">✨</span>
+          <span className="absolute top-8 -right-6 text-[10px] opacity-70">✨</span>
+          <span className="absolute bottom-4 -left-2 text-[10px] opacity-70">✨</span>
+          <span className="absolute -top-6 right-2 text-xs opacity-70">✨</span>
+        </div>
 
         {/* Divider */}
         <div className="w-10 h-1 rounded-full bg-white/60" />

@@ -81,12 +81,13 @@ const CartPage = () => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div
-                        className="w-full h-full"
-                        style={{
-                          background: "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)",
-                        }}
-                      />
+                      <div className="w-full h-full flex items-center justify-center p-2 bg-[#0f0d1a]">
+                        <img 
+                          src="/v-crackers-logo.webp" 
+                          alt="V Crackers Logo" 
+                          className="w-full h-full object-contain opacity-40 filter grayscale" 
+                        />
+                      </div>
                     )}
                   </Link>
 

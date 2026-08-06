@@ -10,20 +10,6 @@ const getCoupons = async (req, res) => {
   }
 };
 
-// GET /api/coupons/featured (public) — returns first active featured coupon for homepage banner
-const getFeaturedCoupon = async (req, res) => {
-  try {
-    const coupon = await Coupon.findOne({
-      isFeatured: true,
-      isActive: true,
-      expiresAt: { $gt: new Date() },
-    }).sort({ expiresAt: 1 }); // pick the one expiring soonest
-    res.json({ success: true, coupon: coupon || null });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
 // POST /api/coupons (admin)
 const createCoupon = async (req, res) => {
   try {
@@ -34,18 +20,13 @@ const createCoupon = async (req, res) => {
       minOrderValue,
       maxDiscount,
       isActive,
-      expiresAt,
-      title,
-      description,
-      isFeatured,
-      startDate,
       usageLimit,
       perUserLimit,
     } = req.body;
-    if (!code || !discountType || !discountValue || !expiresAt)
+    if (!code || !discountType || !discountValue)
       return res.status(400).json({
         success: false,
-        message: "code, discountType, discountValue, expiresAt required",
+        message: "code, discountType, discountValue required",
       });
 
     const coupon = await Coupon.create({
@@ -55,11 +36,6 @@ const createCoupon = async (req, res) => {
       minOrderValue,
       maxDiscount,
       isActive,
-      expiresAt,
-      title,
-      description,
-      isFeatured,
-      startDate,
       usageLimit,
       perUserLimit,
     });
@@ -122,15 +98,7 @@ const validateCoupon = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Invalid or inactive coupon" });
 
-    if (new Date() < new Date(coupon.startDate))
-      return res
-        .status(400)
-        .json({ success: false, message: "Coupon is not active yet" });
 
-    if (new Date() > new Date(coupon.expiresAt))
-      return res
-        .status(400)
-        .json({ success: false, message: "Coupon has expired" });
 
     if (orderTotal < coupon.minOrderValue)
       return res.status(400).json({
@@ -161,10 +129,18 @@ const validateCoupon = async (req, res) => {
     }
     discount = Math.min(discount, orderTotal);
 
+    let discountText = "";
+    if (coupon.discountType === "percentage") {
+      discountText = `(${coupon.discountValue}% OFF)`;
+    } else {
+      discountText = `(₹${coupon.discountValue} OFF)`;
+    }
+
     res.json({
       success: true,
       discount: Math.round(discount),
       couponCode: coupon.code,
+      discountText,
       message: `Coupon applied! You save ₹${Math.round(discount)}`,
     });
   } catch (err) {
@@ -174,7 +150,6 @@ const validateCoupon = async (req, res) => {
 
 module.exports = {
   getCoupons,
-  getFeaturedCoupon,
   createCoupon,
   updateCoupon,
   deleteCoupon,

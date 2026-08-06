@@ -13,6 +13,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 import GPayIcon from "../components/GPayIcon";
+import PhonePeIcon from "../components/PhonePeIcon";
+import PaytmIcon from "../components/PaytmIcon";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -33,11 +35,13 @@ const CheckoutPage = () => {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponDiscountText, setCouponDiscountText] = useState("");
   const [isApplying, setIsApplying] = useState(false);
   const [showCouponInput, setShowCouponInput] = useState(false);
 
-  const [newAddr, setNewAddr] = useState({
+  const [addrForm, setAddrForm] = useState({
     fullName: "",
+    email: "",
     phone: "",
     addressLine1: "",
     addressLine2: "",
@@ -46,6 +50,7 @@ const CheckoutPage = () => {
     pincode: "",
     isDefault: false,
   });
+  const [editingAddrId, setEditingAddrId] = useState(null);
 
 
   const finalAmount = total - couponDiscount; // total already has slab discount applied
@@ -80,15 +85,27 @@ const CheckoutPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, cartItems.length, navigate, canCheckout, MIN_CART_VALUE, orderPlaced]);
 
-  const addAddress = async () => {
+  const saveAddress = async () => {
     try {
-      const { data } = await api.post("/auth/address", newAddr);
+      let data;
+      if (editingAddrId) {
+        const res = await api.put(`/auth/address/${editingAddrId}`, addrForm);
+        data = res.data;
+        toast.success("Address updated!");
+      } else {
+        const res = await api.post("/auth/address", addrForm);
+        data = res.data;
+        toast.success("Address added!");
+        const added = data.addresses[data.addresses.length - 1];
+        setSelectedAddr(added._id);
+      }
+
       setAddresses(data.addresses);
-      const added = data.addresses[data.addresses.length - 1];
-      setSelectedAddr(added._id);
       setShowAddAddr(false);
-      setNewAddr({
+      setEditingAddrId(null);
+      setAddrForm({
         fullName: "",
+        email: "",
         phone: "",
         addressLine1: "",
         addressLine2: "",
@@ -97,10 +114,27 @@ const CheckoutPage = () => {
         pincode: "",
         isDefault: false,
       });
-      toast.success("Address added!");
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to add address");
+      toast.error(err?.response?.data?.message || "Failed to save address");
     }
+  };
+
+  const handleEditAddress = (e, addr) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setEditingAddrId(addr._id);
+    setAddrForm({
+      fullName: addr.fullName,
+      email: addr.email || "",
+      phone: addr.phone,
+      addressLine1: addr.addressLine1,
+      addressLine2: addr.addressLine2 || "",
+      city: addr.city,
+      state: addr.state,
+      pincode: addr.pincode,
+      isDefault: addr.isDefault,
+    });
+    setShowAddAddr(true);
   };
 
   const handlePayment = async () => {
@@ -174,8 +208,12 @@ const CheckoutPage = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gray-50 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)" }}>
-                            <ShoppingBag className="w-6 h-6 text-gray-200" />
+                          <div className="w-full h-full flex items-center justify-center p-2 bg-[#0f0d1a]">
+                            <img 
+                              src="/v-crackers-logo.webp" 
+                              alt="V Crackers Logo" 
+                              className="w-full h-full object-contain opacity-40 filter grayscale" 
+                            />
                           </div>
                         )}
                       </div>
@@ -223,6 +261,9 @@ const CheckoutPage = () => {
                       <p className="font-semibold text-sm text-white">
                         {addr.fullName} · {addr.phone}
                       </p>
+                      {addr.email && (
+                        <p className="text-xs text-gray-400 mt-0.5">{addr.email}</p>
+                      )}
                       <p className="text-xs text-gray-400 mt-0.5">
                         {addr.addressLine1}
                         {addr.addressLine2
@@ -230,10 +271,16 @@ const CheckoutPage = () => {
                           : ""}, {addr.city}, {addr.state} – {addr.pincode}
                       </p>
                       {addr.isDefault && (
-                        <span className="badge-fire text-xs mt-1.5 inline-block">
+                        <span className="badge-fire text-xs mt-1.5 inline-block mr-2">
                           Default
                         </span>
                       )}
+                      <button
+                        onClick={(e) => handleEditAddress(e, addr)}
+                        className="text-xs text-primary hover:underline mt-1.5 inline-block"
+                      >
+                        Edit
+                      </button>
                     </div>
                     {selectedAddr === addr._id && (
                       <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -243,7 +290,23 @@ const CheckoutPage = () => {
               </div>
 
               <button
-                onClick={() => setShowAddAddr(!showAddAddr)}
+                onClick={() => {
+                  if (!showAddAddr) {
+                    setEditingAddrId(null);
+                    setAddrForm({
+                      fullName: "",
+                      email: "",
+                      phone: "",
+                      addressLine1: "",
+                      addressLine2: "",
+                      city: "",
+                      state: "",
+                      pincode: "",
+                      isDefault: false,
+                    });
+                  }
+                  setShowAddAddr(!showAddAddr);
+                }}
                 className="flex items-center gap-2 mt-4 text-sm font-semibold text-primary hover:underline"
               >
                 <Plus className="w-4 h-4" /> Add New Address
@@ -252,26 +315,29 @@ const CheckoutPage = () => {
               {showAddAddr && (
                 <div className="mt-4 p-4 rounded-xl grid grid-cols-2 gap-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,102,0,0.1)" }}>
                   {[
-                    { id: "fullName", label: "Full Name", colSpan: 1 },
-                    { id: "phone", label: "Phone", colSpan: 1 },
-                    { id: "addressLine1", label: "Address Line 1", colSpan: 2 },
+                    { id: "fullName", label: "Full Name", colSpan: 1, type: "text" },
+                    { id: "email", label: "Email", colSpan: 1, type: "email" },
+                    { id: "phone", label: "Phone", colSpan: 1, type: "text" },
+                    { id: "addressLine1", label: "Address Line 1", colSpan: 2, type: "text" },
                     {
                       id: "addressLine2",
                       label: "Address Line 2 (optional)",
                       colSpan: 2,
+                      type: "text"
                     },
-                    { id: "city", label: "City", colSpan: 1 },
-                    { id: "state", label: "State", colSpan: 1 },
-                    { id: "pincode", label: "Pincode", colSpan: 1 },
-                  ].map(({ id, label, colSpan }) => (
+                    { id: "city", label: "City", colSpan: 1, type: "text" },
+                    { id: "state", label: "State", colSpan: 1, type: "text" },
+                    { id: "pincode", label: "Pincode", colSpan: 1, type: "text" },
+                  ].map(({ id, label, colSpan, type }) => (
                     <div key={id} className={colSpan === 2 ? "col-span-2" : ""}>
                       <label className="text-xs font-semibold text-gray-400 block mb-1">
                         {label}
                       </label>
                       <input
-                        value={newAddr[id]}
+                        type={type}
+                        value={addrForm[id]}
                         onChange={(e) =>
-                          setNewAddr({ ...newAddr, [id]: e.target.value })
+                          setAddrForm({ ...addrForm, [id]: e.target.value })
                         }
                         className="input-fire text-sm py-2"
                       />
@@ -279,10 +345,10 @@ const CheckoutPage = () => {
                   ))}
                   <div className="col-span-2 flex gap-3 mt-2">
                     <button
-                      onClick={addAddress}
+                      onClick={saveAddress}
                       className="btn-fire px-5 py-2 text-sm rounded-lg"
                     >
-                      Save Address
+                      {editingAddrId ? "Update Address" : "Save Address"}
                     </button>
                     <button
                       onClick={() => setShowAddAddr(false)}
@@ -303,9 +369,13 @@ const CheckoutPage = () => {
               </h2>
               <div className="bg-[#1a1726] p-4 rounded-xl border border-gray-800">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-                  <GPayIcon className="w-14 h-14 shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <GPayIcon className="w-14 h-14 shrink-0" />
+                    <PhonePeIcon className="w-14 h-14 shrink-0" />
+                    <PaytmIcon className="w-14 h-14 shrink-0" />
+                  </div>
                   <p className="text-sm text-gray-300 leading-relaxed">
-                    We accept payments via <strong className="text-white">Google Pay</strong>.
+                    We accept payments via <strong className="text-white">Google Pay, PhonePe, and Paytm</strong>.
                     After clicking "Place Order", please transfer the total amount to either of the numbers below.
                   </p>
                 </div>
@@ -358,7 +428,7 @@ const CheckoutPage = () => {
               </div>
               {couponDiscount > 0 && (
                 <div className="flex justify-between text-green-400 font-semibold">
-                  <span>Coupon Discount</span>
+                  <span>Coupon Discount {couponDiscountText && <span className="text-xs font-bold text-green-500 ml-1">{couponDiscountText}</span>}</span>
                   <span>-₹{couponDiscount.toLocaleString("en-IN")}</span>
                 </div>
               )}
@@ -401,6 +471,7 @@ const CheckoutPage = () => {
                           setAppliedCoupon(null);
                           setCouponCode("");
                           setCouponDiscount(0);
+                          setCouponDiscountText("");
                         }}
                         className="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-sm font-semibold hover:bg-red-500/20 transition-colors"
                       >
@@ -418,10 +489,10 @@ const CheckoutPage = () => {
                             });
                             setAppliedCoupon(data.couponCode);
                             setCouponDiscount(data.discount);
+                            setCouponDiscountText(data.discountText || "");
                             toast.success(data.message);
                           } catch (err) {
                             toast.error(err?.response?.data?.message || "Invalid coupon");
-                            setCouponCode("");
                           } finally {
                             setIsApplying(false);
                           }
@@ -449,8 +520,8 @@ const CheckoutPage = () => {
               onClick={handlePayment}
               disabled={payLoading || !canCheckout}
               className={`w-full justify-center mt-5 py-3.5 text-base rounded-xl flex items-center gap-2 font-bold transition-all ${canCheckout
-                  ? "btn-fire"
-                  : "opacity-50 cursor-not-allowed"
+                ? "btn-fire"
+                : "opacity-50 cursor-not-allowed"
                 }`}
               style={!canCheckout ? { background: "#1a1726", color: "#555" } : {}}
             >

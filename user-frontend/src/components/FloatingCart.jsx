@@ -16,8 +16,8 @@ const FloatingCart = () => {
   const [displayTotal, setDisplayTotal] = useState(total);
   const [totalAnimating, setTotalAnimating] = useState(false);
 
-  // Hide on cart and checkout pages
-  const hiddenPaths = ["/cart", "/checkout"];
+  // Hide on cart, checkout and login pages
+  const hiddenPaths = ["/cart", "/checkout", "/login"];
   const isHidden = hiddenPaths.some(
     (p) => location.pathname === p || location.pathname.startsWith(p + "/")
   );

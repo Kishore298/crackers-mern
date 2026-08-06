@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, X, Tag, Calendar, Layout } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Tag } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 import ConfirmModal from "../components/ConfirmModal";
@@ -10,15 +10,9 @@ const EMPTY_FORM = {
   discountValue: "",
   minOrderValue: "",
   maxDiscount: "",
-  startDate: "",
-  expiresAt: "",
   usageLimit: "",
   perUserLimit: "",
   isActive: true,
-  // Banner fields
-  title: "",
-  description: "",
-  isFeatured: false,
 };
 
 const CouponsPage = () => {
@@ -58,21 +52,16 @@ const CouponsPage = () => {
       discountValue: c.discountValue,
       minOrderValue: c.minOrderValue || "",
       maxDiscount: c.maxDiscount || "",
-      startDate: c.startDate ? c.startDate.split("T")[0] + "T" + c.startDate.split("T")[1].slice(0, 5) : "",
-      expiresAt: c.expiresAt ? c.expiresAt.split("T")[0] + "T" + c.expiresAt.split("T")[1].slice(0, 5) : "",
       usageLimit: c.usageLimit || "",
       perUserLimit: c.perUserLimit || "",
       isActive: c.isActive,
-      title: c.title || "",
-      description: c.description || "",
-      isFeatured: c.isFeatured || false,
     });
     setShowModal(true);
   };
 
   const handleSave = async () => {
-    if (!form.code || !form.discountValue || !form.expiresAt) {
-      toast.error("Code, discount value and expiry date are required");
+    if (!form.code || !form.discountValue) {
+      toast.error("Code and discount value are required");
       return;
     }
     setSaving(true);
@@ -83,14 +72,9 @@ const CouponsPage = () => {
         discountValue: Number(form.discountValue),
         minOrderValue: form.minOrderValue ? Number(form.minOrderValue) : 0,
         maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : null,
-        startDate: form.startDate ? new Date(form.startDate).toISOString() : new Date().toISOString(),
-        expiresAt: new Date(form.expiresAt).toISOString(),
         usageLimit: form.usageLimit ? Number(form.usageLimit) : 0,
         perUserLimit: form.perUserLimit ? Number(form.perUserLimit) : 1,
         isActive: form.isActive,
-        title: form.title,
-        description: form.description,
-        isFeatured: form.isFeatured,
       };
       if (editing) {
         await api.put(`/coupons/${editing._id}`, payload);
@@ -123,7 +107,7 @@ const CouponsPage = () => {
     }
   };
 
-  const isExpired = (exp) => exp && new Date(exp) < new Date();
+
 
   return (
     <div>
@@ -148,13 +132,10 @@ const CouponsPage = () => {
           {coupons.map((c) => (
             <div
               key={c._id}
-              className={`card-admin p-5 border-l-4 ${
-                !c.isActive || isExpired(c.expiresAt)
-                  ? "border-red-300 opacity-60"
-                  : c.isFeatured
-                    ? "border-yellow-400"
-                    : "border-primary"
-              }`}
+              className={`card-admin p-5 border-l-4 ${!c.isActive
+                ? "border-red-300 opacity-60"
+                : "border-primary"
+                }`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -162,11 +143,6 @@ const CouponsPage = () => {
                   <span className="font-mono font-bold text-gray-900 tracking-wider">
                     {c.code}
                   </span>
-                  {c.isFeatured && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 flex items-center gap-1">
-                      <Layout className="w-2.5 h-2.5" /> Banner
-                    </span>
-                  )}
                 </div>
                 <div className="flex gap-1.5 shrink-0">
                   <button
@@ -190,37 +166,22 @@ const CouponsPage = () => {
                   : `₹${c.discountValue} OFF`}
               </p>
 
-              {c.title && (
-                <p className="text-sm font-semibold text-gray-700 mb-1">
-                  {c.title}
-                </p>
-              )}
+
 
               <div className="space-y-1 text-xs text-gray-500">
                 {c.minOrderValue > 0 && <p>Min order: ₹{c.minOrderValue}</p>}
                 {c.maxDiscount > 0 && <p>Max discount: ₹{c.maxDiscount}</p>}
-                {c.expiresAt && (
-                  <p
-                    className={`flex items-center gap-1 ${
-                      isExpired(c.expiresAt) ? "text-red-600 font-semibold" : ""
-                    }`}
-                  >
-                    <Calendar className="w-3 h-3" />{" "}
-                    {isExpired(c.expiresAt) ? "Expired " : "Expires "}
-                    {new Date(c.expiresAt).toLocaleDateString("en-IN")}
-                  </p>
-                )}
               </div>
 
               <div className="mt-3">
                 <span
                   className={
-                    c.isActive && !isExpired(c.expiresAt)
+                    c.isActive
                       ? "badge-active"
                       : "badge-inactive"
                   }
                 >
-                  {c.isActive && !isExpired(c.expiresAt)
+                  {c.isActive
                     ? "Active"
                     : "Inactive"}
                 </span>
@@ -331,32 +292,6 @@ const CouponsPage = () => {
                     placeholder="Leave blank for unlimited"
                   />
                 </div>
-                <div className="col-span-2 sm:col-span-1">
-                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                    Start Date / Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={form.startDate}
-                    onChange={(e) =>
-                      setForm({ ...form, startDate: e.target.value })
-                    }
-                    className="input-admin"
-                  />
-                </div>
-                <div className="col-span-2 sm:col-span-1">
-                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                    Expiry Date / Time *
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={form.expiresAt}
-                    onChange={(e) =>
-                      setForm({ ...form, expiresAt: e.target.value })
-                    }
-                    className="input-admin"
-                  />
-                </div>
                 <div>
                   <label className="text-xs font-semibold text-gray-600 block mb-1.5">
                     Total Usage Limit
@@ -385,65 +320,6 @@ const CouponsPage = () => {
                     placeholder="1"
                   />
                 </div>
-              </div>
-
-              {/* Divider + Banner section */}
-              <div className="border-t border-gray-100 pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
-                    <Layout className="w-3.5 h-3.5" /> Homepage Banner
-                    (Optional)
-                  </p>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.isFeatured}
-                      onChange={(e) =>
-                        setForm({ ...form, isFeatured: e.target.checked })
-                      }
-                      className="accent-yellow-500 w-4 h-4"
-                    />
-                    <span className="text-xs font-semibold text-gray-600">
-                      Show as homepage banner
-                    </span>
-                  </label>
-                </div>
-
-                {form.isFeatured && (
-                  <div className="space-y-3 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
-                    <p className="text-xs text-yellow-700 font-medium">
-                      ✨ This coupon will appear as the featured discount banner
-                      on the homepage.
-                    </p>
-                    <div>
-                      <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                        Banner Title
-                      </label>
-                      <input
-                        value={form.title}
-                        onChange={(e) =>
-                          setForm({ ...form, title: e.target.value })
-                        }
-                        className="input-admin"
-                        placeholder="e.g. Mega Diwali Sale"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                        Banner Description
-                      </label>
-                      <textarea
-                        value={form.description}
-                        onChange={(e) =>
-                          setForm({ ...form, description: e.target.value })
-                        }
-                        className="input-admin resize-none"
-                        rows={2}
-                        placeholder="e.g. On all combo gift boxes. Celebrate more, spend less this festival of lights."
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Active toggle */}

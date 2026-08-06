@@ -308,11 +308,7 @@ const HomePage = () => {
         ]);
         setDiscount(discountRes.data.discount || null);
 
-        // Sort categories by order if available
-        const sorted = (catsRes.data.categories || []).sort((a, b) => {
-          return (a.order || 999) - (b.order || 999);
-        });
-        setAllCategories(sorted);
+        setAllCategories(catsRes.data.categories || []);
       } catch (e) {
         console.error(e);
       }
@@ -711,7 +707,7 @@ const HomePage = () => {
       {/* ══════════════════════════════════════════
           SHOP BY CATEGORY (Accordion UI)
       ══════════════════════════════════════════ */}
-      <section className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-12">
+      <section className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 pt-6 pb-12">
         <SectionHead
           tag={
             <>

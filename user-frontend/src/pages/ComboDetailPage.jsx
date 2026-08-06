@@ -163,13 +163,13 @@ const ComboDetailPage = () => {
                   className="w-full h-auto object-contain max-h-[75vh]"
                 />
               ) : (
-                <div
-                  className="w-full h-full"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #161421 0%, #1e1b2e 100%)",
-                  }}
-                />
+                <div className="w-full h-[50vh] min-h-[300px] flex items-center justify-center p-6 bg-[#0f0d1a]">
+                  <img 
+                    src="/v-crackers-logo.webp" 
+                    alt="V Crackers Logo" 
+                    className="w-full h-full object-contain opacity-20 filter grayscale" 
+                  />
+                </div>
               )}
               {showDiscount && displayPct > 0 && (
                 <span
@@ -284,7 +284,13 @@ const ComboDetailPage = () => {
                           {pData.images?.[0]?.url ? (
                             <img src={pData.images[0].url} alt={pData.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-xl">🎇</span>
+                            <div className="w-full h-full flex items-center justify-center p-2 bg-[#0f0d1a]">
+                              <img 
+                                src="/v-crackers-logo.webp" 
+                                alt="V Crackers Logo" 
+                                className="w-full h-full object-contain opacity-40 filter grayscale" 
+                              />
+                            </div>
                           )}
                         </div>
                         <div className="flex-1">

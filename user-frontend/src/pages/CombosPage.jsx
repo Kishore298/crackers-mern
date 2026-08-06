@@ -68,10 +68,10 @@ const CombosPage = () => {
         ) : (
           <>
             {/* Tag Buttons */}
-            <div className="flex flex-wrap gap-3 mb-10">
+            <div className="flex overflow-x-auto gap-3 mb-10 pb-2 scrollbar-hide">
               <button
                 onClick={() => setActiveTag("all")}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-sm ${activeTag === "all"
+                className={`shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-sm ${activeTag === "all"
                   ? "text-white"
                   : "text-gray-400 hover:text-white"
                   }`}
@@ -87,7 +87,7 @@ const CombosPage = () => {
                 <button
                   key={combo._id}
                   onClick={() => setActiveTag(combo._id)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-sm ${activeTag === combo._id
+                  className={`shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-sm ${activeTag === combo._id
                     ? "text-white"
                     : "text-gray-400 hover:text-white"
                     }`}

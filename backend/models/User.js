@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const addressSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
+  email: {
+    type: String,
+    lowercase: true,
+    trim: true,
+  },
   phone: { type: String, required: true },
   addressLine1: { type: String, required: true },
   addressLine2: { type: String, default: "" },
@@ -14,13 +19,6 @@ const addressSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, default: "", trim: true },
-    email: {
-      type: String,
-      unique: true,
-      lowercase: true,
-      trim: true,
-      sparse: true,
-    },
     phone: {
       type: String,
       required: true,
@@ -28,7 +26,6 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
-    password: { type: String, select: false, default: null },
     addresses: [addressSchema],
     role: {
       type: String,

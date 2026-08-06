@@ -27,6 +27,7 @@ const userRoutes = require("./routes/userRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const fcmRoutes = require("./routes/fcmRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
+const couponRoutes = require("./routes/couponRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -104,6 +105,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/fcm", fcmRoutes);
 app.use("/webhook", whatsappRoutes);
+app.use("/api/coupons", couponRoutes);
 
 // 404
 app.use((req, res) => {

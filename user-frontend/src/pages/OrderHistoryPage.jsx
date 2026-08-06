@@ -121,7 +121,7 @@ const OrderHistoryPage = () => {
               const StatusIcon = st.icon;
               const isCancelled = order.orderStatus === "cancelled";
               const cancelRequested = order.cancellationRequest?.requested;
-              const canRequest = order.orderStatus === "processing" && !cancelRequested;
+              const canRequest = order.orderStatus === "processing" && !cancelRequested && order.paymentStatus !== "paid";
               const canEditAddress = !["delivered", "cancelled"].includes(order.orderStatus);
 
               // Step-tracker progress

@@ -9,6 +9,19 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRE || "7d",
   });
 
+// POST /api/auth/check-phone
+const checkPhone = async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ success: false, message: "Phone number required" });
+    const normalized = phone.replace(/\s/g, "");
+    const user = await User.findOne({ phone: normalized });
+    res.json({ success: true, exists: !!user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // POST /api/auth/login-phone
 const loginByPhone = async (req, res) => {
   try {
@@ -21,8 +34,7 @@ const loginByPhone = async (req, res) => {
     let user = await User.findOne({ phone: normalized });
     
     if (!user) {
-      // Auto-register
-      user = await User.create({ name: normalized, phone: normalized });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
     
     if (user.isActive === false) {
@@ -33,104 +45,39 @@ const loginByPhone = async (req, res) => {
     res.json({ 
       success: true, 
       token, 
-      user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role } 
+      user: { _id: user._id, name: user.name, phone: user.phone, role: user.role } 
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// POST /api/auth/register
-const register = async (req, res) => {
+// POST /api/auth/register-phone
+const registerPhone = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
-    if (!name || !phone || !password)
-      return res
-        .status(400)
-        .json({ success: false, message: "Name, phone, and password are required" });
-
-    if (email) {
-      const exists = await User.findOne({ email: email.toLowerCase() });
-      if (exists)
-        return res
-          .status(409)
-          .json({ success: false, message: "Email already registered" });
+    const { phone, name } = req.body;
+    if (!phone || !name) {
+      return res.status(400).json({ success: false, message: "Phone number and name required" });
     }
-
-    const hashed = await bcrypt.hash(password, 12);
-    const userData = { name, phone, password: hashed };
-    if (email) userData.email = email;
-    const user = await User.create(userData);
-
+    const normalized = phone.replace(/\s/g, "");
+    let user = await User.findOne({ phone: normalized });
+    if (user) {
+      return res.status(409).json({ success: false, message: "User already exists" });
+    }
+    
+    user = await User.create({ name: name.trim(), phone: normalized });
     const token = signToken(user._id);
     res.status(201).json({
       success: true,
-      message: "Registration successful",
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-      },
+      user: { _id: user._id, name: user.name, phone: user.phone, role: user.role }
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// POST /api/auth/login
-const login = async (req, res) => {
-  try {
-    const { identifier, email, password } = req.body;
-    // Accept legacy `email` field OR new `identifier` field
-    const raw = (identifier || email || "").trim();
-    if (!raw || !password)
-      return res.status(400).json({
-        success: false,
-        message: "Email/phone and password are required",
-      });
 
-    // Detect whether the user typed a phone number or an email
-    const isPhone = /^[\d\s\-+()]+$/.test(raw);
-    const query = isPhone
-      ? { phone: raw.replace(/\s/g, "") } // normalise spaces
-      : { email: raw.toLowerCase() };
-
-    const user = await User.findOne(query).select("+password +isActive");
-    if (!user)
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
-
-    if (user.isActive === false)
-      return res
-        .status(403)
-        .json({ success: false, message: "Your account has been blocked. Please contact support." });
-
-    const match = await bcrypt.compare(password, user.password);
-    if (!match)
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
-
-    const token = signToken(user._id);
-    res.json({
-      success: true,
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
 
 // GET /api/auth/profile  (protected)
 const getProfile = async (req, res) => {
@@ -474,9 +421,9 @@ const changePassword = async (req, res) => {
 };
 
 module.exports = {
+  checkPhone,
   loginByPhone,
-  register,
-  login,
+  registerPhone,
   getProfile,
   updateProfile,
   addAddress,

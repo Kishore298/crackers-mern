@@ -556,14 +556,25 @@ const CombosPage = () => {
                                 max={ap.stock}
                                 value={selectedItem.quantity}
                                 onChange={(e) => {
-                                  let newQty = parseInt(e.target.value) || 1;
-                                  if (newQty > ap.stock) newQty = ap.stock;
+                                  let val = e.target.value;
+                                  let newQty = val === "" ? "" : parseInt(val) || "";
+                                  if (newQty !== "" && newQty > ap.stock) newQty = ap.stock;
                                   setForm({
                                     ...form,
                                     comboProducts: form.comboProducts.map(cp => 
                                       cp.product === ap._id ? { ...cp, quantity: newQty } : cp
                                     )
                                   });
+                                }}
+                                onBlur={() => {
+                                  if (selectedItem.quantity === "" || selectedItem.quantity < 1) {
+                                    setForm({
+                                      ...form,
+                                      comboProducts: form.comboProducts.map(cp => 
+                                        cp.product === ap._id ? { ...cp, quantity: 1 } : cp
+                                      )
+                                    });
+                                  }
                                 }}
                                 className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary bg-white"
                               />

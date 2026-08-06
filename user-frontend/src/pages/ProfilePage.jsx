@@ -22,6 +22,7 @@ const ProfilePage = () => {
   const [editingAddr, setEditingAddr] = useState(null);
   const [addrForm, setAddrForm] = useState({
     fullName: "",
+    email: "",
     phone: "",
     addressLine1: "",
     addressLine2: "",
@@ -64,6 +65,7 @@ const ProfilePage = () => {
 
   const addrFields = [
     { id: "fullName", label: "Full Name" },
+    { id: "email", label: "Email", type: "email" },
     { id: "phone", label: "Phone" },
     { id: "addressLine1", label: "Address Line 1" },
     { id: "addressLine2", label: "Address Line 2 (optional)" },
@@ -85,6 +87,7 @@ const ProfilePage = () => {
       setEditingAddr(null);
       setAddrForm({
         fullName: "",
+        email: "",
         phone: "",
         addressLine1: "",
         addressLine2: "",
@@ -218,8 +221,10 @@ const ProfilePage = () => {
                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
               >
                 <div className="flex-1">
-                  <p className="font-semibold text-sm text-white">
-                    {addr.fullName} · {addr.phone}
+                  <p className="text-gray-300 text-sm mb-1.5 flex flex-col gap-0.5">
+                    <span className="font-semibold text-white">{addr.fullName}</span>
+                    {addr.email && <span className="text-xs text-gray-400">{addr.email}</span>}
+                    <span>{addr.phone}</span>
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {addr.addressLine1}
@@ -238,6 +243,7 @@ const ProfilePage = () => {
                       setEditingAddr(addr._id);
                       setAddrForm({
                         fullName: addr.fullName,
+                        email: addr.email || "",
                         phone: addr.phone,
                         addressLine1: addr.addressLine1,
                         addressLine2: addr.addressLine2 || "",
@@ -273,22 +279,23 @@ const ProfilePage = () => {
               <h3 className="col-span-2 font-semibold text-sm text-gray-300">
                 {editingAddr ? "Edit Address" : "New Address"}
               </h3>
-              {addrFields.map(({ id, label }) => (
+              {addrFields.map((field) => (
                 <div
-                  key={id}
+                  key={field.id}
                   className={
-                    id === "addressLine1" || id === "addressLine2"
+                    field.id === "addressLine1" || field.id === "addressLine2"
                       ? "col-span-2"
                       : ""
                   }
                 >
                   <label className="text-xs font-semibold text-gray-400 block mb-1">
-                    {label}
+                    {field.label}
                   </label>
                   <input
-                    value={addrForm[id]}
+                    type={field.type || "text"}
+                    value={addrForm[field.id]}
                     onChange={(e) =>
-                      setAddrForm({ ...addrForm, [id]: e.target.value })
+                      setAddrForm({ ...addrForm, [field.id]: e.target.value })
                     }
                     className="input-fire text-sm py-2"
                   />

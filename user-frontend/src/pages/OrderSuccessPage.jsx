@@ -9,6 +9,8 @@ import {
   CreditCard,
 } from "lucide-react";
 import GPayIcon from "../components/GPayIcon";
+import PhonePeIcon from "../components/PhonePeIcon";
+import PaytmIcon from "../components/PaytmIcon";
 import api from "../services/api";
 import WelcomeFireworks from "../components/WelcomeFireworks";
 
@@ -163,9 +165,13 @@ const OrderSuccessPage = () => {
               </h3>
               
               <div className="bg-[#1a1726] p-3 rounded-xl border border-gray-800 mb-3">
-                <div className="flex items-center gap-2 mb-3">
-                  <GPayIcon className="w-16 h-12" />
-                  <p className="text-sm text-gray-300">Please transfer the total amount via Google Pay to either of the numbers below:</p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <GPayIcon className="w-16 h-12 shrink-0" />
+                    <PhonePeIcon className="w-16 h-12 shrink-0" />
+                    <PaytmIcon className="w-16 h-12 shrink-0" />
+                  </div>
+                  <p className="text-sm text-gray-300">Please transfer the total amount via Google Pay, PhonePe, or Paytm to either of the numbers below:</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-6">
                   <div className="flex items-center gap-2">

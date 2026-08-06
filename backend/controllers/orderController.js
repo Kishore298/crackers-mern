@@ -257,6 +257,12 @@ const requestCancellation = async (req, res) => {
         message: "Cancellation already requested.",
       });
 
+    if (order.paymentStatus === "paid")
+      return res.status(400).json({
+        success: false,
+        message: "Cancellation is not allowed for paid orders.",
+      });
+
     order.cancellationRequest = {
       requested: true,
       requestedAt: new Date(),

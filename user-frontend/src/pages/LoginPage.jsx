@@ -15,9 +15,27 @@ const LoginPage = () => {
   const redirect = searchParams.get("redirect") || "/";
 
   const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
+  const [isNewUser, setIsNewUser] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  // Background check for existing user
+  const handlePhoneChange = async (val) => {
+    const raw = val.replace(/\D/g, "").slice(0, 10);
+    setPhone(raw);
+    if (raw.length === 10) {
+      try {
+        const { data } = await api.post("/auth/check-phone", { phone: raw });
+        setIsNewUser(!data.exists);
+      } catch (err) {
+        // silently ignore error on check
+      }
+    } else {
+      setIsNewUser(false);
+    }
+  };
+
+  const handleAuth = async (e) => {
     e.preventDefault();
     if (!phone) return toast.error("Please enter your phone number");
     
@@ -28,19 +46,24 @@ const LoginPage = () => {
 
     setLoading(true);
     try {
-      const { data } = await api.post("/auth/login-phone", { phone });
-      if (data.success) {
-        login(data.user, data.token);
-        // Prompt for name if missing and not redirected
-        if (!data.user.name || data.user.name === data.user.phone) {
-           toast.success("Welcome! You can update your name in your profile.");
-        } else {
-           toast.success(`Welcome back, ${data.user.name.split(" ")[0]}! 🎇`);
+      if (isNewUser) {
+        if (!name.trim()) return toast.error("Please enter your name");
+        const { data } = await api.post("/auth/register-phone", { phone, name });
+        if (data.success) {
+          login(data.user, data.token);
+          toast.success(`Welcome to VCrackers, ${data.user.name.split(" ")[0]}! 🎇`);
+          navigate(redirect);
         }
-        navigate(redirect);
+      } else {
+        const { data } = await api.post("/auth/login-phone", { phone });
+        if (data.success) {
+          login(data.user, data.token);
+          toast.success(`Welcome back, ${data.user.name.split(" ")[0]}! 🎇`);
+          navigate(redirect);
+        }
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Login failed");
+      toast.error(err?.response?.data?.message || "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -57,7 +80,7 @@ const LoginPage = () => {
         </p>
       </div>
 
-      <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleAuth} className="space-y-6">
         <div>
           <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
             Mobile Number
@@ -68,12 +91,31 @@ const LoginPage = () => {
               type="tel"
               required
               value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              onChange={(e) => handlePhoneChange(e.target.value)}
               placeholder="e.g. 9876543210"
               className="input-fire pl-11"
             />
           </div>
         </div>
+
+        {isNewUser && (
+          <div className="animate-fade-in-up">
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+              Your Name
+            </label>
+            <div className="relative group">
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. John Doe"
+                className="input-fire px-4"
+              />
+            </div>
+          </div>
+        )}
+
         <button 
           type="submit" 
           disabled={loading}
@@ -89,7 +131,7 @@ const LoginPage = () => {
       
       <div className="mt-8 p-4 rounded-xl bg-primary/10 border border-primary/20 text-center">
         <p className="text-xs text-primary-light font-medium">
-          No password required! If you are new, an account will be created automatically.
+          No passwords required! A secure session is created instantly.
         </p>
       </div>
     </>

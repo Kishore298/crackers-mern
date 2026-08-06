@@ -156,6 +156,23 @@ const generateReceiptPDF = async (sale, customer) => {
     doc.font("Helvetica").fontSize(9).fillColor(gray);
     sale.items.forEach((item, i) => {
       const rowHeight = 36;
+      
+      // Page break logic
+      if (y + rowHeight > 780) {
+        doc.addPage();
+        y = 50;
+        
+        // Redraw headers on new page
+        doc.font("Helvetica-Bold").fontSize(10).fillColor(primaryColor);
+        doc.text("S.No", 50, y);
+        doc.text("Item Details", 125, y);
+        doc.text("Qty", 310, y, { width: 45, align: "center" });
+        doc.text("Price", 360, y, { width: 80, align: "right" });
+        doc.text("Subtotal", 445, y, { width: 90, align: "right" });
+        y += 17;
+        doc.font("Helvetica").fontSize(9).fillColor(gray);
+      }
+      
       const rowBg = i % 2 === 0 ? "#FAFAFA" : "#FFFFFF";
       doc.rect(50, y, 495, rowHeight).fill(rowBg);
 
@@ -192,6 +209,12 @@ const generateReceiptPDF = async (sale, customer) => {
       .strokeColor("#e0e0e0")
       .lineWidth(1)
       .stroke();
+
+    // Check if totals + footer fits on current page (requires approx 150 points)
+    if (y + 150 > 800) {
+      doc.addPage();
+      y = 50;
+    }
 
     // ─── Totals ───
     y += 12;
