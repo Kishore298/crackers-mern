@@ -39,13 +39,13 @@ const performCancellation = async (order, adminNote = "") => {
   await order.save();
 
   // Send cancellation email to customer
-  if (order.customer) {
-    const customer = await User.findById(order.customer).select("name email");
-    if (customer?.email) {
-      sendCancellationEmail(customer.email, order, customer.name).catch((e) =>
-        console.error("Cancellation email failed:", e.message),
-      );
-    }
+  const customerName = order.shippingAddress?.fullName || "Customer";
+  const customerEmail = order.shippingAddress?.email;
+  
+  if (customerEmail) {
+    sendCancellationEmail(customerEmail, order, customerName).catch((e) =>
+      console.error("Cancellation email failed:", e.message)
+    );
   }
 };
 

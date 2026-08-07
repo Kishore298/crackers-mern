@@ -82,17 +82,17 @@ const CartPage = () => {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center p-2 bg-[#0f0d1a]">
-                        <img 
-                          src="/v-crackers-logo.webp" 
-                          alt="V Crackers Logo" 
-                          className="w-full h-full object-contain opacity-40 filter grayscale" 
+                        <img
+                          src="/v-crackers-logo.webp"
+                          alt="V Crackers Logo"
+                          className="w-full h-full object-contain opacity-40 filter grayscale"
                         />
                       </div>
                     )}
                   </Link>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-heading font-semibold text-sm text-white leading-snug truncate">
+                    <h3 className="font-heading font-semibold text-xs md:text-sm text-white leading-snug line-clamp-2">
                       {item.name}
                     </h3>
                     <p className="text-primary font-bold mt-1">
@@ -198,8 +198,8 @@ const CartPage = () => {
                 onClick={handleCheckout}
                 disabled={!canCheckout}
                 className={`w-full flex items-center justify-center gap-2 mt-5 py-3.5 text-base rounded-xl font-bold transition-all ${canCheckout
-                    ? "btn-fire"
-                    : "opacity-50 cursor-not-allowed"
+                  ? "btn-fire"
+                  : "opacity-50 cursor-not-allowed"
                   }`}
                 style={!canCheckout ? { background: "#1a1726", color: "#555" } : {}}
               >

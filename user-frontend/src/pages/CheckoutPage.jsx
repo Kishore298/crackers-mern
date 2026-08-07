@@ -209,16 +209,16 @@ const CheckoutPage = () => {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center p-2 bg-[#0f0d1a]">
-                            <img 
-                              src="/v-crackers-logo.webp" 
-                              alt="V Crackers Logo" 
-                              className="w-full h-full object-contain opacity-40 filter grayscale" 
+                            <img
+                              src="/v-crackers-logo.webp"
+                              alt="V Crackers Logo"
+                              className="w-full h-full object-contain opacity-40 filter grayscale"
                             />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-heading font-semibold text-sm text-white truncate">
+                        <h3 className="font-heading font-semibold text-xs md:text-sm text-white line-clamp-2 leading-snug">
                           {item.name}
                         </h3>
                         <p className="text-xs text-gray-400 mt-0.5">
@@ -403,20 +403,7 @@ const CheckoutPage = () => {
               Order Summary
             </h2>
             <div className="space-y-2.5 text-sm">
-              {cartItems.map((item) => {
-                const itemPrice = item.effectivePrice ?? item.discountedPrice ?? item.price;
-                return (
-                  <div key={item._id} className="flex justify-between text-gray-400">
-                    <span className="truncate max-w-[150px]">
-                      {item.name} Ã— {item.quantity}
-                    </span>
-                    <span className="font-semibold text-white">
-                      ₹{(itemPrice * item.quantity).toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                );
-              })}
-              <div className="my-3" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }} />
+
               <div className="flex justify-between text-gray-400">
                 <span>Subtotal</span>
                 <span className="text-white">₹{subtotal.toLocaleString("en-IN")}</span>
@@ -424,7 +411,7 @@ const CheckoutPage = () => {
 
               <div className="flex justify-between text-gray-400">
                 <span>Shipping</span>
-                <span className="text-green-400 font-semibold">FREE</span>
+                <span className="text-orange-400 font-semibold">Pay on Delivery</span>
               </div>
               {couponDiscount > 0 && (
                 <div className="flex justify-between text-green-400 font-semibold">

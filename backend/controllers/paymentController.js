@@ -187,7 +187,12 @@ const placeOfflineOrder = async (req, res) => {
     await deductStock(items, sale._id, req.user._id);
 
     // Fetch customer details
-    const customer = await User.findById(req.user._id).select("name email phone");
+    const userDoc = await User.findById(req.user._id).select("name phone");
+    const customer = {
+      name: userDoc?.name || shippingAddress?.fullName || "Customer",
+      email: shippingAddress?.email,
+      phone: userDoc?.phone || shippingAddress?.phone
+    };
 
     // Fire-and-forget: email + WhatsApp receipt
     sendPostOrderComms(sale, customer);
