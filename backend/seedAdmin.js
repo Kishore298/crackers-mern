@@ -3,6 +3,8 @@
  * Usage: node backend/seedAdmin.js
  */
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("./models/User");
@@ -11,8 +13,8 @@ async function seed() {
   await mongoose.connect(process.env.MONGO_URI);
   console.log("✅ Connected to MongoDB");
 
-  const phone = "7824907916"; // normalised (no spaces)
-  const email = "vcrackers2026@gmail.com";
+  const phone = "7824907916"; // new admin phone
+  const email = "vcrackers2026@gmail.com"; // new admin email
 
   // Check if admin already exists
   const existing = await User.findOne({ $or: [{ email }, { phone }] });

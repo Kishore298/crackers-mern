@@ -15,11 +15,13 @@ const {
   changePassword,
   sendOtpWhatsApp,
   loginWithOtp,
+  login,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
 const { handleMethodOverride } = require("../middleware/methodOverride");
 
 router.post("/check-phone", checkPhone);
+router.post("/login", login);
 router.post("/login-phone", loginByPhone);
 router.post("/register-phone", registerPhone);
 router.post("/send-otp-whatsapp", sendOtpWhatsApp);

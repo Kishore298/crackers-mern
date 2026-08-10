@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Trash2, ExternalLink } from "lucide-react";
 import io from "socket.io-client";
-import { useAdminAuth } from "../context/AdminAuthContext";
+import { useAdminAuth, api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 const SOCKET_URL =
   process.env.REACT_APP_API_URL?.replace("/api", "") || "http://localhost:5000";
 
@@ -15,9 +15,11 @@ const NotificationBell = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
   const socketRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!admin?.token) return;
+    const token = localStorage.getItem("adminToken");
+    if (!admin || !token) return;
 
     // Fetch initial data
     fetchNotifications();
@@ -25,13 +27,31 @@ const NotificationBell = () => {
 
     // Connect socket
     socketRef.current = io(SOCKET_URL, {
-      auth: { token: admin.token },
+      auth: { token },
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 5,
+    });
+
+    socketRef.current.on("connect", () => {
+      console.log("Admin socket connected to server!");
+    });
+
+    socketRef.current.on("connect_error", (err) => {
+      console.error("Admin socket connection error:", err.message);
     });
 
     socketRef.current.on("new_order", (notification) => {
-      setNotifications((prev) => [notification, ...prev]);
-      setUnreadCount((c) => c + 1);
-      toast.success(notification.title || "New order received!");
+      // 1. Immediately update UI with socket payload (fixes empty dropdown)
+      if (notification && notification._id) {
+        setNotifications((prev) => [notification, ...prev]);
+      }
+      // 2. Re-fetch with a cache buster to guarantee DB sync
+      fetchNotifications();
+      fetchUnreadCount();
+      toast.success(notification?.title || "New order received!");
+      
+      // 3. Dispatch a custom event so other components (like OrdersPage) can react
+      window.dispatchEvent(new CustomEvent("newOrderReceived", { detail: notification }));
     });
 
     // Fallback polling every 30s
@@ -58,11 +78,9 @@ const NotificationBell = () => {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch(`${API_URL}/notifications?limit=10`, {
-        headers: { Authorization: `Bearer ${admin.token}` },
-      });
-      const data = await res.json();
-      if (data.success) setNotifications(data.notifications);
+      // Cache buster prevents browser from returning stale empty arrays
+      const res = await api.get(`/notifications?limit=10&_t=${Date.now()}`);
+      if (res.data.success) setNotifications(res.data.notifications);
     } catch (err) {
       console.error(err);
     }
@@ -70,11 +88,8 @@ const NotificationBell = () => {
 
   const fetchUnreadCount = async () => {
     try {
-      const res = await fetch(`${API_URL}/notifications/unread-count`, {
-        headers: { Authorization: `Bearer ${admin.token}` },
-      });
-      const data = await res.json();
-      if (data.success) setUnreadCount(data.count);
+      const res = await api.get(`/notifications/unread-count`);
+      if (res.data.success) setUnreadCount(res.data.count);
     } catch (err) {
       console.error(err);
     }
@@ -82,10 +97,7 @@ const NotificationBell = () => {
 
   const markAsRead = async (id) => {
     try {
-      await fetch(`${API_URL}/notifications/${id}/read`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${admin.token}` },
-      });
+      await api.patch(`/notifications/${id}/read`);
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)),
       );
@@ -97,14 +109,46 @@ const NotificationBell = () => {
 
   const markAllAsRead = async () => {
     try {
-      await fetch(`${API_URL}/notifications/read-all`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${admin.token}` },
-      });
+      await api.patch(`/notifications/read-all`);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const deleteNotification = async (id) => {
+    try {
+      await api.delete(`/notifications/${id}`);
+      setNotifications((prev) => prev.filter((n) => n._id !== id));
+      fetchUnreadCount(); // Recalculate unread count
+      toast.success("Notification deleted");
+    } catch (err) {
+      toast.error("Failed to delete notification");
+    }
+  };
+
+  const deleteAllNotifications = async () => {
+    try {
+      await api.delete(`/notifications/all`);
+      setNotifications([]);
+      setUnreadCount(0);
+      toast.success("All notifications cleared");
+    } catch (err) {
+      toast.error("Failed to clear notifications");
+    }
+  };
+
+  const handleNotificationClick = (n) => {
+    if (!n.isRead) markAsRead(n._id);
+
+    if (n.actionUrl) {
+      setOpen(false);
+      if (n.actionUrl.startsWith("http")) {
+        window.open(n.actionUrl, "_blank", "noopener,noreferrer");
+      } else {
+        navigate(n.actionUrl);
+      }
     }
   };
 
@@ -126,14 +170,24 @@ const NotificationBell = () => {
             <h3 className="text-sm font-semibold text-gray-800">
               Notifications
             </h3>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="text-xs text-primary font-medium hover:underline"
-              >
-                Mark all read
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-xs text-primary font-medium hover:underline"
+                >
+                  Mark all read
+                </button>
+              )}
+              {notifications.length > 0 && (
+                <button
+                  onClick={deleteAllNotifications}
+                  className="text-xs text-red-500 font-medium hover:underline"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="overflow-y-auto flex-1 p-2 space-y-1">
@@ -145,7 +199,7 @@ const NotificationBell = () => {
               notifications.map((n) => (
                 <div
                   key={n._id}
-                  onClick={() => !n.isRead && markAsRead(n._id)}
+                  onClick={() => handleNotificationClick(n)}
                   className={`p-3 rounded-lg flex gap-3 items-start transition-colors cursor-pointer ${
                     n.isRead
                       ? "hover:bg-gray-50 bg-white"
@@ -170,13 +224,31 @@ const NotificationBell = () => {
                     <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
                       {n.body}
                     </p>
-                    <p className="text-[10px] text-gray-400 mt-1">
-                      {new Date(n.createdAt).toLocaleString()}
-                    </p>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-[10px] text-gray-400">
+                        {new Date(n.createdAt).toLocaleString()}
+                      </p>
+                      {n.actionUrl && (
+                        <span className="text-[10px] text-primary flex items-center gap-1">
+                          View <ExternalLink className="w-3 h-3" />
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  {!n.isRead && (
-                    <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-2"></div>
-                  )}
+                  <div className="flex flex-col items-center gap-2 mt-1 shrink-0">
+                    {!n.isRead && (
+                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteNotification(n._id);
+                      }}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}

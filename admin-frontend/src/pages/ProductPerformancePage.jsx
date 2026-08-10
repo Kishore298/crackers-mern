@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import Pagination from "../components/Pagination";
 import { BarChart2, Search, Download, TrendingUp, Package, AlertTriangle } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
@@ -8,6 +9,7 @@ const ProductPerformancePage = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
 
   const [filters, setFilters] = useState({
     search: "",
@@ -22,7 +24,8 @@ const ProductPerformancePage = () => {
     try {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([k, v]) => v && params.set(k, v));
-      params.set("limit", "100");
+      params.set("page", page);
+      params.set("limit", "20");
 
       const { data } = await api.get(`/analytics/product-performance?${params}`);
       if (data.success) {
@@ -34,7 +37,7 @@ const ProductPerformancePage = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, page]);
 
   useEffect(() => {
     fetchData();
@@ -119,13 +122,13 @@ const ProductPerformancePage = () => {
               type="text"
               placeholder="Search product..."
               value={filters.search}
-              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+              onChange={(e) => { setFilters((f) => ({ ...f, search: e.target.value })); setPage(1); }}
               className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
             />
           </div>
           <select
             value={filters.category}
-            onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value }))}
+            onChange={(e) => { setFilters((f) => ({ ...f, category: e.target.value })); setPage(1); }}
             className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <option value="">All Categories</option>
@@ -133,7 +136,7 @@ const ProductPerformancePage = () => {
           </select>
           <select
             value={filters.sort}
-            onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))}
+            onChange={(e) => { setFilters((f) => ({ ...f, sort: e.target.value })); setPage(1); }}
             className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <option value="revenue">Sort: Revenue ↓</option>
@@ -143,18 +146,18 @@ const ProductPerformancePage = () => {
           <input
             type="date"
             value={filters.dateFrom}
-            onChange={(e) => setFilters((f) => ({ ...f, dateFrom: e.target.value }))}
+            onChange={(e) => { setFilters((f) => ({ ...f, dateFrom: e.target.value })); setPage(1); }}
             className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
           <input
             type="date"
             value={filters.dateTo}
-            onChange={(e) => setFilters((f) => ({ ...f, dateTo: e.target.value }))}
+            onChange={(e) => { setFilters((f) => ({ ...f, dateTo: e.target.value })); setPage(1); }}
             className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
           {Object.values(filters).some(Boolean) && (
             <button
-              onClick={() => setFilters({ search: "", category: "", dateFrom: "", dateTo: "", sort: "revenue" })}
+              onClick={() => { setFilters({ search: "", category: "", dateFrom: "", dateTo: "", sort: "revenue" }); setPage(1); }}
               className="px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-500 hover:bg-gray-50"
             >
               Clear
@@ -195,8 +198,12 @@ const ProductPerformancePage = () => {
                     <td className="px-4 py-3 text-sm text-gray-400 font-medium">{i + 1}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        {p.images?.[0]?.url && (
+                        {p.images?.[0]?.url ? (
                           <img src={p.images[0].url} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-lg bg-[#1a1726] flex items-center justify-center shrink-0 p-1">
+                            <img src="/v-crackers-logo.png" alt="Fallback Logo" className="w-full h-full object-contain" />
+                          </div>
                         )}
                         <span className="text-sm font-semibold text-gray-800">{p.name}</span>
                       </div>
@@ -220,11 +227,8 @@ const ProductPerformancePage = () => {
             </tbody>
           </table>
         </div>
-        {!loading && data.length > 0 && (
-          <div className="px-4 py-3 border-t border-gray-100 text-xs text-gray-400 text-right">
-            Showing {data.length} of {total} products
-          </div>
-        )}
+        
+        <Pagination currentPage={page} totalPages={Math.ceil(total / 20)} onPageChange={setPage} />
       </div>
     </div>
   );

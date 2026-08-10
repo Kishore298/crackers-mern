@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import api from "../services/api";
+import { api } from "../context/AdminAuthContext";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -32,7 +32,7 @@ export const requestFirebaseToken = async () => {
       });
 
       if (token) {
-        console.log("FCM Token acquired");
+        console.log("Admin FCM Token acquired");
         // Register token with backend
         await api.post("/fcm/register", { token }).catch(() => {});
         return token;
@@ -49,7 +49,7 @@ export const requestFirebaseToken = async () => {
 export const onForegroundMessage = () => {
   if (!messaging) return () => {};
   return onMessage(messaging, (payload) => {
-    console.log("Foreground push note received:", payload);
+    console.log("Admin Foreground push note received:", payload);
     
     // Unconditionally show a native notification when the app is in the foreground
     if (Notification.permission === "granted") {

@@ -158,6 +158,41 @@ const getOrderById = async (req, res) => {
   }
 };
 
+// ─── GET /api/orders/:id/pdf ─────────────────────────────────────────
+const getOrderPdf = async (req, res) => {
+  try {
+    const order = await Sale.findById(req.params.id)
+      .populate("customer", "name email phone")
+      .populate("items.product", "images");
+      
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    if (
+      req.user.role !== "admin" &&
+      order.customer?._id.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const customerName = order.customer?.name || order.billingInfo?.name || "Customer";
+    const customerEmail = order.customer?.email || order.billingInfo?.email || "";
+    const customerPhone = order.customer?.phone || order.billingInfo?.phone || "";
+
+    const pdfBuffer = await generateReceiptPDF(order, {
+      name: customerName,
+      email: customerEmail,
+      phone: customerPhone,
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="Invoice-${order.invoiceNo}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    console.error("PDF generation error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // ─── PUT /api/orders/:id/status (admin) ──────────────────────────
 const updateOrderStatus = async (req, res) => {
   try {
@@ -226,6 +261,50 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
+    // --- Add Notifications (Bell + Firebase) for ALL status changes ---
+    if (order.customer) {
+      try {
+        const title = "Order Update";
+        const body = `Your order ${order.invoiceNo} is now ${orderStatus}.`;
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        const actionUrl = `${frontendUrl}/orders/${order._id}`;
+
+        // 1. In-App Notification
+        const notification = await Notification.create({
+          recipient: order.customer._id,
+          recipientRole: "customer",
+          title,
+          body,
+          type: "order",
+          data: { saleId: order._id, invoiceNo: order.invoiceNo, status: orderStatus },
+        });
+
+        // 2. Real-time Bell
+        const io = getIO();
+        io.to(order.customer._id.toString()).emit("notification", notification.toJSON ? notification.toJSON() : notification);
+
+        // 3. Firebase Push Notification
+        const userWithTokens = await User.findById(order.customer._id).select("fcmTokens");
+        if (userWithTokens && userWithTokens.fcmTokens?.length > 0) {
+          const { sendPushToTokens } = require("../config/firebase");
+          const { invalidTokens } = await sendPushToTokens(
+            userWithTokens.fcmTokens,
+            title,
+            body,
+            { actionUrl }
+          );
+
+          if (invalidTokens && invalidTokens.length > 0) {
+            await User.findByIdAndUpdate(order.customer._id, {
+              $pullAll: { fcmTokens: invalidTokens },
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Order status notification failed:", e.message);
+      }
+    }
+
     res.json({ success: true, order });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -282,7 +361,7 @@ const requestCancellation = async (req, res) => {
         type: "order",
         data: { saleId: order._id, invoiceNo: order.invoiceNo },
       });
-      io.to("admin").emit("new_order", adminNotif);
+      io.to("admin").emit("new_order", adminNotif.toJSON ? adminNotif.toJSON() : adminNotif);
     } catch (e) {
       console.error("Cancel notification failed:", e.message);
     }
@@ -426,4 +505,5 @@ module.exports = {
   rejectCancellationRequest,
   resendWhatsappReceipt,
   updateShippingAddress,
+  getOrderPdf,
 };

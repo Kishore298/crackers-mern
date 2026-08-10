@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const path = require("path");
 const { generateReceiptPDF } = require("./pdfService");
 
 const transporter = nodemailer.createTransport({
@@ -22,7 +23,7 @@ const sendOtpEmail = async (to, otp) => {
     html: `
       <div style="font-family: 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #FFE4D0;">
         <div style="background: linear-gradient(140deg, #8b0000, #ff6600, #ffcc33); padding: 32px 24px; text-align: center;">
-          <h1 style="color: #fff; margin: 0; font-size: 26px; letter-spacing: 1px;">🎆 V Crackers</h1>
+          <img src="cid:logo" alt="V Crackers Logo" style="height: 60px; margin: 0 auto; display: block;" />
           <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 14px;">Password Reset</p>
         </div>
         <div style="padding: 32px 24px;">
@@ -39,6 +40,11 @@ const sendOtpEmail = async (to, otp) => {
         </div>
       </div>
     `,
+    attachments: [{
+      filename: 'v-crackers-logo.png',
+      path: path.join(__dirname, '../public/v-crackers-logo.png'),
+      cid: 'logo'
+    }]
   };
 
   await transporter.sendMail(mailOptions);
@@ -84,7 +90,7 @@ const sendOrderConfirmationEmail = async (to, sale, customer) => {
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #eaeaea; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <!-- Header -->
         <div style="background-color: #1a1726; border-bottom: 3px solid #ff6600; padding: 40px 30px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px;">V Crackers</h1>
+          <img src="cid:logo" alt="V Crackers Logo" style="height: 60px; margin: 0 auto; display: block;" />
           <p style="color: #a1a1aa; margin: 8px 0 0; font-size: 15px; text-transform: uppercase; letter-spacing: 2px;">Order Confirmation</p>
         </div>
 
@@ -140,6 +146,11 @@ const sendOrderConfirmationEmail = async (to, sale, customer) => {
       </div>
     `,
     attachments: [
+      {
+        filename: 'v-crackers-logo.png',
+        path: path.join(__dirname, '../public/v-crackers-logo.png'),
+        cid: 'logo'
+      },
       {
         filename: `V-Crackers-Receipt-${sale.invoiceNo}.pdf`,
         content: pdfBuffer,
@@ -200,7 +211,7 @@ const sendOrderStatusEmail = async (to, sale, customerName, newStatus) => {
     html: `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #eaeaea; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <div style="background-color: #1a1726; border-bottom: 3px solid #ff6600; padding: 32px 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px;">V Crackers</h1>
+          <img src="cid:logo" alt="V Crackers Logo" style="height: 60px; margin: 0 auto; display: block;" />
           <p style="color: #a1a1aa; margin: 8px 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Order Status Update</p>
         </div>
         <div style="padding: 28px 24px;">
@@ -221,6 +232,11 @@ const sendOrderStatusEmail = async (to, sale, customerName, newStatus) => {
         </div>
       </div>
     `,
+    attachments: [{
+      filename: 'v-crackers-logo.png',
+      path: path.join(__dirname, '../public/v-crackers-logo.png'),
+      cid: 'logo'
+    }]
   };
 
   await transporter.sendMail(mailOptions);
@@ -252,7 +268,7 @@ const sendCancellationEmail = async (to, sale, customerName) => {
     html: `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #eaeaea; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <div style="background-color: #1a1726; border-bottom: 3px solid #EF4444; padding: 32px 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px;">V Crackers</h1>
+          <img src="cid:logo" alt="V Crackers Logo" style="height: 60px; margin: 0 auto; display: block;" />
           <p style="color: #fca5a5; margin: 8px 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Order Cancellation</p>
         </div>
         <div style="padding: 28px 24px;">
@@ -279,6 +295,11 @@ const sendCancellationEmail = async (to, sale, customerName) => {
         </div>
       </div>
     `,
+    attachments: [{
+      filename: 'v-crackers-logo.png',
+      path: path.join(__dirname, '../public/v-crackers-logo.png'),
+      cid: 'logo'
+    }]
   };
 
   await transporter.sendMail(mailOptions);

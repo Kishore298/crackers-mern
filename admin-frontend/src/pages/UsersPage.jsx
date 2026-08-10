@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import Pagination from "../components/Pagination";
 import {
   Search,
   Users,
@@ -491,32 +492,7 @@ const UsersPage = () => {
           </table>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center gap-2 p-4 border-t border-gray-50">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`w-8 h-8 rounded-lg text-sm font-semibold transition-all ${
-                  page === pg
-                    ? "text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-                style={
-                  page === pg
-                    ? {
-                        background:
-                          "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
-                      }
-                    : {}
-                }
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        )}
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
 
       {/* Detail Panel */}

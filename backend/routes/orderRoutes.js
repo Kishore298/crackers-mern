@@ -10,6 +10,7 @@ const {
   rejectCancellationRequest,
   resendWhatsappReceipt,
   updateShippingAddress,
+  getOrderPdf,
 } = require("../controllers/orderController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { handleMethodOverride } = require("../middleware/methodOverride");
@@ -17,6 +18,7 @@ const { handleMethodOverride } = require("../middleware/methodOverride");
 router.get("/", protect, getOrders);
 router.get("/admin", protect, adminOnly, getOrders);   // must be before /:id
 router.get("/:id", protect, getOrderById);
+router.get("/:id/pdf", protect, getOrderPdf);
 
 // Status & Details update
 router.put("/:id/status", protect, adminOnly, updateOrderStatus);

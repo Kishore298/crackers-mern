@@ -1,18 +1,18 @@
-const Sale     = require("../models/Sale");
-const Product  = require("../models/Product");
+const Sale = require("../models/Sale");
+const Product = require("../models/Product");
 const StockLedger = require("../models/StockLedger");
-const Coupon   = require("../models/Coupon");
+const Coupon = require("../models/Coupon");
 const Discount = require("../models/Discount");
-const User     = require("../models/User");
+const User = require("../models/User");
 const { sendOrderConfirmationEmail } = require("../config/emailService");
-const { generateReceiptPDF }        = require("../config/pdfService");
+const { generateReceiptPDF } = require("../config/pdfService");
 const whatsapp = require("../config/whatsappService");
 const { MIN_CART_VALUE } = require("../config/discountSlabs");
 
 // ─── Shared helper: validate stock & build item array ──────────────
 const buildValidatedItems = async (cartItems) => {
   const items = [];
-  
+
   // Fetch global discount to match frontend effective price calculation
   const globalDiscount = await Discount.findOne({ isActive: true });
   const discountPct = globalDiscount ? globalDiscount.percentage : 0;
@@ -29,14 +29,14 @@ const buildValidatedItems = async (cartItems) => {
     if (product.isCombo) {
       price = product.price;
     } else {
-      price = discountPct > 0 
+      price = discountPct > 0
         ? Math.round(basePrice * (1 - discountPct / 100))
         : (product.discountedPrice ?? basePrice);
     }
 
     items.push({
-      product : product._id,
-      name    : product.name,
+      product: product._id,
+      name: product.name,
       price,
       quantity: ci.quantity,
       subtotal: price * ci.quantity,
@@ -51,12 +51,12 @@ const deductStock = async (items, saleId, userId) => {
   for (const item of items) {
     await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } });
     await StockLedger.create({
-      product    : item.product,
-      type       : "online_sale",
-      quantity   : -item.quantity,
+      product: item.product,
+      type: "online_sale",
+      quantity: -item.quantity,
       referenceId: saleId,
-      note       : `Online order ${saleId}`,
-      createdBy  : userId,
+      note: `Online order ${saleId}`,
+      createdBy: userId,
     });
   }
 };
@@ -78,12 +78,12 @@ const sendPostOrderComms = async (sale, customer) => {
     try {
       const pdfBuffer = await generateReceiptPDF(sale, customer);
       whatsapp.sendOrderReceipt(customer.phone, {
-        name     : customer.name,
-        orderId  : sale.invoiceNo,
-        amount   : sale.finalPayable,
+        name: customer.name,
+        orderId: sale.invoiceNo,
+        amount: sale.finalPayable,
         trackingLink,
         pdfBuffer,
-        filename : `Receipt-${sale.invoiceNo}.pdf`,
+        filename: `Receipt-${sale.invoiceNo}.pdf`,
       }).catch((e) => console.error("[WhatsApp] Receipt send failed:", e.message));
     } catch (e) {
       console.error("[WhatsApp] PDF generation failed:", e.message);
@@ -127,18 +127,18 @@ const placeOfflineOrder = async (req, res) => {
       const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
       if (coupon) {
         // Validation checks
-        const isValid = 
+        const isValid =
           new Date() >= new Date(coupon.startDate) &&
           new Date() <= new Date(coupon.expiresAt) &&
           serverSubtotal >= coupon.minOrderValue;
-          
+
         let limitExceeded = false;
-        
+
         if (coupon.usageLimit > 0) {
           const totalUsed = coupon.usedBy.reduce((acc, curr) => acc + curr.count, 0);
           if (totalUsed >= coupon.usageLimit) limitExceeded = true;
         }
-        
+
         if (coupon.perUserLimit > 0) {
           const userUsage = coupon.usedBy.find(u => u.user.toString() === req.user._id.toString());
           if (userUsage && userUsage.count >= coupon.perUserLimit) limitExceeded = true;
@@ -153,7 +153,7 @@ const placeOfflineOrder = async (req, res) => {
           }
           couponDiscount = Math.round(Math.min(couponDiscount, serverSubtotal));
           serverFinalPayable -= couponDiscount;
-          
+
           // Record usage
           const userUsageIdx = coupon.usedBy.findIndex(u => u.user.toString() === req.user._id.toString());
           if (userUsageIdx > -1) {
@@ -168,18 +168,18 @@ const placeOfflineOrder = async (req, res) => {
 
     // Create sale as Pending
     const sale = await Sale.create({
-      saleType         : "online",
-      customer         : req.user._id,
+      saleType: "online",
+      customer: req.user._id,
       items,
-      totalAmount      : serverSubtotal,
-      discount         : couponDiscount,
-      slabDiscount     : 0,
-      slabLabel        : null,
-      couponCode       : couponCode || null,
-      finalPayable     : serverFinalPayable,
-      paymentMethod    : "offline",
-      paymentStatus    : "pending",
-      orderStatus      : "processing",
+      totalAmount: serverSubtotal,
+      discount: couponDiscount,
+      slabDiscount: 0,
+      slabLabel: null,
+      couponCode: couponCode || null,
+      finalPayable: serverFinalPayable,
+      paymentMethod: "offline",
+      paymentStatus: "pending",
+      orderStatus: "processing",
       shippingAddress,
     });
 
@@ -187,10 +187,10 @@ const placeOfflineOrder = async (req, res) => {
     await deductStock(items, sale._id, req.user._id);
 
     // Fetch customer details
-    const userDoc = await User.findById(req.user._id).select("name phone");
+    const userDoc = await User.findById(req.user._id).select("name phone email");
     const customer = {
       name: userDoc?.name || shippingAddress?.fullName || "Customer",
-      email: shippingAddress?.email,
+      email: userDoc?.email || shippingAddress?.email,
       phone: userDoc?.phone || shippingAddress?.phone
     };
 
@@ -199,24 +199,47 @@ const placeOfflineOrder = async (req, res) => {
 
     // Admin notification
     try {
-      const { getIO }      = require("../config/socket");
-      const Notification   = require("../models/Notification");
+      const { getIO } = require("../config/socket");
+      const Notification = require("../models/Notification");
       const adminNotif = await Notification.create({
         recipientRole: "admin",
-        title        : "New Offline Order",
-        body         : `Order ${sale.invoiceNo} placed by ${customer?.name || "Customer"}. Amount: Rs.${serverFinalPayable}. Payment Pending.`,
-        type         : "order",
-        data         : { saleId: sale._id, invoiceNo: sale.invoiceNo },
+        title: "New Order Received!",
+        body: `Order ${sale.invoiceNo} placed by ${customer?.name || "Customer"}. Amount: Rs.${serverFinalPayable}. Payment Pending.`,
+        type: "order",
+        data: { saleId: sale._id, invoiceNo: sale.invoiceNo },
       });
       const io = getIO();
-      io.to("admin_room").emit("newNotification", adminNotif);
+      io.to("admin").emit("new_order", adminNotif.toJSON ? adminNotif.toJSON() : adminNotif);
+
+      // Send Push Notification to all Admins
+      const { sendPushToTokens } = require("../config/firebase");
+      const adminUsers = await User.find({
+        role: "admin",
+        fcmTokens: { $exists: true, $ne: [] }
+      }).select("fcmTokens");
+
+      const allAdminTokens = adminUsers.flatMap((u) => u.fcmTokens);
+      if (allAdminTokens.length > 0) {
+        const { invalidTokens } = await sendPushToTokens(
+          allAdminTokens,
+          adminNotif.title,
+          adminNotif.body,
+          { actionUrl: "/orders" }
+        );
+        if (invalidTokens && invalidTokens.length > 0) {
+          await User.updateMany(
+            { role: "admin", fcmTokens: { $in: invalidTokens } },
+            { $pullAll: { fcmTokens: invalidTokens } }
+          );
+        }
+      }
     } catch (e) {
       console.error("Failed to notify admin via socket:", e);
     }
 
     res.json({ success: true, sale });
   } catch (err) {
-    console.error("Place offline order error:", err);
+    console.error("Place order error:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };

@@ -9,6 +9,65 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRE || "7d",
   });
 
+// POST /api/auth/login (For Admin / Password based)
+const login = async (req, res) => {
+  try {
+    const { identifier, password, fcmToken } = req.body;
+    if (!identifier || !password) {
+      return res.status(400).json({ success: false, message: "Email/Phone and password required" });
+    }
+
+    const normalizedIdentifier = identifier.trim().toLowerCase();
+    const phoneNormalized = normalizedIdentifier.replace(/\s/g, "");
+    
+    const user = await User.findOne({
+      role: "admin",
+      $or: [
+        { email: normalizedIdentifier },
+        { phone: phoneNormalized }
+      ]
+    }).select("+password +isActive");
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    if (user.isActive === false) {
+      return res.status(403).json({ success: false, message: "Account blocked" });
+    }
+
+    if (!user.password) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    if (fcmToken && !user.fcmTokens.includes(fcmToken)) {
+      user.fcmTokens.push(fcmToken);
+      await user.save({ validateBeforeSave: false });
+    }
+
+    const token = signToken(user._id);
+    res.json({
+      success: true,
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
 // POST /api/auth/check-phone
 const checkPhone = async (req, res) => {
   try {
@@ -25,7 +84,7 @@ const checkPhone = async (req, res) => {
 // POST /api/auth/login-phone
 const loginByPhone = async (req, res) => {
   try {
-    const { phone } = req.body;
+    const { phone, fcmToken } = req.body;
     if (!phone) {
       return res.status(400).json({ success: false, message: "Phone number required" });
     }
@@ -39,6 +98,11 @@ const loginByPhone = async (req, res) => {
     
     if (user.isActive === false) {
       return res.status(403).json({ success: false, message: "Account blocked" });
+    }
+    
+    if (fcmToken && !user.fcmTokens.includes(fcmToken)) {
+      user.fcmTokens.push(fcmToken);
+      await user.save({ validateBeforeSave: false });
     }
     
     const token = signToken(user._id);
@@ -55,7 +119,7 @@ const loginByPhone = async (req, res) => {
 // POST /api/auth/register-phone
 const registerPhone = async (req, res) => {
   try {
-    const { phone, name } = req.body;
+    const { phone, name, fcmToken } = req.body;
     if (!phone || !name) {
       return res.status(400).json({ success: false, message: "Phone number and name required" });
     }
@@ -65,7 +129,8 @@ const registerPhone = async (req, res) => {
       return res.status(409).json({ success: false, message: "User already exists" });
     }
     
-    user = await User.create({ name: name.trim(), phone: normalized });
+    const fcmTokens = fcmToken ? [fcmToken] : [];
+    user = await User.create({ name: name.trim(), phone: normalized, fcmTokens });
     const token = signToken(user._id);
     res.status(201).json({
       success: true,
@@ -208,7 +273,7 @@ const sendOtpWhatsApp = async (req, res) => {
 // POST /api/auth/login-otp
 const loginWithOtp = async (req, res) => {
   try {
-    const { phone, otp } = req.body;
+    const { phone, otp, fcmToken } = req.body;
     if (!phone || !otp)
       return res
         .status(400)
@@ -243,6 +308,11 @@ const loginWithOtp = async (req, res) => {
     user.whatsappOtpCode = undefined;
     user.whatsappOtpExpiry = undefined;
     user.whatsappOtpVerified = false;
+    
+    if (fcmToken && !user.fcmTokens.includes(fcmToken)) {
+      user.fcmTokens.push(fcmToken);
+    }
+    
     await user.save({ validateBeforeSave: false });
 
     const token = signToken(user._id);
@@ -435,4 +505,5 @@ module.exports = {
   changePassword,
   sendOtpWhatsApp,
   loginWithOtp,
+  login,
 };

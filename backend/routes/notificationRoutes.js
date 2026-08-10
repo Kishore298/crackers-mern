@@ -24,9 +24,14 @@ router.delete("/:id", protect, deleteNotification);
 router.post("/read-all", protect, handleMethodOverride({
   PATCH: markAllAsRead,
 }));
-
+router.post("/all", protect, handleMethodOverride({
+  DELETE: deleteAllNotifications,
+}));
 router.post("/:id/read", protect, handleMethodOverride({
   PATCH: markAsRead,
+}));
+router.post("/:id", protect, handleMethodOverride({
+  DELETE: deleteNotification,
 }));
 router.post("/send", protect, adminOnly, sendCustomNotification);
 router.get("/history", protect, adminOnly, getSentHistory);

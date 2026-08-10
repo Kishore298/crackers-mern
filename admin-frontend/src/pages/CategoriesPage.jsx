@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Pagination from "../components/Pagination";
 import { Plus, Pencil, Trash2, X, Upload, GripVertical } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
@@ -13,6 +14,8 @@ const CategoriesPage = () => {
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, loading: false });
+  const [page, setPage] = useState(1);
+  const LIMIT = 12;
 
   const fetchCategories = async () => {
     try {
@@ -123,6 +126,9 @@ const CategoriesPage = () => {
     }
   };
 
+  const totalPages = Math.ceil(categories.length / LIMIT);
+  const paginatedCategories = categories.slice((page - 1) * LIMIT, page * LIMIT);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -142,69 +148,75 @@ const CategoriesPage = () => {
           <div className="w-8 h-8 rounded-full border-4 border-orange-100 border-t-primary animate-spin" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {categories.map((cat, index) => (
-            <div
-              key={cat._id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragEnter={(e) => handleDragEnter(e, index)}
-              onDragEnd={handleDragEnd}
-              onDragOver={(e) => e.preventDefault()}
-              className={`card-admin p-4 flex items-center gap-4 group hover:border-orange-200 transition-colors cursor-move ${dragOverItemIndex === index ? "border-primary shadow-lg bg-orange-50/50" : ""} ${dragItemIndex === index ? "opacity-50" : ""}`}
-            >
-              <div className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing">
-                <GripVertical className="w-5 h-5" />
-              </div>
-              <div className="w-14 h-14 rounded-xl bg-surface overflow-hidden shrink-0 flex items-center justify-center text-2xl">
-                {cat.image ? (
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center p-2 bg-[#1a1726]">
-                    <img src="/v-crackers-logo.png" alt="Fallback Logo" className="w-full h-full object-contain" />
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {paginatedCategories.map((cat, localIndex) => {
+              const index = (page - 1) * LIMIT + localIndex;
+              return (
+                <div
+                  key={cat._id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragEnter={(e) => handleDragEnter(e, index)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                  className={`card-admin p-4 flex items-center gap-4 group hover:border-orange-200 transition-colors cursor-move ${dragOverItemIndex === index ? "border-primary shadow-lg bg-orange-50/50" : ""} ${dragItemIndex === index ? "opacity-50" : ""}`}
+                >
+                  <div className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing">
+                    <GripVertical className="w-5 h-5" />
                   </div>
-                )}
+                  <div className="w-14 h-14 rounded-xl bg-surface overflow-hidden shrink-0 flex items-center justify-center text-2xl">
+                    {cat.image ? (
+                      <img
+                        src={cat.image}
+                        alt={cat.name}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-2 bg-[#1a1726]">
+                        <img src="/v-crackers-logo.png" alt="Fallback Logo" className="w-full h-full object-contain" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-heading font-semibold text-sm text-gray-900 truncate">
+                      {cat.name}
+                    </p>
+                    {cat.description && (
+                      <p className="text-xs text-gray-400 truncate mt-0.5">
+                        {cat.description}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-300 mt-1 font-mono">
+                      {cat.slug} <span className="ml-2 px-1.5 py-0.5 rounded-md bg-gray-100 text-[10px]">Order: {index}</span>
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => openEdit(cat)}
+                      className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete({ open: true, id: cat._id, loading: false })}
+                      className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            {categories.length === 0 && (
+              <div className="col-span-4 text-center py-16 text-gray-400">
+                <p className="text-4xl mb-3">🏷️</p>
+                <p className="font-semibold">No categories yet</p>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-heading font-semibold text-sm text-gray-900 truncate">
-                  {cat.name}
-                </p>
-                {cat.description && (
-                  <p className="text-xs text-gray-400 truncate mt-0.5">
-                    {cat.description}
-                  </p>
-                )}
-                <p className="text-xs text-gray-300 mt-1 font-mono">
-                  {cat.slug} <span className="ml-2 px-1.5 py-0.5 rounded-md bg-gray-100 text-[10px]">Order: {index}</span>
-                </p>
-              </div>
-              <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => openEdit(cat)}
-                  className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setConfirmDelete({ open: true, id: cat._id, loading: false })}
-                  className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          ))}
-          {categories.length === 0 && (
-            <div className="col-span-4 text-center py-16 text-gray-400">
-              <p className="text-4xl mb-3">🏷️</p>
-              <p className="font-semibold">No categories yet</p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+        </>
       )}
 
       {/* Modal */}

@@ -25,15 +25,49 @@ const getAllUsers = async (req, res) => {
       User.countDocuments(query),
     ]);
 
-    // Get order stats for each user in one aggregate query
     const userIds = users.map((u) => u._id);
+    const userPhones = users.map((u) => u.phone).filter(Boolean);
+
     const orderStats = await Sale.aggregate([
-      { $match: { customer: { $in: userIds }, paymentStatus: "paid" } },
+      {
+        $match: {
+          $or: [
+            { customer: { $in: userIds } },
+            { saleType: "offline", customer: null, "billingInfo.phone": { $in: userPhones } }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          // Identify which user this order belongs to
+          matchedUserId: {
+            $cond: {
+              if: { $ne: ["$customer", null] },
+              then: "$customer",
+              else: {
+                // Find matching user by phone
+                $let: {
+                  vars: {
+                    matchedIndex: { $indexOfArray: [userPhones, "$billingInfo.phone"] }
+                  },
+                  in: {
+                    $arrayElemAt: [userIds, "$$matchedIndex"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       {
         $group: {
-          _id: "$customer",
+          _id: "$matchedUserId",
           totalOrders: { $sum: 1 },
-          totalSpend: { $sum: "$finalPayable" },
+          totalSpend: { 
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "paid"] }, "$finalPayable", 0]
+            }
+          },
           lastOrder: { $max: "$createdAt" },
         },
       },
@@ -41,7 +75,7 @@ const getAllUsers = async (req, res) => {
 
     const statsMap = {};
     orderStats.forEach((s) => {
-      statsMap[s._id.toString()] = s;
+      if (s._id) statsMap[s._id.toString()] = s;
     });
 
     const enriched = users.map((u) => {

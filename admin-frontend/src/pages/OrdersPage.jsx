@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Search, X, AlertTriangle, CheckCircle, Send, Edit2, MapPin } from "lucide-react";
+import Pagination from "../components/Pagination";
+import { Search, X, AlertTriangle, Send, Edit2, MapPin, Eye, Download, Loader, RefreshCw } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 
@@ -22,7 +23,8 @@ const OrdersPage = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
-  const [expanding, setExpanding] = useState(null);
+  const [pdfViewerModal, setPdfViewerModal] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(null);
 
   // Cancellation modal state
   const [cancelModal, setCancelModal] = useState(null); // { orderId, mode: 'cancel'|'reject' }
@@ -54,7 +56,59 @@ const OrdersPage = () => {
 
   useEffect(() => {
     fetchOrders();
+    
+    // Listen for real-time socket events dispatched by NotificationBell
+    const handleNewOrder = () => {
+      fetchOrders();
+    };
+    
+    window.addEventListener("newOrderReceived", handleNewOrder);
+    
+    return () => {
+      window.removeEventListener("newOrderReceived", handleNewOrder);
+    };
   }, [fetchOrders]);
+
+  const handleViewPdf = async (order) => {
+    setPdfLoading(order._id);
+    try {
+      const response = await api.get(`/orders/${order._id}/pdf`, { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      setPdfViewerModal(url);
+    } catch (err) {
+      toast.error("Failed to load PDF");
+    } finally {
+      setPdfLoading(null);
+    }
+  };
+
+  const handleDownloadPdf = async (order) => {
+    setPdfLoading(order._id);
+    try {
+      const response = await api.get(`/orders/${order._id}/pdf`, { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Invoice-${order.invoiceNo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error("Failed to download PDF");
+    } finally {
+      setPdfLoading(null);
+    }
+  };
+
+  const closePdfViewer = () => {
+    if (pdfViewerModal) {
+      URL.revokeObjectURL(pdfViewerModal);
+      setPdfViewerModal(null);
+    }
+  };
 
   const updateStatus = async (orderId, orderStatus) => {
     try {
@@ -134,9 +188,19 @@ const OrdersPage = () => {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <h2 className="font-heading font-bold text-xl text-gray-900">
-          Orders <span className="text-gray-400 font-normal text-base">({total})</span>
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="font-heading font-bold text-xl text-gray-900">
+            Orders <span className="text-gray-400 font-normal text-base">({total})</span>
+          </h2>
+          <button 
+            onClick={fetchOrders}
+            disabled={loading}
+            className="p-1.5 text-gray-500 hover:bg-gray-100 hover:text-primary rounded-lg transition-colors"
+            title="Refresh Orders"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -206,8 +270,7 @@ const OrdersPage = () => {
               orders.map((order) => (
                 <React.Fragment key={order._id}>
                   <tr
-                    className="border-b border-gray-50 hover:bg-gray-50/50 cursor-pointer"
-                    onClick={() => setExpanding(expanding === order._id ? null : order._id)}
+                    className="border-b border-gray-50 hover:bg-gray-50/50"
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
@@ -260,7 +323,7 @@ const OrdersPage = () => {
                                 <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                               ))}
                             </select>
-                            
+
                             <select
                               value={order.paymentStatus || 'pending'}
                               onChange={(e) => updatePaymentStatus(order._id, e.target.value)}
@@ -280,109 +343,51 @@ const OrdersPage = () => {
                             Cancel Order
                           </button>
                         )}
+                        <div className="flex gap-2 mt-1">
+                          <button
+                            onClick={() => handleViewPdf(order)}
+                            disabled={pdfLoading === order._id}
+                            className="flex-1 text-xs bg-gray-100 text-gray-700 font-bold px-2 py-1.5 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+                          >
+                            {pdfLoading === order._id ? <Loader className="w-3 h-3 animate-spin" /> : <Eye className="w-3 h-3" />} View
+                          </button>
+                          <button
+                            onClick={() => handleDownloadPdf(order)}
+                            disabled={pdfLoading === order._id}
+                            className="flex-1 text-xs bg-primary/10 text-primary font-bold px-2 py-1.5 rounded-lg hover:bg-primary/20 transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+                          >
+                            {pdfLoading === order._id ? <Loader className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />} DL
+                          </button>
+                        </div>
+
+                        {order.shippingAddress && !["delivered", "cancelled"].includes(order.orderStatus) && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); openAddressEdit(order); }}
+                            className="text-[10px] text-gray-500 hover:text-primary font-semibold text-left flex items-center gap-1 mt-1"
+                          >
+                            <Edit2 className="w-3 h-3" /> Edit Address
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleResendWhatsapp(order._id)}
+                          className="text-[10px] text-green-700 bg-green-100/50 hover:bg-green-100 px-2 py-1 rounded font-semibold text-left flex items-center gap-1 mt-1"
+                        >
+                          <Send className="w-3 h-3" /> Resend WhatsApp
+                        </button>
+
+                        {order.cancellationRequest?.requested && (
+                          <div className="flex flex-col gap-1 mt-1 border-t border-gray-100 pt-1">
+                            <span className="text-[10px] text-red-600 font-bold flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Cancel Req</span>
+                            <div className="flex gap-1">
+                              <button onClick={() => setCancelModal({ orderId: order._id, mode: "cancel" })} className="flex-1 text-[10px] bg-red-600 text-white font-bold py-1 rounded hover:bg-red-700">Accept</button>
+                              <button onClick={() => setCancelModal({ orderId: order._id, mode: "reject" })} className="flex-1 text-[10px] bg-gray-200 text-gray-700 font-bold py-1 rounded hover:bg-gray-300">Reject</button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>
 
-                  {/* Expanded row */}
-                  {expanding === order._id && (
-                    <tr className="bg-orange-50/50">
-                      <td colSpan={8} className="px-6 py-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
-                          {/* Items */}
-                          <div>
-                            <p className="font-bold text-gray-700 mb-2">Items</p>
-                            {order.items?.map((item, i) => (
-                              <div key={i} className="flex justify-between py-1 border-b border-orange-100">
-                                <span className="text-gray-700">{item.name} × {item.quantity}</span>
-                                <span className="font-semibold">₹{item.subtotal}</span>
-                              </div>
-                            ))}
-                            {/* Pricing Breakdown */}
-                            <div className="mt-2 pt-2 border-t border-orange-200 space-y-1">
-                              <div className="flex justify-between text-gray-600">
-                                <span>Subtotal</span>
-                                <span className="font-semibold">₹{order.totalAmount?.toLocaleString("en-IN")}</span>
-                              </div>
-                              {order.slabDiscount > 0 && (
-                                <div className="flex justify-between text-green-600">
-                                  <span>Slab Discount {order.slabLabel && <span className="text-gray-400">({order.slabLabel})</span>}</span>
-                                  <span className="font-bold">−₹{order.slabDiscount?.toLocaleString("en-IN")}</span>
-                                </div>
-                              )}
-                              <div className="flex justify-between font-bold text-gray-800">
-                                <span>Final Payable</span>
-                                <span>₹{order.finalPayable?.toLocaleString("en-IN")}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Shipping */}
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <p className="font-bold text-gray-700">Shipping Address</p>
-                              {order.shippingAddress && !["delivered", "cancelled"].includes(order.orderStatus) && (
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); openAddressEdit(order); }}
-                                  className="text-[10px] text-primary hover:underline flex items-center gap-1 font-semibold"
-                                >
-                                  <Edit2 className="w-3 h-3" /> Edit
-                                </button>
-                              )}
-                            </div>
-                            
-                            {order.shippingAddress ? (
-                              <>
-                                <p className="text-gray-600">{order.shippingAddress.fullName} · {order.shippingAddress.phone}</p>
-                                <p className="text-gray-400">{order.shippingAddress.addressLine1}, {order.shippingAddress.city}, {order.shippingAddress.state} – {order.shippingAddress.pincode}</p>
-                              </>
-                            ) : (
-                              <p className="text-gray-400">POS / Walk-in</p>
-                            )}
-
-                            <div className="mt-4 pt-4 border-t border-orange-200">
-                              <button
-                                onClick={() => handleResendWhatsapp(order._id)}
-                                className="text-xs bg-green-100 text-green-700 font-bold px-3 py-1.5 rounded-lg hover:bg-green-200 transition-colors flex items-center gap-1.5 w-fit"
-                              >
-                                <Send className="w-3 h-3" />
-                                Resend WhatsApp Details
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Cancellation request */}
-                          {order.cancellationRequest?.requested && (
-                            <div className="bg-red-50 border border-red-100 rounded-xl p-3">
-                              <p className="font-bold text-red-700 mb-1 flex items-center gap-1">
-                                <AlertTriangle className="w-3 h-3" /> Cancellation Requested
-                              </p>
-                              <p className="text-gray-600 mb-1">
-                                <strong>Reason:</strong> {order.cancellationRequest.reason || "No reason given"}
-                              </p>
-                              <p className="text-gray-400 text-xs mb-3">
-                                {new Date(order.cancellationRequest.requestedAt).toLocaleString("en-IN")}
-                              </p>
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => setCancelModal({ orderId: order._id, mode: "cancel" })}
-                                  className="flex-1 text-xs bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-1"
-                                >
-                                  <CheckCircle className="w-3 h-3" /> Accept & Cancel
-                                </button>
-                                <button
-                                  onClick={() => setCancelModal({ orderId: order._id, mode: "reject" })}
-                                  className="flex-1 text-xs bg-gray-100 text-gray-700 font-bold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
-                                >
-                                  <X className="w-3 h-3" /> Reject
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
                 </React.Fragment>
               ))
             )}
@@ -394,20 +399,7 @@ const OrdersPage = () => {
           </tbody>
         </table>
 
-        {totalPages > 1 && (
-          <div className="flex justify-center gap-2 py-4 border-t border-gray-50">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
-              <button
-                key={pg}
-                onClick={() => setPage(pg)}
-                className={`w-8 h-8 rounded-lg text-sm font-semibold ${page === pg ? "text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-                style={page === pg ? { background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)" } : {}}
-              >
-                {pg}
-              </button>
-            ))}
-          </div>
-        )}
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
 
       {/* Cancel / Reject Modal */}
@@ -457,7 +449,7 @@ const OrdersPage = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <form onSubmit={handleAddressSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 sm:col-span-1">
@@ -537,6 +529,38 @@ const OrdersPage = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* PDF Viewer Modal */}
+      {pdfViewerModal && (
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-2 sm:p-4" onClick={closePdfViewer}>
+          <div className="bg-white w-full max-w-4xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Eye className="w-5 h-5 text-primary" /> Order PDF
+              </h3>
+              <div className="flex gap-2">
+                <a
+                  href={pdfViewerModal}
+                  download="Invoice.pdf"
+                  className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-bold hover:bg-primary/20 flex items-center gap-1"
+                >
+                  <Download className="w-4 h-4" /> Download
+                </a>
+                <button onClick={closePdfViewer} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 bg-gray-100">
+              <iframe
+                src={pdfViewerModal}
+                className="w-full h-full border-none"
+                title="PDF Viewer"
+              />
+            </div>
           </div>
         </div>
       )}

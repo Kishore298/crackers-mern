@@ -9,8 +9,8 @@ import io from "socket.io-client";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
 import { requestFirebaseToken, onForegroundMessage } from "../config/firebase";
+import api from "../services/api";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 const SOCKET_URL =
   process.env.REACT_APP_API_URL?.replace("/api", "") || "http://localhost:5000";
 
@@ -36,13 +36,18 @@ export const NotificationProvider = ({ children }) => {
     });
 
     socketRef.current.on("notification", (newNotification) => {
-      setNotifications((prev) => [newNotification, ...prev]);
-      setUnreadCount((c) => c + 1);
-      toast.success(newNotification.title || "New notification!");
+      // 1. Immediately update UI with socket payload (fixes empty dropdown)
+      if (newNotification && newNotification._id) {
+        setNotifications((prev) => [newNotification, ...prev]);
+      }
+      // 2. Re-fetch with a cache buster to guarantee DB sync
+      fetchNotifications();
+      fetchUnreadCount();
+      toast.success(newNotification?.title || "New notification!");
     });
 
     // Support Firebase foreground push notifications
-    onForegroundMessage();
+    const unsubscribeFCM = onForegroundMessage();
 
     // Initial fetch
     fetchNotifications();
@@ -59,17 +64,17 @@ export const NotificationProvider = ({ children }) => {
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
       clearInterval(intervalId);
+      if (unsubscribeFCM) unsubscribeFCM();
     };
   }, [user, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchNotifications = async () => {
-    if (!token) return;
     try {
-      const res = await fetch(`${API_URL}/notifications?limit=20`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success) setNotifications(data.notifications);
+      // Cache buster prevents browser from returning stale empty arrays
+      const res = await api.get(`/notifications?limit=20&_t=${Date.now()}`);
+      if (res.data.success) {
+        setNotifications(res.data.notifications);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -78,10 +83,7 @@ export const NotificationProvider = ({ children }) => {
   const fetchUnreadCount = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_URL}/notifications/unread-count`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const { data } = await api.get("/notifications/unread-count");
       if (data.success) setUnreadCount(data.count);
     } catch (err) {
       console.error(err);
@@ -98,10 +100,7 @@ export const NotificationProvider = ({ children }) => {
       );
       setUnreadCount((c) => Math.max(0, c - 1));
 
-      await fetch(`${API_URL}/notifications/${id}/read`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.patch(`/notifications/${id}/read`);
     } catch (err) {
       console.error(err);
     }
@@ -113,10 +112,7 @@ export const NotificationProvider = ({ children }) => {
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
 
-      await fetch(`${API_URL}/notifications/read-all`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.patch(`/notifications/read-all`);
     } catch (err) {
       console.error(err);
     }
@@ -130,10 +126,7 @@ export const NotificationProvider = ({ children }) => {
         setUnreadCount((c) => Math.max(0, c - 1));
       }
 
-      await fetch(`${API_URL}/notifications/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/notifications/${id}`);
     } catch (err) {
       console.error(err);
     }
@@ -144,10 +137,7 @@ export const NotificationProvider = ({ children }) => {
       setNotifications([]);
       setUnreadCount(0);
 
-      await fetch(`${API_URL}/notifications/all`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/notifications/all`);
     } catch (err) {
       console.error(err);
     }
