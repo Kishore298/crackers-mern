@@ -5,6 +5,8 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
 
+import { formatComboName } from "../utils/comboUtils";
+
 const CartPage = () => {
   const {
     cartItems, updateQty, removeFromCart, subtotal, total, itemCount,
@@ -67,7 +69,7 @@ const CartPage = () => {
                   style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}
                 >
                   <Link
-                    to={`/products/${item.slug}`}
+                    to={item.isCombo ? `/combos/${item.slug}` : `/products/${item.slug}`}
                     className="w-20 h-20 rounded-xl overflow-hidden shrink-0"
                     style={{ background: "#0f0d1a" }}
                   >
@@ -93,7 +95,7 @@ const CartPage = () => {
 
                   <div className="flex-1 min-w-0">
                     <h3 className="font-heading font-semibold text-xs md:text-sm text-white leading-snug line-clamp-2">
-                      {item.name}
+                      {formatComboName(item)}
                     </h3>
                     <p className="text-primary font-bold mt-1">
                       ₹{price}{" "}

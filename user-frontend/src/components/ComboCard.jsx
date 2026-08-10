@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
+import { formatComboName } from "../utils/comboUtils";
 
 const ComboCard = ({ combo, discountPct = 0 }) => {
   const { addToCart } = useCart();
@@ -86,7 +87,7 @@ const ComboCard = ({ combo, discountPct = 0 }) => {
       <div className="p-3 md:p-5 flex flex-col flex-1 gap-2 md:gap-3">
         <Link to={`/combos/${combo.slug}`}>
           <h3 className="font-heading font-bold text-white text-sm sm:text-base md:text-lg leading-snug hover:text-primary transition-colors line-clamp-2">
-            {combo.name}
+            {formatComboName(combo)}
           </h3>
         </Link>
 

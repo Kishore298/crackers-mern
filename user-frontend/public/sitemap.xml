@@ -96,7 +96,17 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://vcrackers.in/products?category=fabulous-fountains</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://vcrackers.in/products?category=peacock-fountains</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products?category=special-novelties</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -106,12 +116,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products?category=premium-repeating-fancy</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://vcrackers.in/products?category=fountains-and-novelties</loc>
+    <loc>https://vcrackers.in/products?category=premium-repeating-skyshots</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -451,11 +456,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products/mega-4-2-pieces</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://vcrackers.in/products/12-shots-multicolour-gpay</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -651,12 +651,22 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/the-dhurendhar</loc>
+    <loc>https://vcrackers.in/products/4-x-4-wheel</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/jananayagan</loc>
+    <loc>https://vcrackers.in/products/5-g</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products/10-g</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products/4-wowstar-7-step-fancy</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -666,7 +676,22 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://vcrackers.in/combos/the-lcu</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/combos/the-dhurandhar</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://vcrackers.in/combos/the-goat</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/combos/the-lcu-1</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>

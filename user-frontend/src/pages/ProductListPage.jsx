@@ -119,6 +119,7 @@ const ProductListPage = () => {
   // Re-fetch on filter changes
   useEffect(() => {
     fetchGroupedCategories(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [fetchGroupedCategories]);
 
   // Infinite Scroll logic using robust callback-ref pattern

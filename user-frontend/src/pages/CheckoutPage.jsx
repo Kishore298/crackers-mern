@@ -20,6 +20,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import toast from "react-hot-toast";
 import SEO from "../components/SEO";
+import { formatComboName, calculateComboStats, getValidComboProducts } from "../utils/comboUtils";
 
 const CheckoutPage = () => {
   const { cartItems, subtotal, total, clearCart, canCheckout, MIN_CART_VALUE } = useCart();
@@ -38,6 +39,7 @@ const CheckoutPage = () => {
   const [couponDiscountText, setCouponDiscountText] = useState("");
   const [isApplying, setIsApplying] = useState(false);
   const [showCouponInput, setShowCouponInput] = useState(false);
+  const [discountPct, setDiscountPct] = useState(0);
 
   const [addrForm, setAddrForm] = useState({
     fullName: "",
@@ -81,7 +83,18 @@ const CheckoutPage = () => {
         if (def) setSelectedAddr(def._id);
       } catch { }
     };
+    
+    const fetchDiscount = async () => {
+      try {
+        const r = await api.get("/discount");
+        if (r.data.discount?.isActive) {
+          setDiscountPct(r.data.discount.percentage);
+        }
+      } catch { }
+    };
+
     fetchProfile();
+    fetchDiscount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, cartItems.length, navigate, canCheckout, MIN_CART_VALUE, orderPlaced]);
 
@@ -191,45 +204,86 @@ const CheckoutPage = () => {
                 {cartItems.map((item) => {
                   const itemPrice = item.effectivePrice ?? item.discountedPrice ?? item.price;
                   const itemTotal = itemPrice * item.quantity;
+                  const isCombo = item.isCombo && item.comboProducts?.length > 0;
+                  const displayName = formatComboName(item);
+
                   return (
                     <div
                       key={item._id}
-                      className="flex items-center gap-4 p-3 rounded-xl border border-transparent"
+                      className="flex flex-col gap-3 p-4 rounded-xl border border-transparent transition-colors hover:bg-surface-2"
                       style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
                     >
-                      <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0" style={{ background: "#0f0d1a" }}>
-                        {item.images?.[0]?.url ? (
-                          <img
-                            src={item.images[0].url?.replace("/upload/", "/upload/q_auto,f_auto,w_100/")}
-                            alt={item.name}
-                            crossOrigin="anonymous"
-                            width={64}
-                            height={64}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center p-2 bg-[#0f0d1a]">
+                      <div className="flex items-start gap-4">
+                        <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-gray-800" style={{ background: "#0f0d1a" }}>
+                          {item.images?.[0]?.url ? (
                             <img
-                              src="/v-crackers-logo.webp"
-                              alt="V Crackers Logo"
-                              className="w-full h-full object-contain opacity-40 filter grayscale"
+                              src={item.images[0].url?.replace("/upload/", "/upload/q_auto,f_auto,w_100/")}
+                              alt={item.name}
+                              crossOrigin="anonymous"
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover"
                             />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center p-2 bg-[#0f0d1a]">
+                              <img
+                                src="/v-crackers-logo.webp"
+                                alt="V Crackers Logo"
+                                className="w-full h-full object-contain opacity-40 filter grayscale"
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-heading font-semibold text-sm md:text-base text-white leading-snug">
+                            {displayName}
+                          </h3>
+                          {isCombo && (
+                            <span
+                              className="px-2 py-0.5 mt-1.5 inline-block rounded-full text-[10px] font-extrabold text-white shadow shadow-yellow-500/20 tracking-wider"
+                              style={{ background: "linear-gradient(140deg, #d4af37, #ffcc33, #d4af37)", color: "#4a3200" }}
+                            >
+                              COMBO PACK
+                            </span>
+                          )}
+                          <p className="text-xs text-gray-400 mt-1.5 font-medium">
+                            ₹{itemPrice.toLocaleString("en-IN")} × {item.quantity}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-white text-base">
+                            ₹{itemTotal.toLocaleString("en-IN")}
+                          </p>
+                        </div>
+                      </div>
+
+                      {isCombo && (() => {
+                        const stats = calculateComboStats(item, discountPct);
+                        return (
+                          <div className="mt-2 pt-3 border-t border-gray-800/60">
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="text-xs font-semibold tracking-wide text-gray-400 uppercase">Included Products:</span>
+                              {stats.showDiscount && (
+                                <div className="text-right flex items-center gap-2">
+                                  <span className="text-xs text-gray-500 line-through">₹{stats.originalValue.toLocaleString("en-IN")}</span>
+                                  <span className="text-[11px] font-bold text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full">Save ₹{stats.savings.toLocaleString("en-IN")}</span>
+                                </div>
+                              )}
+                            </div>
+                            <ul className="space-y-1.5 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                              {getValidComboProducts(item).map((cp, idx) => (
+                                <li key={idx} className="flex justify-between text-xs text-gray-300 items-center">
+                                  <span className="truncate pr-3 flex items-center gap-2">
+                                    <span className="w-1 h-1 rounded-full bg-primary/60"></span>
+                                    {cp.product?.name || "Product"}
+                                  </span>
+                                  <span className="shrink-0 text-gray-500 font-medium">x{cp.quantity}</span>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-heading font-semibold text-xs md:text-sm text-white line-clamp-2 leading-snug">
-                          {item.name}
-                        </h3>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          ₹{itemPrice.toLocaleString("en-IN")} × {item.quantity}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-white">
-                          ₹{itemTotal.toLocaleString("en-IN")}
-                        </p>
-                      </div>
+                        );
+                      })()}
                     </div>
                   );
                 })}
@@ -410,7 +464,7 @@ const CheckoutPage = () => {
               </div>
 
               <div className="flex justify-between text-gray-400">
-                <span>Shipping</span>
+                <span>Shipping Cost</span>
                 <span className="text-orange-400 font-semibold">Pay on Delivery</span>
               </div>
               {couponDiscount > 0 && (

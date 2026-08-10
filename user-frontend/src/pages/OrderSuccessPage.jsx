@@ -13,6 +13,7 @@ import PhonePeIcon from "../components/PhonePeIcon";
 import PaytmIcon from "../components/PaytmIcon";
 import api from "../services/api";
 import WelcomeFireworks from "../components/WelcomeFireworks";
+import { formatComboName } from "../utils/comboUtils";
 
 const STATUS_MAP = {
   processing: { label: "Processing", color: "text-blue-400 bg-blue-500/10" },
@@ -126,7 +127,7 @@ const OrderSuccessPage = () => {
                         )}
                       </div>
                       <div>
-                        <p className="font-semibold text-white">{item.name}</p>
+                        <p className="font-semibold text-white">{formatComboName(item.product || { name: item.name })}</p>
                         <p className="text-gray-400 text-xs mt-0.5">
                           ₹{item.price} × {item.quantity}
                         </p>

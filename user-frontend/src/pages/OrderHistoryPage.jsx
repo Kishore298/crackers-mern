@@ -16,6 +16,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import toast from "react-hot-toast";
 import SEO from "../components/SEO";
+import { formatComboName } from "../utils/comboUtils";
 
 const STATUS_STEPS = ["processing", "packed", "shipped", "delivered"];
 
@@ -156,7 +157,7 @@ const OrderHistoryPage = () => {
                       <div className="flex flex-wrap gap-2">
                         {order.items?.slice(0, 3).map((item, i) => (
                           <span key={i} className="text-xs px-2 py-1 rounded-lg text-gray-300" style={{ background: "rgba(255,255,255,0.05)" }}>
-                            {item.name} ×{item.quantity}
+                            {formatComboName(item.product || { name: item.name })} ×{item.quantity}
                           </span>
                         ))}
                         {order.items?.length > 3 && (

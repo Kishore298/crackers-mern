@@ -12,6 +12,7 @@ import api from "../services/api";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
 import SEO from "../components/SEO";
+import { formatComboName, getValidComboProducts } from "../utils/comboUtils";
 
 const ComboDetailPage = () => {
   const { slug } = useParams();
@@ -77,13 +78,7 @@ const ComboDetailPage = () => {
       const pData = cp.product;
       if (!pData) return sum;
       const base = pData.price || 0;
-      let effective = base;
-      if (discountPct > 0) {
-        effective = Math.round(base * (1 - discountPct / 100));
-      } else {
-        effective = pData.discountedPrice ?? base;
-      }
-      return sum + (effective * (cp.quantity || 1));
+      return sum + (base * (cp.quantity || 1));
     }, 0);
   }
 
@@ -144,7 +139,7 @@ const ComboDetailPage = () => {
             Combos
           </Link>
           <ChevronLeft className="w-4 h-4 rotate-180" />
-          <span className="text-gray-300 font-medium">{product.name}</span>
+          <span className="text-gray-300 font-medium">{formatComboName(product)}</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
@@ -223,7 +218,7 @@ const ComboDetailPage = () => {
               </span>
             </div>
             <h1 className="font-heading font-bold text-2xl sm:text-3xl text-white leading-tight">
-              {product.name}
+              {formatComboName(product)}
             </h1>
 
             {/* Price */}
@@ -261,13 +256,13 @@ const ComboDetailPage = () => {
               </p>
             )}
 
-            {product.comboProducts && product.comboProducts.length > 0 && (
+            {getValidComboProducts(product).length > 0 && (
               <div className="mt-2 mb-4">
                 <h3 className="font-heading font-semibold text-white text-base mb-3 border-b border-gray-800 pb-2">
                   What's included in this combo:
                 </h3>
                 <ul className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                  {product.comboProducts.map((cp, idx) => {
+                  {getValidComboProducts(product).map((cp, idx) => {
                     const pData = cp.product;
                     if (!pData) return null;
                     const base = pData.price || 0;
