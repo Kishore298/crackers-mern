@@ -10,10 +10,11 @@
  *   ₹8,000–₹9,999   → ₹400 OFF
  *   ₹6,000–₹7,999   → ₹300 OFF
  *   ₹4,000–₹5,999   → No discount
- *   Below ₹4,000     → Not eligible (blocked by MIN_CART_VALUE)
+ *   Below ₹3,000     → Not eligible (blocked by MIN_CART_VALUE)
+ *   ₹3,000 - ₹50,000 → No Extra Discount (Just the 80% default applied earlier)
  */
 
-const MIN_CART_VALUE = 4000;
+const MIN_CART_VALUE = 3000;
 
 const DISCOUNT_SLABS = [
   { min: 12500, max: Infinity, discount: 1000, label: "₹12,500 & above" },

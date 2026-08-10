@@ -6,7 +6,7 @@ const CartContext = createContext(null);
 const CART_KEY = "lash_cart";
 
 // ─── Discount Slab Config (mirrored from backend/config/discountSlabs.js) ───
-const MIN_CART_VALUE = 4000;
+const MIN_CART_VALUE = 3000;
 
 
 export const CartProvider = ({ children }) => {

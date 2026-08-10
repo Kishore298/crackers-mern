@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Package,
   Gift,
+  Download,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -173,7 +174,18 @@ const Navbar = () => {
           </nav>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-1 md:gap-3">
+          <div className="flex items-center gap-1.5 md:gap-2.5">
+            {/* PDF Price List Download */}
+            <a
+              href="/price-list.pdf"
+              download="V_Crackers_Price_List.pdf"
+              title="Download Price List"
+              className="flex flex-row items-center justify-center gap-1 px-2 py-1.5 hover:bg-surface-2 rounded-xl border border-primary/50 hover:border-primary transition-colors text-gray-300 hover:text-primary"
+            >
+              <Download className="w-5 h-5 md:w-4 md:h-4" />
+              <span className="text-[10px] md:text-sm font-semibold leading-none">Price List</span>
+            </a>
+
             {/* Cart */}
             <Link
               to="/cart"
