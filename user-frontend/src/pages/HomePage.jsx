@@ -894,6 +894,54 @@ const HomePage = () => {
         )}
       </section>
 
+      {/* ══ Our Brands Section ══ */}
+      <section className="py-16 overflow-hidden">
+        <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 mb-10 text-center">
+          <h2 className="font-heading font-black text-white text-3xl sm:text-4xl leading-tight mb-2">
+            Our Brands
+          </h2>
+          <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
+            Premium brands we deal with
+          </p>
+        </div>
+
+        <div className="relative w-full flex overflow-hidden">
+          {/* Gradient masks for smooth fade on edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 pointer-events-none" style={{ background: "linear-gradient(to right, #0a0814, transparent)" }}></div>
+          <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 pointer-events-none" style={{ background: "linear-gradient(to left, #0a0814, transparent)" }}></div>
+
+          <div className="flex animate-marquee whitespace-nowrap gap-6 md:gap-10 items-center pl-6 md:pl-10 hover:[animation-play-state:paused]">
+            {[
+              "Shreeman.jpeg", "andal.jpeg", "golden-ss.jpeg", "jp.jpeg",
+              "m-square.jpeg", "new-everest.jpeg", "star-vel.jpeg", "wow-start.jpeg",
+              // duplicate for seamless scroll
+              "Shreeman.jpeg", "andal.jpeg", "golden-ss.jpeg", "jp.jpeg",
+              "m-square.jpeg", "new-everest.jpeg", "star-vel.jpeg", "wow-start.jpeg"
+            ].map((logo, idx) => (
+              <div key={idx} className="shrink-0 w-36 h-24 md:w-64 md:h-40 bg-white/5 backdrop-blur-sm rounded-xl flex items-center justify-center overflow-hidden p-3 md:p-4 border border-white/10 transition-transform hover:scale-105 hover:bg-white/10 cursor-pointer">
+                <img
+                  src={`/logos/${logo}`}
+                  alt="Brand Logo"
+                  loading="lazy"
+                  className="max-w-full max-h-full object-contain mix-blend-multiply filter contrast-125"
+                  style={{ mixBlendMode: 'normal' }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <style>{`
+          @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-marquee {
+            animation: marquee 30s linear infinite;
+            width: max-content;
+          }
+        `}</style>
+      </section>
+
       {/* ══ Safety Section ══ */}
       <section className="py-16" style={{ background: "#0f0d1a" }}>
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">

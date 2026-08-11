@@ -210,6 +210,7 @@ const getCategoriesWithProducts = async (req, res) => {
 
     const products = await Product.find(productFilter)
       .populate("category", "name slug")
+      .populate("comboProducts.product", "name images price discountedPrice stock")
       .sort(sortOption);
 
     // Group products by category
