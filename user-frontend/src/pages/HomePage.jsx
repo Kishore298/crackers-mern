@@ -897,10 +897,10 @@ const HomePage = () => {
       {/* ══ Our Brands Section ══ */}
       <section className="py-16 overflow-hidden">
         <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 mb-10 text-center">
-          <h2 className="font-heading font-black text-[#ff6600] text-3xl sm:text-4xl leading-tight mb-2">
+          <h2 className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: "#ff6600" }}>
             Our Brands
           </h2>
-          <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
+          <p className="font-heading font-black text-white text-3xl sm:text-4xl leading-tight mb-2">
             Premium brands we deal with
           </p>
         </div>

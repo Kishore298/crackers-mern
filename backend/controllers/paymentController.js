@@ -81,7 +81,6 @@ const sendPostOrderComms = async (sale, customer) => {
         name: customer.name,
         orderId: sale.invoiceNo,
         amount: sale.finalPayable,
-        trackingLink,
         pdfBuffer,
         filename: `Receipt-${sale.invoiceNo}.pdf`,
       }).catch((e) => console.error("[WhatsApp] Receipt send failed:", e.message));

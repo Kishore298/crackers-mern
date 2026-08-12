@@ -63,13 +63,13 @@ const CombosPage = () => {
     api
       .get("/categories")
       .then((r) => setCategories(r.data.categories || []))
-      .catch(() => {});
+      .catch(() => { });
     // Fetch normal products for linking
     api
       .get("/products/admin?limit=1000&isCombo=false")
       .then((r) => setAllProducts(r.data.products || []))
-      .catch(() => {});
-      
+      .catch(() => { });
+
     // Fetch global discount
     api
       .get("/discount")
@@ -77,7 +77,7 @@ const CombosPage = () => {
         const d = r.data.discount;
         if (d?.isActive) setDiscountPct(d.percentage);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const getEffectivePrice = (p) => {
@@ -98,10 +98,12 @@ const CombosPage = () => {
       safetyInstructions: p.safetyInstructions || "",
       youtubeId: p.video?.youtubeId || "",
       isActive: p.isActive,
-      comboProducts: p.comboProducts ? p.comboProducts.map(cp => ({
-        product: cp.product?._id || cp.product || cp._id || cp,
-        quantity: cp.quantity || 1
-      })) : [],
+      comboProducts: p.comboProducts ? p.comboProducts
+        .filter(cp => cp.product && typeof cp.product === 'object' && cp.product._id)
+        .map(cp => ({
+          product: cp.product._id,
+          quantity: cp.quantity || 1
+        })) : [],
     });
     setImageFiles([]);
     setEditingImages(p.images ? [...p.images] : []);
@@ -157,9 +159,20 @@ const CombosPage = () => {
     setSaving(true);
     try {
       const fd = new FormData();
+
+      let autoDesc = form.description;
+      const validComboProducts = form.comboProducts.filter(cp => allProducts.find(p => p._id === cp.product));
+      if (validComboProducts.length > 0) {
+        const itemsCount = validComboProducts.reduce((sum, cp) => sum + (parseInt(cp.quantity) || 1), 0);
+        const varietiesCount = validComboProducts.length;
+        autoDesc = `This combo consists of ${itemsCount} items and ${varietiesCount} varieties.`;
+      }
+
       Object.entries(form).forEach(([k, v]) => {
         if (k === "comboProducts") {
           fd.append(k, JSON.stringify(v));
+        } else if (k === "description") {
+          fd.append("description", autoDesc);
         } else if (v !== "") {
           fd.append(k, v);
         }
@@ -277,127 +290,132 @@ const CombosPage = () => {
             ) : (
               products.map((p) => (
                 <React.Fragment key={p._id}>
-                <tr
-                  onClick={() => setExpandedCombo(expandedCombo === p._id ? null : p._id)}
-                  className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer"
-                >
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-surface overflow-hidden shrink-0">
-                        {p.images?.[0]?.url ? (
-                          <img
-                            src={p.images[0].url}
-                            alt=""
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-lg">
-                            🎆
-                          </div>
-                        )}
-                      </div>
-                      <span className="font-medium text-gray-800 max-w-[140px] truncate">
-                        {p.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-gray-500">
-                    {p.category?.name || "—"}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="font-semibold text-gray-900">
-                      ₹{getEffectivePrice(p)}
-                    </span>
-                    {getEffectivePrice(p) < p.price && (
-                      <span className="ml-1 text-xs text-gray-400 line-through">
-                        ₹{p.price}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`font-semibold ${p.stock <= 10 ? "text-red-600" : p.stock <= 50 ? "text-amber-600" : "text-green-600"}`}
-                    >
-                      {p.stock}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={p.isActive ? "badge-active" : "badge-inactive"}
-                    >
-                      {p.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex gap-1.5">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); openEdit(p); }}
-                        className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, id: p._id, type: "product", loading: false }); }}
-                        className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {expandedCombo === p._id && (
-                  <tr className="bg-gray-50/50">
-                    <td colSpan={6} className="p-4">
-                      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                        <h4 className="font-semibold text-sm text-gray-900 mb-3">Combo Details</h4>
-                        <div className="space-y-2">
-                          {p.comboProducts && p.comboProducts.length > 0 ? (
-                            <>
-                              {p.comboProducts.map((cp, idx) => {
-                                const origPrice = cp.product ? cp.product.price * cp.quantity : 0;
-                                const salePrice = cp.product ? getEffectivePrice(cp.product) * cp.quantity : 0;
-                                return (
-                                  <div key={idx} className="flex justify-between items-center text-sm border-b border-gray-50 pb-2">
-                                    <div className="flex items-center gap-3">
-                                      <img src={cp.product?.images?.[0]?.url || "/v-crackers-logo.png"} alt="" className="w-8 h-8 rounded object-contain bg-gray-100" />
-                                      <span className="text-gray-700">{cp.product?.name || "Unknown Product"} <span className="text-gray-400 text-xs">x{cp.quantity}</span></span>
-                                    </div>
-                                    <div className="text-right">
-                                      <span className="font-medium text-gray-900">₹{salePrice}</span>
-                                      {origPrice > salePrice && (
-                                        <span className="text-xs text-gray-400 line-through ml-2">₹{origPrice}</span>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                              <div className="pt-2 mt-2 flex justify-between items-start text-sm">
-                                <span className="font-bold">Total Combo Value:</span>
-                                <div className="text-right">
-                                  {(() => {
-                                    const totalOrig = p.comboProducts.reduce((sum, cp) => sum + (cp.product ? cp.product.price * cp.quantity : 0), 0);
-                                    const totalSale = p.comboProducts.reduce((sum, cp) => sum + (cp.product ? getEffectivePrice(cp.product) * cp.quantity : 0), 0);
-                                    const savings = totalOrig - totalSale;
-                                    return (
-                                      <>
-                                        <span className="font-bold text-gray-900 text-base">₹{totalSale}</span>
-                                        {savings > 0 && (
-                                          <div className="text-xs text-green-600 font-medium">Save ₹{savings} (vs original ₹{totalOrig})</div>
-                                        )}
-                                      </>
-                                    );
-                                  })()}
-                                </div>
-                              </div>
-                            </>
+                  <tr
+                    onClick={() => setExpandedCombo(expandedCombo === p._id ? null : p._id)}
+                    className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer"
+                  >
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-surface overflow-hidden shrink-0">
+                          {p.images?.[0]?.url ? (
+                            <img
+                              src={p.images[0].url}
+                              alt=""
+                              className="w-full h-full object-contain"
+                            />
                           ) : (
-                            <p className="text-sm text-gray-400">No products in this combo.</p>
+                            <img
+                              src="/v-crackers-logo.png"
+                              alt=""
+                              className="w-full h-full object-contain bg-gray-100"
+                            />
                           )}
                         </div>
+                        <span className="font-medium text-gray-800 max-w-[140px] truncate">
+                          {p.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-gray-500">
+                      {p.category?.name || "—"}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-semibold text-gray-900">
+                        ₹{getEffectivePrice(p)}
+                      </span>
+                      {getEffectivePrice(p) < p.price && (
+                        <span className="ml-1 text-xs text-gray-400 line-through">
+                          ₹{p.price}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`font-semibold ${p.stock <= 10 ? "text-red-600" : p.stock <= 50 ? "text-amber-600" : "text-green-600"}`}
+                      >
+                        {p.stock}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={p.isActive ? "badge-active" : "badge-inactive"}
+                      >
+                        {p.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); openEdit(p); }}
+                          className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, id: p._id, type: "product", loading: false }); }}
+                          className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
-                )}
+                  {expandedCombo === p._id && (
+                    <tr className="bg-gray-50/50">
+                      <td colSpan={6} className="p-4">
+                        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                          <h4 className="font-semibold text-sm text-gray-900 mb-3">
+                            Combo Details <span className="text-gray-400 font-normal">({p.comboProducts.filter(cp => cp.product && typeof cp.product === 'object' && cp.product._id).length} Products)</span>
+                          </h4>
+                          <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                            {p.comboProducts && p.comboProducts.filter(cp => cp.product && typeof cp.product === 'object' && cp.product._id).length > 0 ? (
+                              <>
+                                {p.comboProducts.filter(cp => cp.product && typeof cp.product === 'object' && cp.product._id).map((cp, idx) => {
+                                  const origPrice = cp.product.price * cp.quantity;
+                                  const salePrice = getEffectivePrice(cp.product) * cp.quantity;
+                                  return (
+                                    <div key={idx} className="flex justify-between items-center text-sm border-b border-gray-50 pb-2">
+                                      <div className="flex items-center gap-3">
+                                        <img src={cp.product.images?.[0]?.url || "/v-crackers-logo.png"} alt="" className="w-8 h-8 rounded object-contain bg-gray-100" />
+                                        <span className="text-gray-700">{cp.product.name || "Unknown Product"} <span className="text-gray-400 text-xs">x{cp.quantity}</span></span>
+                                      </div>
+                                      <div className="text-right">
+                                        <span className="font-medium text-gray-900">₹{salePrice}</span>
+                                        {origPrice > salePrice && (
+                                          <span className="text-xs text-gray-400 line-through ml-2">₹{origPrice}</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                <div className="pt-2 mt-2 flex justify-between items-start text-sm">
+                                  <span className="font-bold">Total Combo Value:</span>
+                                  <div className="text-right">
+                                    {(() => {
+                                      const validComboProducts = p.comboProducts.filter(cp => cp.product && typeof cp.product === 'object' && cp.product._id);
+                                      const totalOrig = validComboProducts.reduce((sum, cp) => sum + (cp.product.price * cp.quantity), 0);
+                                      const totalSale = validComboProducts.reduce((sum, cp) => sum + (getEffectivePrice(cp.product) * cp.quantity), 0);
+                                      const savings = totalOrig - totalSale;
+                                      return (
+                                        <>
+                                          <span className="font-bold text-gray-900 text-base">₹{totalSale}</span>
+                                          {savings > 0 && (
+                                            <div className="text-xs text-green-600 font-medium">Save ₹{savings} (vs original ₹{totalOrig})</div>
+                                          )}
+                                        </>
+                                      );
+                                    })()}
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              <p className="text-sm text-gray-400">No products in this combo.</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </React.Fragment>
               ))
             )}
@@ -503,7 +521,7 @@ const CombosPage = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 {/* Combo Products Multi-Select */}
                 <div className="col-span-2">
                   <label className="text-xs font-semibold text-gray-600 block mb-1.5">
@@ -544,7 +562,7 @@ const CombosPage = () => {
                                   if (newQty !== "" && newQty > ap.stock) newQty = ap.stock;
                                   setForm({
                                     ...form,
-                                    comboProducts: form.comboProducts.map(cp => 
+                                    comboProducts: form.comboProducts.map(cp =>
                                       cp.product === ap._id ? { ...cp, quantity: newQty } : cp
                                     )
                                   });
@@ -553,7 +571,7 @@ const CombosPage = () => {
                                   if (selectedItem.quantity === "" || selectedItem.quantity < 1) {
                                     setForm({
                                       ...form,
-                                      comboProducts: form.comboProducts.map(cp => 
+                                      comboProducts: form.comboProducts.map(cp =>
                                         cp.product === ap._id ? { ...cp, quantity: 1 } : cp
                                       )
                                     });
@@ -571,13 +589,13 @@ const CombosPage = () => {
                 </div>
 
                 {/* Added Items Summary */}
-                {form.comboProducts.length > 0 && (
+                {form.comboProducts.filter(cp => allProducts.find(p => p._id === cp.product)).length > 0 && (
                   <div className="col-span-2 mt-2">
                     <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                      Added Items ({form.comboProducts.length})
+                      Added Items ({form.comboProducts.filter(cp => allProducts.find(p => p._id === cp.product)).length})
                     </label>
-                    <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
-                      {form.comboProducts.map((cp) => {
+                    <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                      {form.comboProducts.filter(cp => allProducts.find(p => p._id === cp.product)).map((cp) => {
                         const ap = allProducts.find((p) => p._id === cp.product);
                         if (!ap) return null;
                         const origPrice = ap.price * cp.quantity;
@@ -599,12 +617,12 @@ const CombosPage = () => {
                         <div className="text-right">
                           {(() => {
                             const totalOrig = form.comboProducts.reduce((sum, cp) => {
-                               const ap = allProducts.find((p) => p._id === cp.product);
-                               return sum + (ap ? ap.price * cp.quantity : 0);
+                              const ap = allProducts.find((p) => p._id === cp.product);
+                              return sum + (ap ? ap.price * cp.quantity : 0);
                             }, 0);
                             const totalSale = form.comboProducts.reduce((sum, cp) => {
-                               const ap = allProducts.find((p) => p._id === cp.product);
-                               return sum + (ap ? getEffectivePrice(ap) * cp.quantity : 0);
+                              const ap = allProducts.find((p) => p._id === cp.product);
+                              return sum + (ap ? getEffectivePrice(ap) * cp.quantity : 0);
                             }, 0);
                             const savings = totalOrig - totalSale;
                             return (

@@ -236,7 +236,6 @@ const updateOrderStatus = async (req, res) => {
           name        : customerName,
           orderId     : order.invoiceNo,
           status      : orderStatus,
-          trackingLink,
         }).catch((e) => console.error("[WhatsApp] Status update failed:", e.message));
       }
 
@@ -435,7 +434,6 @@ const resendWhatsappReceipt = async (req, res) => {
       name: customerName,
       orderId: order.invoiceNo,
       amount: order.finalPayable,
-      trackingLink,
       pdfBuffer,
       filename: `Receipt-${order.invoiceNo}.pdf`,
     });

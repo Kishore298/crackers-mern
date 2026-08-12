@@ -159,20 +159,28 @@ class WhatsAppService {
    * Send order-placed confirmation (no PDF attachment).
    * Meta template category: UTILITY
    *
-   * Body params → [name, orderId, amount, trackingLink]
+   * Body params → [name, orderId, amount]
    */
-  async sendOrderConfirmation(phone, { name, orderId, amount, trackingLink }) {
+  async sendOrderConfirmation(phone, { name, orderId, amount }) {
     const templateName =
       process.env.WHATSAPP_ORDER_TEMPLATE_NAME || "order_confirmation";
 
     const components = [
+      {
+        type: "header",
+        parameters: [
+          {
+            type: "image",
+            image: { link: "https://vcrackers.in/v-crackers-logo.png" },
+          },
+        ],
+      },
       {
         type: "body",
         parameters: [
           { type: "text", text: name },
           { type: "text", text: orderId },
           { type: "text", text: `Rs.${amount}` },
-          { type: "text", text: trackingLink },
         ],
       },
     ];
@@ -198,11 +206,10 @@ class WhatsAppService {
    * @param {string} opts.name       – customer name
    * @param {string} opts.orderId    – invoice / order number
    * @param {number|string} opts.amount – order amount
-   * @param {string} opts.trackingLink – link to track order
    * @param {Buffer} opts.pdfBuffer  – raw PDF bytes
    * @param {string} [opts.filename] – filename shown in chat
    */
-  async sendOrderReceipt(phone, { name, orderId, amount, trackingLink, pdfBuffer, filename }) {
+  async sendOrderReceipt(phone, { name, orderId, amount, pdfBuffer, filename }) {
     const pdfFilename = filename || `Receipt-${orderId}.pdf`;
 
     // 1. Upload PDF
@@ -234,7 +241,6 @@ class WhatsAppService {
           { type: "text", text: name },
           { type: "text", text: orderId },
           { type: "text", text: `Rs.${amount}` },
-          { type: "text", text: trackingLink },
         ],
       },
     ];
@@ -252,7 +258,7 @@ class WhatsAppService {
    *
    * Body params → [name, orderId, statusLabel, trackingLink]
    */
-  async sendOrderStatusUpdate(phone, { name, orderId, status, trackingLink }) {
+  async sendOrderStatusUpdate(phone, { name, orderId, status }) {
     const templateName =
       process.env.WHATSAPP_STATUS_TEMPLATE_NAME || "order_status_update";
 
@@ -268,12 +274,20 @@ class WhatsAppService {
 
     const components = [
       {
+        type: "header",
+        parameters: [
+          {
+            type: "image",
+            image: { link: "https://vcrackers.in/v-crackers-logo.png" },
+          },
+        ],
+      },
+      {
         type: "body",
         parameters: [
           { type: "text", text: name },
           { type: "text", text: orderId },
           { type: "text", text: statusLabel },
-          { type: "text", text: trackingLink },
         ],
       },
     ];
@@ -343,6 +357,15 @@ class WhatsAppService {
       process.env.WHATSAPP_ADMIN_ORDER_TEMPLATE_NAME || "admin_new_order";
 
     const components = [
+      {
+        type: "header",
+        parameters: [
+          {
+            type: "image",
+            image: { link: "https://vcrackers.in/v-crackers-logo.png" },
+          },
+        ],
+      },
       {
         type: "body",
         parameters: [
