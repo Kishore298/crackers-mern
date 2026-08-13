@@ -156,10 +156,10 @@ const ProductListPage = () => {
   const sortedCategories = allCategories;
 
   const activeCatName = allCategories.find((c) => c.slug === categoryFilter || c._id === categoryFilter)?.name;
-  const seoTitle = activeCatName ? `Buy ${activeCatName} Online` : "All Products";
+  const seoTitle = activeCatName ? `${activeCatName} – V Crackers Sivakasi` : "Crackers & Fireworks – Browse All Products";
   const seoDesc = activeCatName
-    ? `Explore our wide range of premium ${activeCatName}. Best quality festive products from Sivakasi at V Crackers.`
-    : "Browse the complete collection of V Crackers celebration packs, gift boxes, and festive items.";
+    ? `Browse our range of ${activeCatName} from Sivakasi at V Crackers. Quality crackers and fireworks available for delivery across India.`
+    : "Browse our full range of Sivakasi crackers and fireworks at V Crackers. Wide selection of products available for delivery across all states in India.";
 
   // Display actual total products in DB matching filter
   const totalProductsShown = totalProductsCount;

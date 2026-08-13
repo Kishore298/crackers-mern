@@ -119,7 +119,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen py-8 animate-fade-in-up" style={{ background: "#0a0814" }}>
-      <SEO title="My Profile" />
+      <SEO title="My Profile" noindex={true} />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 space-y-6">
         {/* Profile */}
         <div className="rounded-2xl p-6 shadow-sm" style={{ background: "#13111f", border: "1px solid rgba(255,102,0,0.1)" }}>

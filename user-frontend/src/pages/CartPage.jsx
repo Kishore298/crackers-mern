@@ -28,7 +28,7 @@ const CartPage = () => {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center py-20 text-center px-4" style={{ background: "#0a0814" }}>
-        <SEO title="Cart is Empty" />
+        <SEO title="Cart is Empty" noindex={true} />
         <ShoppingBag className="w-20 h-20 text-primary mb-6 opacity-80" />
         <h2 className="font-heading font-bold text-2xl text-white mb-2">
           Your cart is empty
@@ -50,6 +50,7 @@ const CartPage = () => {
       <SEO
         title="Your Shopping Cart"
         description="Review your selected products before proceeding to checkout. Secure your celebration with V Crackers."
+        noindex={true}
       />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-heading font-bold text-2xl text-white mb-8">

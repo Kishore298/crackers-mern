@@ -14,8 +14,8 @@ const FormData = require("form-data");
  */
 class WhatsAppService {
   constructor() {
-    this.phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    this.token = process.env.WHATSAPP_ACCESS_TOKEN;
+    this.phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID;
+    this.token = process.env.WHATSAPP_ACCESS_TOKEN || process.env.WHATSAPP_TOKEN;
     this.version = process.env.WHATSAPP_API_VERSION || "v21.0";
     this.baseUrl = `https://graph.facebook.com/${this.version}/${this.phoneId}/messages`;
     this.mediaUrl = `https://graph.facebook.com/${this.version}/${this.phoneId}/media`;

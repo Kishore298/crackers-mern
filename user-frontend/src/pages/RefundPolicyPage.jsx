@@ -5,7 +5,7 @@ const RefundPolicyPage = () => {
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
       <SEO title="Refund & Cancellation Policy" description="Refund and cancellation rules for V Crackers festive products." />
-      
+
       <div className="py-10 md:py-16" style={{ background: "#13111f", borderBottom: "1px solid rgba(255,102,0,0.1)" }}>
         <div className="w-full md:max-w-[70%] mx-auto px-4 sm:px-6 text-center">
           <h1 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">
@@ -25,8 +25,8 @@ const RefundPolicyPage = () => {
         <section>
           <h2 className="font-heading font-bold text-2xl text-white mb-4">1. Order Cancellations</h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Before Dispatch:</strong> You can cancel your order and receive a full refund if the order has not yet been dispatched from our Sivakasi warehouse. Please contact us immediately at +91 78249 07916 to request a cancellation.</li>
-            <li><strong>After Dispatch:</strong> Once your parcel is shipped and the Lorry Receipt (LR copy) is generated, we cannot process any cancellations.</li>
+            <li><strong>Before Dispatch:</strong> You can cancel your order and receive a full refund if the order has not yet been dispatched from our Sivakasi warehouse. Please contact us immediately at  +91 88386 96953 / +91 78249 07916 to request a cancellation.</li>
+            <li><strong>After Dispatch:</strong> Once your parcel is shipped, we cannot process any cancellations.</li>
           </ul>
         </section>
 

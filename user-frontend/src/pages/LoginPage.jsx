@@ -142,6 +142,7 @@ const LoginPage = () => {
       <SEO 
         title="Login | V Crackers" 
         description="Login or register instantly using your mobile number." 
+        noindex={true}
       />
       <AuthCard
         pageKey="login"

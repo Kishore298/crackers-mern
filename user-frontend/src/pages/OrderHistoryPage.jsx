@@ -104,7 +104,7 @@ const OrderHistoryPage = () => {
 
   return (
     <div className="min-h-screen py-8 animate-fade-in-up" style={{ background: "#0a0814" }}>
-      <SEO title="My Orders" />
+      <SEO title="My Orders" noindex={true} />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6">
         <h1 className="font-heading font-bold text-2xl text-white mb-6">My Orders</h1>
 

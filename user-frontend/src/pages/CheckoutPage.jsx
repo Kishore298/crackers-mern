@@ -186,7 +186,7 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
-      <SEO title="Checkout" />
+      <SEO title="Checkout" noindex={true} />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-heading font-bold text-2xl text-white mb-8">
           Checkout

@@ -5,7 +5,7 @@ const TermsPage = () => {
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
       <SEO title="Terms & Conditions" description="Terms and Conditions of using V Crackers services." />
-      
+
       <div className="py-10 md:py-16" style={{ background: "#13111f", borderBottom: "1px solid rgba(255,102,0,0.1)" }}>
         <div className="w-full md:max-w-[70%] mx-auto px-4 sm:px-6 text-center">
           <h1 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">
@@ -49,7 +49,7 @@ const TermsPage = () => {
         <section>
           <h2 className="font-heading font-bold text-2xl text-white mb-4">5. Transport and Liability</h2>
           <p>
-            Our products are strictly regulated goods. We dispatch materials through licensed, third-party logistics/transport agencies (Lorry Sheds). Once the consignment is handed over to the transport agency, V Crackers is not directly liable for transport delays or damages, though we will assist in resolving any issues with the transporter to the best of our ability.
+            Our products are strictly regulated goods. We dispatch materials through licensed, third-party logistics/transport agencies. Once the consignment is handed over to the transport agency, V Crackers is not directly liable for transport delays or damages, though we will assist in resolving any issues with the transporter to the best of our ability.
           </p>
         </section>
 

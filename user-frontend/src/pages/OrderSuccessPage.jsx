@@ -13,6 +13,7 @@ import PhonePeIcon from "../components/PhonePeIcon";
 import PaytmIcon from "../components/PaytmIcon";
 import api from "../services/api";
 import WelcomeFireworks from "../components/WelcomeFireworks";
+import SEO from "../components/SEO";
 import { formatComboName } from "../utils/comboUtils";
 
 const STATUS_MAP = {
@@ -64,6 +65,7 @@ const OrderSuccessPage = () => {
 
   return (
     <div className="min-h-screen py-6 relative" style={{ background: "#0a0814" }}>
+      <SEO title="Order Success" noindex={true} />
       {showFireworks && <WelcomeFireworks />}
 
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 relative z-10 animate-fade-in-up">

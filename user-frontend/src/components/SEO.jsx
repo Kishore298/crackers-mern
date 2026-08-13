@@ -7,22 +7,22 @@ const SEO = ({
   canonical,
   ogImage,
   ogType = "website",
-  keywords = "festive products, diwali gifts, buy celebration packs, sivakasi products, v crackers",
-  schemaMarkup
+  schemaMarkup,
+  noindex = false
 }) => {
   const siteName = "V Crackers";
-  const fullTitle = title ? `${title} | ${siteName}` : siteName;
-  const defaultDescription = "V Crackers - Sivakasi's most trusted festive brand. Buy premium quality celebration packs, gift boxes, and festive items online at the best prices.";
+  const fullTitle = title ? `${title} | ${siteName}` : `Sivakasi Crackers & Fireworks Online | ${siteName}`;
+  const defaultDescription = "V Crackers is a Sivakasi-based crackers and fireworks store offering a wide range of fireworks, gift boxes, and combo packs with delivery across all states in India.";
   const metaDescription = description || defaultDescription;
   const url = window.location.href;
-  const image = ogImage || `${window.location.origin}/festive-banner.webp`;
+  const image = ogImage || `${window.location.origin}/v-crackers-logo.webp`;
 
   return (
     <Helmet>
       {/* Basic Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="description" content={metaDescription} />
-      <meta name="keywords" content={keywords} />
+      {noindex && <meta name="robots" content="noindex,nofollow" />}
       {canonical && <link rel="canonical" href={canonical} />}
 
       {/* Open Graph / Facebook */}
@@ -42,9 +42,17 @@ const SEO = ({
 
       {/* Schema.org JSON-LD */}
       {schemaMarkup && (
-        <script type="application/ld+json">
-          {JSON.stringify(schemaMarkup)}
-        </script>
+        Array.isArray(schemaMarkup)
+          ? schemaMarkup.map((schema, i) => (
+              <script key={i} type="application/ld+json">
+                {JSON.stringify(schema)}
+              </script>
+            ))
+          : (
+              <script type="application/ld+json">
+                {JSON.stringify(schemaMarkup)}
+              </script>
+            )
       )}
     </Helmet>
   );

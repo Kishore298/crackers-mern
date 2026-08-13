@@ -13,24 +13,65 @@
 
     <!-- Preload LCP image -->
     <link rel="preload" as="image" href="%PUBLIC_URL%/festive-banner.webp" fetchpriority="high" />
-    <meta name="description" content="Buy high-quality Sivakasi crackers, fireworks, and gift boxes online at V Crackers. The most trusted brand for all your festive celebrations." />
-    
+
+    <title>Sivakasi Crackers &amp; Fireworks Online | V Crackers</title>
+    <meta name="description" content="V Crackers is a Sivakasi-based crackers and fireworks store offering a wide range of fireworks, gift boxes, and combo packs with delivery across all states in India." />
+
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://vcrackers.in/" />
-    <meta property="og:title" content="V Crackers | Buy Premium Sivakasi Crackers Online" />
-    <meta property="og:description" content="Premium Sivakasi crackers, fireworks, and gift boxes at best prices. Order online for safe and grand celebrations." />
-    <meta property="og:image" content="%PUBLIC_URL%/v-crackers-logo.webp" />
+    <meta property="og:title" content="Sivakasi Crackers &amp; Fireworks Online | V Crackers" />
+    <meta property="og:description" content="V Crackers is a Sivakasi-based crackers and fireworks store offering a wide range of fireworks, gift boxes, and combo packs with delivery across all states in India." />
+    <meta property="og:image" content="https://vcrackers.in/v-crackers-logo.webp" />
     <meta property="og:site_name" content="V Crackers" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://vcrackers.in/" />
-    <meta property="twitter:title" content="V Crackers | Buy Premium Sivakasi Crackers Online" />
-    <meta property="twitter:description" content="Premium Sivakasi crackers, fireworks, and gift boxes at best prices. Order online for safe and grand celebrations." />
-    <meta property="twitter:image" content="%PUBLIC_URL%/v-crackers-logo.webp" />
+    <meta property="twitter:title" content="Sivakasi Crackers &amp; Fireworks Online | V Crackers" />
+    <meta property="twitter:description" content="V Crackers is a Sivakasi-based crackers and fireworks store offering a wide range of fireworks, gift boxes, and combo packs with delivery across all states in India." />
+    <meta property="twitter:image" content="https://vcrackers.in/v-crackers-logo.webp" />
 
-    <!-- Structured Data -->
+    <!-- Organization Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "V Crackers",
+        "url": "https://vcrackers.in/",
+        "logo": "https://vcrackers.in/v-crackers-logo.webp",
+        "contactPoint": [
+          {
+            "@type": "ContactPoint",
+            "telephone": "+91-78249-07916",
+            "contactType": "customer service",
+            "areaServed": "IN",
+            "availableLanguage": ["English", "Tamil"]
+          }
+        ],
+        "sameAs": []
+      }
+    </script>
+
+    <!-- WebSite Structured Data (for Google Sitelinks Searchbox eligibility) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "V Crackers",
+        "url": "https://vcrackers.in/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://vcrackers.in/products?search={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <!-- LocalBusiness Structured Data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -39,29 +80,34 @@
         "image": "https://vcrackers.in/v-crackers-logo.webp",
         "@id": "https://vcrackers.in/",
         "url": "https://vcrackers.in/",
-        "telephone": "+91 00000 00000",
+        "telephone": "+91-78249-07916",
+        "telephone2": "+91-87784-68360",
+        "priceRange": "₹₹",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Sivakasi Main Road",
+          "streetAddress": "4/468-G, Sithalakshmi Nagar, Kongalapuram",
           "addressLocality": "Sivakasi",
           "addressRegion": "Tamil Nadu",
           "postalCode": "626123",
           "addressCountry": "IN"
         },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 9.4535,
+          "longitude": 77.7989
+        },
         "openingHoursSpecification": {
           "@type": "OpeningHoursSpecification",
           "dayOfWeek": [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday"
+            "Monday", "Tuesday", "Wednesday", "Thursday",
+            "Friday", "Saturday", "Sunday"
           ],
-          "opens": "00:00",
-          "closes": "23:59"
-        }
+          "opens": "09:00",
+          "closes": "21:00"
+        },
+        "hasMap": "https://maps.google.com/?q=V+Crackers+Sivakasi",
+        "areaServed": "India",
+        "description": "V Crackers is a Sivakasi-based crackers and fireworks store offering a wide range of fireworks, gift boxes, and combo packs with delivery across all states in India."
       }
     </script>
 
@@ -69,28 +115,17 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>V Crackers | Buy Premium Sivakasi Crackers Online</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root">
       <!-- Static content for crawlers and slow connections -->
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; color: #333; padding: 20px;">
-        <img src="%PUBLIC_URL%/v-crackers-logo.webp" alt="V Crackers Logo" width="150" height="150" style="width: 150px; height: 150px; margin-bottom: 20px; object-fit: contain;" />
-        <h1>V Crackers</h1>
-        <p>Buy High-Quality Sivakasi Crackers & Fireworks Online</p>
-        <p style="color: #666; font-size: 0.9rem;">Loading the best experience for your celebrations...</p>
+        <img src="%PUBLIC_URL%/v-crackers-logo.webp" alt="V Crackers – Sivakasi Crackers & Fireworks" width="150" height="150" style="width: 150px; height: 150px; margin-bottom: 20px; object-fit: contain;" />
+        <h1>V Crackers – Sivakasi Crackers &amp; Fireworks</h1>
+        <p>Buy crackers and fireworks online, shipped from Sivakasi across India.</p>
+        <p style="color: #666; font-size: 0.9rem;">Loading...</p>
       </div>
     </div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

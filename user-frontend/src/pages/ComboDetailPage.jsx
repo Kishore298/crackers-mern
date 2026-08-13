@@ -106,26 +106,41 @@ const ComboDetailPage = () => {
     "@type": "Product",
     "name": product.name,
     "image": product.images?.[0]?.url,
-    "description": product.description || `Buy ${product.name} at V Crackers. Quality products from Sivakasi.`,
+    "description": product.description || `${product.name} – a crackers combo pack from V Crackers, Sivakasi. Includes multiple fireworks products.`,
     "brand": {
       "@type": "Brand",
       "name": "V Crackers"
     },
     "offers": {
       "@type": "Offer",
-      "url": window.location.href,
+      "url": `https://vcrackers.in/combos/${product.slug}`,
       "priceCurrency": "INR",
       "price": effectivePrice,
-      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "V Crackers"
+      }
     }
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://vcrackers.in/" },
+      { "@type": "ListItem", "position": 2, "name": "Combos", "item": "https://vcrackers.in/combos" },
+      { "@type": "ListItem", "position": 3, "name": product.name, "item": `https://vcrackers.in/combos/${product.slug}` }
+    ]
   };
 
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
       <SEO 
-        title={`${product.name} - Stunning Combo`} 
-        description={product.description || `Buy ${product.name} combo online at V Crackers. Premium quality combos from Sivakasi.`}
-        schemaMarkup={productSchema}
+        title={`${product.name} – Crackers Combo`}
+        description={product.description || `${product.name} – a crackers combo pack from V Crackers, Sivakasi. Includes multiple fireworks products, delivered across India.`}
+        canonical={`https://vcrackers.in/combos/${product.slug}`}
+        schemaMarkup={[productSchema, breadcrumbSchema]}
         ogImage={product.images?.[0]?.url}
       />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-6">

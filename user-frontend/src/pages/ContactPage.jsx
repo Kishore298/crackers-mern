@@ -5,7 +5,7 @@ import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
 const ContactPage = () => {
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
-      <SEO title="Contact Us" description="Get in touch with V Crackers for any inquiries, bulk orders, or support." />
+      <SEO title="Contact V Crackers \u2013 Sivakasi" description="Contact V Crackers, based in Sivakasi, Tamil Nadu. Reach us for bulk orders, inquiries, or support. Phone: +91 78249 07916." canonical="https://vcrackers.in/contact" />
       
       <div className="py-10 md:py-16" style={{ background: "#13111f", borderBottom: "1px solid rgba(255,102,0,0.1)" }}>
         <div className="w-full md:max-w-[80%] mx-auto px-4 sm:px-6 text-center">

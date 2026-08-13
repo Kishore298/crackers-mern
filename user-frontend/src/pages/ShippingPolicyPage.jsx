@@ -4,8 +4,8 @@ import SEO from "../components/SEO";
 const ShippingPolicyPage = () => {
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
-      <SEO title="Shipping Policy" description="Shipping and Delivery Policy for V Crackers." />
-      
+      <SEO title="Shipping & Delivery – Crackers from Sivakasi" description="V Crackers dispatches all orders transport services from Sivakasi to all states across India. Learn about delivery timelines and collection process." canonical="https://vcrackers.in/shipping-policy" />
+
       <div className="py-10 md:py-16" style={{ background: "#13111f", borderBottom: "1px solid rgba(255,102,0,0.1)" }}>
         <div className="w-full md:max-w-[70%] mx-auto px-4 sm:px-6 text-center">
           <h1 className="font-heading font-black text-3xl md:text-5xl text-white mb-4">
@@ -18,7 +18,7 @@ const ShippingPolicyPage = () => {
       <div className="w-full md:max-w-[70%] mx-auto px-4 sm:px-6 py-12 space-y-8 text-gray-300 leading-relaxed">
         <section>
           <p>
-            Due to the nature of our products, standard courier services (like DTDC, BlueDart, Postal Service) cannot be used for delivery. All products are dispatched strictly through registered <strong>Lorry Transport Services (Parcel Services)</strong>.
+            Due to the nature of our products, standard courier services (like DTDC, BlueDart, Postal Service) cannot be used for delivery. All products are dispatched strictly through registered <strong>Transport Services (Parcel Services)</strong>.
           </p>
         </section>
 
@@ -26,8 +26,8 @@ const ShippingPolicyPage = () => {
           <h2 className="font-heading font-bold text-2xl text-white mb-4">1. Dispatch Process</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>All confirmed orders are processed and packed within 2-3 business days.</li>
-            <li>Once packed, the parcel is dropped at the nearest partnered Lorry Shed in Sivakasi.</li>
-            <li>We will inform you via email, SMS, or WhatsApp with the Logistics LR Copy (Lorry Receipt) or a tracking number once dispatched.</li>
+            <li>Once packed, the parcel is dropped at the nearest partnered Transport office in Sivakasi.</li>
+            <li>We will inform you via email, SMS, or WhatsApp with the order status once dispatched.</li>
           </ul>
         </section>
 

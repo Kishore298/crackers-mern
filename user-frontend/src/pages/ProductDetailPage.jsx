@@ -88,26 +88,41 @@ const ProductDetailPage = () => {
     "@type": "Product",
     "name": product.name,
     "image": product.images?.[0]?.url,
-    "description": product.description || `Buy ${product.name} at V Crackers. Quality products from Sivakasi.`,
+    "description": product.description || `Buy ${product.name} from V Crackers. Quality crackers and fireworks from Sivakasi.`,
     "brand": {
       "@type": "Brand",
       "name": "V Crackers"
     },
     "offers": {
       "@type": "Offer",
-      "url": window.location.href,
+      "url": `https://vcrackers.in/products/${product.slug}`,
       "priceCurrency": "INR",
       "price": effectivePrice,
-      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "V Crackers"
+      }
     }
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://vcrackers.in/" },
+      { "@type": "ListItem", "position": 2, "name": "Products", "item": "https://vcrackers.in/products" },
+      ...(product.category ? [{ "@type": "ListItem", "position": 3, "name": product.category.name, "item": `https://vcrackers.in/products?category=${product.category.slug || product.category._id}` }, { "@type": "ListItem", "position": 4, "name": product.name, "item": `https://vcrackers.in/products/${product.slug}` }] : [{ "@type": "ListItem", "position": 3, "name": product.name, "item": `https://vcrackers.in/products/${product.slug}` }])
+    ]
   };
 
   return (
     <div className="min-h-screen animate-fade-in-up" style={{ background: "#0a0814" }}>
       <SEO
         title={product.name}
-        description={product.description || `Buy ${product.name} online at V Crackers. Premium quality products from Sivakasi.`}
-        schemaMarkup={productSchema}
+        description={`Buy ${product.name} from V Crackers. Quality crackers and fireworks from Sivakasi, delivered across India.`}
+        canonical={`https://vcrackers.in/products/${product.slug}`}
+        schemaMarkup={[productSchema, breadcrumbSchema]}
         ogImage={product.images?.[0]?.url}
       />
       <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-6">

@@ -1,6 +1,10 @@
 User-agent: *
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
 Disallow: /profile
 Disallow: /orders
-Disallow: /checkout
+Disallow: /order-success
 
 Sitemap: https://vcrackers.in/sitemap.xml

@@ -450,8 +450,8 @@ const HomePage = () => {
   return (
     <div className="animate-fade-in-up">
       <SEO
-        title="Buy Premium Sivakasi Festive Products Online"
-        description="V Crackers offers the best selection of celebration packs, gift boxes, and festive products at competitive prices. Celebration starts here."
+        title="Sivakasi Crackers & Fireworks Online"
+        description="V Crackers is a Sivakasi-based crackers and fireworks store offering a wide range of fireworks, gift boxes, and combo packs with delivery across all states in India."
       />
       {/* ══ Hero Banner (Commented out for new responsive banners) ══ 
       {banners.length > 0 ? (
