@@ -94,7 +94,7 @@ const CombosPage = () => {
       name: p.name,
       description: p.description || "",
       price: p.price,
-      discountPercent: p.discountPercent || "",
+      discountPercent: p.discountPercent !== undefined && p.discountPercent !== null ? p.discountPercent : "",
       stock: p.stock,
       category: p.category?._id || "",
       safetyInstructions: p.safetyInstructions || "",

@@ -71,21 +71,14 @@ const ComboDetailPage = () => {
       </div>
     );
 
-  // Calculate total original value of all products in the combo
-  let totalOriginalValue = 0;
-  if (product.comboProducts && product.comboProducts.length > 0) {
-    totalOriginalValue = product.comboProducts.reduce((sum, cp) => {
-      const pData = cp.product;
-      if (!pData) return sum;
-      const base = pData.price || 0;
-      return sum + (base * (cp.quantity || 1));
-    }, 0);
-  }
 
-  const effectivePrice = product.price;
-  const basePrice = totalOriginalValue > product.price ? totalOriginalValue : product.price;
-  const showDiscount = totalOriginalValue > product.price;
-  const displayPct = 0;
+
+  const basePrice = product.price;
+  const displayPct = product.discountPercent || 0;
+  const effectivePrice = displayPct > 0 
+    ? Math.round(basePrice * (1 - displayPct / 100)) 
+    : basePrice;
+  const showDiscount = displayPct > 0;
   const FORCE_COMING_SOON = false;
   const inStock = !FORCE_COMING_SOON && product.stock > 0;
 

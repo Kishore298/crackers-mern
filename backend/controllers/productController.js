@@ -207,6 +207,7 @@ const createProduct = async (req, res) => {
       youtubeId,
       isCombo,
       comboProducts,
+      discountPercent,
     } = req.body;
     if (!name || !price || !stock || !category)
       return res.status(400).json({
@@ -230,6 +231,7 @@ const createProduct = async (req, res) => {
       description,
       price: Number(price),
       discountedPrice: discountedPrice ? Number(discountedPrice) : undefined,
+      discountPercent: discountPercent ? Number(discountPercent) : 0,
       stock: Number(stock),
       category,
       images,
@@ -259,6 +261,7 @@ const updateProduct = async (req, res) => {
       "description",
       "price",
       "discountedPrice",
+      "discountPercent",
       "stock",
       "category",
       "safetyInstructions",

@@ -12,9 +12,11 @@ const ComboCard = ({ combo, discountPct = 0 }) => {
   const isAvailable = !FORCE_COMING_SOON && combo.stock > 0;
 
   const basePrice = combo.price;
-  const effectivePrice = combo.price;
-  const showDiscount = false;
-  const displayPct = 0;
+  const displayPct = combo.discountPercent || 0;
+  const effectivePrice = displayPct > 0 
+    ? Math.round(basePrice * (1 - displayPct / 100)) 
+    : basePrice;
+  const showDiscount = displayPct > 0;
 
   const handleAdd = () => {
     addToCart({ ...combo, effectivePrice }, qty);

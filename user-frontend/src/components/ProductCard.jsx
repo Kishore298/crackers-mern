@@ -11,20 +11,29 @@ const ProductCard = ({ product, discountPct = 0 }) => {
   const isAvailable = !FORCE_COMING_SOON && product.stock > 0;
 
   const basePrice = product.price;
-  const effectivePrice =
-    discountPct > 0
-      ? Math.round(basePrice * (1 - discountPct / 100))
-      : (product.discountedPrice ?? basePrice);
+  let effectivePrice;
+  let displayPct = 0;
+  let showDiscount = false;
 
-  const showDiscount =
-    discountPct > 0 ||
-    (product.discountedPrice && product.discountedPrice < basePrice);
-  const displayPct =
-    discountPct > 0
+  if (product.isCombo) {
+    displayPct = product.discountPercent || 0;
+    effectivePrice = displayPct > 0 
+      ? Math.round(basePrice * (1 - displayPct / 100))
+      : basePrice;
+    showDiscount = displayPct > 0;
+  } else {
+    displayPct = discountPct > 0
       ? discountPct
       : product.discountedPrice
         ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
         : 0;
+
+    effectivePrice = discountPct > 0
+      ? Math.round(basePrice * (1 - discountPct / 100))
+      : (product.discountedPrice ?? basePrice);
+
+    showDiscount = discountPct > 0 || (product.discountedPrice && product.discountedPrice < basePrice);
+  }
 
   const handleAdd = () => {
     addToCart({ ...product, effectivePrice }, 1);
