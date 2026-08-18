@@ -25,6 +25,7 @@ const productSchema = new mongoose.Schema(
     safetyInstructions: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
     isCombo: { type: Boolean, default: false },
+    discountPercent: { type: Number, default: 0 },
     comboProducts: [
       {
         product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
@@ -37,6 +38,9 @@ const productSchema = new mongoose.Schema(
 
 // Virtual: effective price
 productSchema.virtual("effectivePrice").get(function () {
+  if (this.isCombo && this.discountPercent > 0) {
+    return Math.round(this.price * (1 - this.discountPercent / 100));
+  }
   return this.discountedPrice && this.discountedPrice < this.price
     ? this.discountedPrice
     : this.price;

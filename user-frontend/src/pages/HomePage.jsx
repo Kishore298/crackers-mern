@@ -11,12 +11,54 @@ import SEO from "../components/SEO";
 
 /* ─── Discount banner (uses global Discount model) ─── */
 const DiscountBanner = ({ discount }) => {
+  const [combos, setCombos] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    // Fetch combos for the slider
+    api.get("/products?isCombo=true&limit=5")
+      .then(res => setCombos(res.data.products || []))
+      .catch(() => {});
+  }, []);
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (combos.length > 1) {
+      timerRef.current = setInterval(() => {
+        setCurrentIndex(prev => (prev + 1) % combos.length);
+      }, 3000);
+    }
+  }, [combos.length]);
+
+  useEffect(() => {
+    resetTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [resetTimer]);
+
+  const goToNext = () => {
+    setCurrentIndex(prev => (prev + 1) % combos.length);
+    resetTimer();
+  };
+
+  const goToPrev = () => {
+    setCurrentIndex(prev => (prev - 1 + combos.length) % combos.length);
+    resetTimer();
+  };
+
+  const goToSlide = (idx) => {
+    setCurrentIndex(idx);
+    resetTimer();
+  };
+
   if (!discount || !discount.isActive) return null;
 
   return (
     <section className="w-full md:max-w-7xl mx-auto px-4 sm:px-6 py-6">
       <div
-        className="relative rounded-2xl overflow-hidden min-h-[200px] flex items-stretch"
+        className="relative rounded-2xl overflow-hidden min-h-[200px] flex flex-col sm:flex-row items-stretch"
         style={{ background: "#520606ff" }}
       >
         {/* Left content */}
@@ -55,24 +97,66 @@ const DiscountBanner = ({ discount }) => {
           </div>
         </div>
 
-        {/* Right image */}
-        <div className="absolute right-0 top-0 bottom-0 w-full sm:w-2/5 opacity-50 md:opacity-100 pointer-events-none">
-          <img
-            src="/diwali-family-celeb.webp"
-            alt="V Crackers Celebration Family"
-            width={400}
-            height={200}
-            loading="lazy"
-            decoding="async"
-            className="w-full h-full object-cover object-right sm:object-center"
-            style={{
-              maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
-              WebkitMaskImage:
-                "linear-gradient(to right, transparent 0%, black 30%)",
-            }}
-          />
+        {/* Right image - Sliding Combo Banners */}
+        <div className="relative w-full sm:w-2/5 min-h-[200px] flex items-center justify-center opacity-70 md:opacity-100">
+          {combos.length > 0 ? (
+            <>
+              {combos.map((combo, idx) => (
+                <div
+                  key={combo._id}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                >
+                  <img
+                    src={combo.images?.[0]?.url || "/diwali-family-celeb.webp"}
+                    alt={combo.name}
+                    className="w-full h-full object-cover sm:object-contain object-right sm:object-center"
+                    loading="lazy"
+                    style={{
+                      maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
+                      WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 30%)",
+                    }}
+                  />
+                  <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-lg backdrop-blur-sm text-xs font-semibold shadow-md pointer-events-none">
+                    {combo.name}
+                  </div>
+                </div>
+              ))}
+
+              {combos.length > 1 && (
+                <>
+                  <button onClick={goToPrev} className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors">
+                    &#10094;
+                  </button>
+                  <button onClick={goToNext} className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors">
+                    &#10095;
+                  </button>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                    {combos.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => goToSlide(idx)}
+                        className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-[#F5C518] scale-125' : 'bg-white/50 hover:bg-white/80'}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+             <img
+               src="/diwali-family-celeb.webp"
+               alt="V Crackers Celebration Family"
+               className="absolute inset-0 w-full h-full object-cover object-right sm:object-center"
+               style={{
+                 maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
+                 WebkitMaskImage:
+                   "linear-gradient(to right, transparent 0%, black 30%)",
+               }}
+             />
+          )}
+
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none z-10"
             style={{
               background:
                 "linear-gradient(to right, #520606ff 0%, transparent 0%)",

@@ -9,7 +9,7 @@ const EMPTY_FORM = {
   name: "",
   description: "",
   price: "",
-  discountedPrice: "",
+  discountPercent: "",
   stock: "",
   category: "",
   safetyInstructions: "",
@@ -81,7 +81,9 @@ const CombosPage = () => {
   }, []);
 
   const getEffectivePrice = (p) => {
-    if (p.isCombo) return p.price;
+    if (p.isCombo) {
+      return p.discountPercent > 0 ? Math.round(p.price * (1 - p.discountPercent / 100)) : p.price;
+    }
     if (discountPct > 0) return Math.round(p.price * (1 - discountPct / 100));
     return p.discountedPrice || p.price;
   };
@@ -92,7 +94,7 @@ const CombosPage = () => {
       name: p.name,
       description: p.description || "",
       price: p.price,
-      discountedPrice: p.discountedPrice || "",
+      discountPercent: p.discountPercent || "",
       stock: p.stock,
       category: p.category?._id || "",
       safetyInstructions: p.safetyInstructions || "",
@@ -478,13 +480,13 @@ const CombosPage = () => {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-gray-600 block mb-1.5">
-                    Discounted Price (₹)
+                    Discount (%)
                   </label>
                   <input
                     type="number"
-                    value={form.discountedPrice}
+                    value={form.discountPercent}
                     onChange={(e) =>
-                      setForm({ ...form, discountedPrice: e.target.value })
+                      setForm({ ...form, discountPercent: e.target.value })
                     }
                     className="input-admin"
                   />

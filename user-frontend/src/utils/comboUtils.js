@@ -63,7 +63,7 @@ export const calculateComboStats = (product, discountPct = 0) => {
     return sum + (base * (cp.quantity || 1));
   }, 0);
 
-  const sellingPrice = product.price || 0;
+  const sellingPrice = (product.effectivePrice ?? product.price) || 0;
   const originalValue = totalOriginalValue > sellingPrice ? totalOriginalValue : sellingPrice;
   const savings = originalValue - sellingPrice;
   const discountPercentage = originalValue > 0 ? Math.round((savings / originalValue) * 100) : 0;
