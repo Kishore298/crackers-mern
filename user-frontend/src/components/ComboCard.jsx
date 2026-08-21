@@ -62,9 +62,9 @@ const ComboCard = ({ combo, discountPct = 0 }) => {
         )}
 
         {/* Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+        <div className="absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">
           <span
-            className="px-2 py-0.5 rounded-full text-xs font-extrabold text-white shadow shadow-yellow-500/50"
+            className="px-2 py-0.5 rounded-full text-[10px] font-extrabold text-white shadow shadow-yellow-500/50"
             style={{
               background: "linear-gradient(140deg, #d4af37, #ffcc33, #d4af37)",
               color: "#4a3200"
@@ -74,7 +74,7 @@ const ComboCard = ({ combo, discountPct = 0 }) => {
           </span>
           {showDiscount && displayPct > 0 && (
             <span
-              className="px-2 py-0.5 rounded-full text-xs font-bold text-white shadow"
+              className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow"
               style={{
                 background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
               }}
@@ -88,7 +88,7 @@ const ComboCard = ({ combo, discountPct = 0 }) => {
       {/* Content */}
       <div className="p-3 md:p-5 flex flex-col flex-1 gap-2 md:gap-3">
         <Link to={`/combos/${combo.slug}`}>
-          <h3 className="font-heading font-bold text-white text-sm sm:text-base md:text-lg leading-snug hover:text-primary transition-colors line-clamp-2">
+          <h3 className="font-heading font-bold text-white text-[11px] sm:text-xs md:text-sm leading-snug hover:text-primary transition-colors line-clamp-2">
             {formatComboName(combo)}
           </h3>
         </Link>
@@ -101,16 +101,16 @@ const ComboCard = ({ combo, discountPct = 0 }) => {
 
         {/* Pricing */}
         <div className="flex items-center gap-2 mt-auto">
-          <span className="text-base font-bold text-primary">
+          <span className="text-[11px] md:text-sm font-bold text-primary">
             ₹{effectivePrice}
           </span>
           {showDiscount && (
-            <span className="text-xs text-gray-400 line-through">
+            <span className="text-[10px] text-gray-400 line-through">
               ₹{basePrice}
             </span>
           )}
           {isAvailable && combo.stock <= 10 && (
-            <span className="ml-auto text-[10px] sm:text-xs font-semibold text-red-500">
+            <span className="ml-auto text-[9px] sm:text-[10px] font-semibold text-red-500 whitespace-nowrap">
               Only {combo.stock} left!
             </span>
           )}

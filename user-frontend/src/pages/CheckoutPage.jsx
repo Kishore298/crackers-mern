@@ -55,7 +55,9 @@ const CheckoutPage = () => {
   const [editingAddrId, setEditingAddrId] = useState(null);
 
 
-  const finalAmount = total - couponDiscount; // total already has slab discount applied
+  const basePayable = total - couponDiscount;
+  const packagingCharges = Math.round(basePayable * 0.015);
+  const finalAmount = basePayable + packagingCharges;
 
   useEffect(() => {
     if (orderPlaced) return;
@@ -473,6 +475,11 @@ const CheckoutPage = () => {
                   <span>-₹{couponDiscount.toLocaleString("en-IN")}</span>
                 </div>
               )}
+              
+              <div className="flex justify-between text-gray-400">
+                <span>Packaging Charges</span>
+                <span className="text-white">+₹{packagingCharges.toLocaleString("en-IN")}</span>
+              </div>
 
               <div className="pt-3 flex justify-between font-heading font-bold text-white text-base" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
                 <span>Total</span>

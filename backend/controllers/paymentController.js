@@ -165,6 +165,9 @@ const placeOfflineOrder = async (req, res) => {
       }
     }
 
+    const packagingCharges = Math.round(serverFinalPayable * 0.015);
+    serverFinalPayable += packagingCharges;
+
     // Create sale as Pending
     const sale = await Sale.create({
       saleType: "online",
@@ -172,6 +175,7 @@ const placeOfflineOrder = async (req, res) => {
       items,
       totalAmount: serverSubtotal,
       discount: couponDiscount,
+      packagingCharges,
       slabDiscount: 0,
       slabLabel: null,
       couponCode: couponCode || null,

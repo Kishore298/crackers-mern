@@ -17,7 +17,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
 
   if (product.isCombo) {
     displayPct = product.discountPercent || 0;
-    effectivePrice = displayPct > 0 
+    effectivePrice = displayPct > 0
       ? Math.round(basePrice * (1 - displayPct / 100))
       : basePrice;
     showDiscount = displayPct > 0;
@@ -67,19 +67,19 @@ const ProductCard = ({ product, discountPct = 0 }) => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center p-6 bg-[#0f0d1a]">
-            <img 
-              src="/v-crackers-logo.webp" 
-              alt="V Crackers Logo" 
-              className="w-full h-full object-contain opacity-20 filter grayscale" 
+            <img
+              src="/v-crackers-logo.webp"
+              alt="V Crackers Logo"
+              className="w-full h-full object-contain opacity-20 filter grayscale"
             />
           </div>
         )}
 
         {/* Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+        <div className="absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">
           {showDiscount && displayPct > 0 && (
             <span
-              className="px-2 py-0.5 rounded-full text-xs font-bold text-white shadow"
+              className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow"
               style={{
                 background: "linear-gradient(140deg,#8b0000,#ff6600,#ffcc33)",
               }}
@@ -93,7 +93,7 @@ const ProductCard = ({ product, discountPct = 0 }) => {
       {/* Content */}
       <div className="p-2 md:p-4 flex flex-col flex-1 gap-1 md:gap-2">
         <Link to={`/products/${product.slug}`}>
-          <h3 className="font-heading font-semibold text-white text-xs sm:text-sm md:text-base leading-snug hover:text-primary transition-colors line-clamp-2">
+          <h3 className="font-heading font-semibold text-white text-[11px] sm:text-xs md:text-sm leading-snug hover:text-primary transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
@@ -106,16 +106,16 @@ const ProductCard = ({ product, discountPct = 0 }) => {
 
         {/* Pricing */}
         <div className="flex items-center gap-1 mt-auto">
-          <span className="text-xs md:text-base font-bold text-primary">
+          <span className="text-[11px] md:text-sm font-bold text-primary">
             ₹{effectivePrice}
           </span>
           {showDiscount && (
-            <span className="text-xs text-gray-400 line-through">
+            <span className="text-[10px] text-gray-400 line-through">
               ₹{basePrice}
             </span>
           )}
           {isAvailable && product.stock <= 10 && (
-            <span className="ml-auto text-[10px] sm:text-xs font-semibold text-red-500">
+            <span className="ml-auto text-[9px] sm:text-[10px] font-semibold text-red-500 whitespace-nowrap">
               Only {product.stock} left!
             </span>
           )}

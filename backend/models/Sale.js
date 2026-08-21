@@ -50,6 +50,7 @@ const saleSchema = new mongoose.Schema(
     items: [orderItemSchema],
     totalAmount: { type: Number, required: true },
     discount: { type: Number, default: 0 },
+    packagingCharges: { type: Number, default: 0 },
     slabDiscount: { type: Number, default: 0 },
     slabLabel: { type: String, default: "" },
     couponCode: { type: String, default: null },

@@ -17,9 +17,9 @@ const DiscountBanner = ({ discount }) => {
 
   useEffect(() => {
     // Fetch combos for the slider
-    api.get("/products?isCombo=true&limit=5")
+    api.get("/products?isCombo=true")
       .then(res => setCombos(res.data.products || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const resetTimer = useCallback(() => {
@@ -56,40 +56,41 @@ const DiscountBanner = ({ discount }) => {
   if (!discount || !discount.isActive) return null;
 
   return (
-    <section className="w-full md:max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <section className="w-full md:max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-6">
       <div
-        className="relative rounded-2xl overflow-hidden min-h-[200px] flex flex-col sm:flex-row items-stretch"
+        className="relative rounded-2xl overflow-hidden min-h-[240px] flex flex-col sm:flex-row items-stretch"
         style={{ background: "#520606ff" }}
       >
         {/* Left content */}
-        <div className="relative z-10 flex flex-col justify-center px-6 sm:px-10 py-8 w-full sm:w-3/5 gap-3">
+        <div className="relative z-10 flex flex-col justify-center px-4 sm:px-10 py-6 sm:py-8 w-full sm:w-3/5 gap-2 sm:gap-3">
           <span
-            className="self-start text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-md"
+            className="self-start text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2 py-0.5 sm:px-3 sm:py-1 rounded-md"
             style={{ background: "#F5C518", color: "#000" }}
           >
             Limited Time Offer
           </span>
 
           <div>
-            <h2 className="font-heading font-black text-white text-2xl sm:text-3xl leading-tight">
+            <h2 className="font-heading font-black text-white text-lg sm:text-3xl leading-tight">
               {discount.label || "Special Sale"}
             </h2>
             <p
-              className="font-heading font-black text-2xl sm:text-3xl leading-tight"
+              className="font-heading font-black text-lg sm:text-3xl leading-tight flex flex-wrap items-baseline gap-1.5 sm:gap-2 mt-0.5 sm:mt-1"
               style={{ color: "#F5C518" }}
             >
-              Flat {discount.percentage}% OFF
+              <span>Flat {discount.percentage}% OFF</span>
+              <span className="text-xs sm:text-lg text-white font-medium">+ Additional Discount on combos</span>
             </p>
           </div>
 
-          <p className="text-gray-200 text-sm leading-relaxed max-w-xs">
+          <p className="hidden sm:block text-gray-200 text-sm leading-relaxed max-w-xs">
             On all products sitewide. Celebrate more, spend less!
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 mt-1">
+          <div className="flex flex-wrap items-center gap-4 mt-1 sm:mt-2">
             <Link
               to="/products"
-              className="font-bold px-6 py-2.5 rounded-full text-sm shadow-md shrink-0 hover:scale-105 hover:shadow-lg hover:brightness-110 transition-all duration-300"
+              className="font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-sm shadow-md shrink-0 hover:scale-105 hover:shadow-lg hover:brightness-110 transition-all duration-300"
               style={{ background: "#F5C518", color: "#000" }}
             >
               Shop Now
@@ -98,7 +99,7 @@ const DiscountBanner = ({ discount }) => {
         </div>
 
         {/* Right image - Sliding Combo Banners */}
-        <div className="relative w-full sm:w-2/5 min-h-[200px] flex items-center justify-center opacity-70 md:opacity-100">
+        <div className="relative w-full sm:w-2/5 min-h-[240px] flex items-center justify-center brightness-110">
           {combos.length > 0 ? (
             <>
               {combos.map((combo, idx) => (
@@ -106,19 +107,14 @@ const DiscountBanner = ({ discount }) => {
                   key={combo._id}
                   className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
                 >
-                  <img
-                    src={combo.images?.[0]?.url || "/diwali-family-celeb.webp"}
-                    alt={combo.name}
-                    className="w-full h-full object-cover sm:object-contain object-right sm:object-center"
-                    loading="lazy"
-                    style={{
-                      maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
-                      WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 30%)",
-                    }}
-                  />
-                  <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-lg backdrop-blur-sm text-xs font-semibold shadow-md pointer-events-none">
-                    {combo.name}
-                  </div>
+                  <Link to="/products?filter=combos" className="block w-full h-full">
+                    <img
+                      src={combo.images?.[0]?.url || "/diwali-family-celeb.webp"}
+                      alt={combo.name}
+                      className="w-full h-full object-cover sm:object-contain object-right sm:object-center"
+                      loading="lazy"
+                    />
+                  </Link>
                 </div>
               ))}
 
@@ -143,25 +139,14 @@ const DiscountBanner = ({ discount }) => {
               )}
             </>
           ) : (
-             <img
-               src="/diwali-family-celeb.webp"
-               alt="V Crackers Celebration Family"
-               className="absolute inset-0 w-full h-full object-cover object-right sm:object-center"
-               style={{
-                 maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
-                 WebkitMaskImage:
-                   "linear-gradient(to right, transparent 0%, black 30%)",
-               }}
-             />
+            <Link to="/products?filter=combos" className="absolute inset-0 w-full h-full">
+              <img
+                src="/diwali-family-celeb.webp"
+                alt="V Crackers Celebration Family"
+                className="w-full h-full object-cover object-right sm:object-center"
+              />
+            </Link>
           )}
-
-          <div
-            className="absolute inset-0 pointer-events-none z-10"
-            style={{
-              background:
-                "linear-gradient(to right, #520606ff 0%, transparent 0%)",
-            }}
-          />
         </div>
       </div>
     </section>
@@ -764,16 +749,18 @@ const HomePage = () => {
         </div>
       </section>
 
+      <DiscountBanner discount={discount} />
+
       {/* ══ Features strip ══ */}
       <div style={{ background: "#0f0d1a", borderTop: "1px solid rgba(255,102,0,0.08)", borderBottom: "1px solid rgba(255,102,0,0.08)" }}>
-        <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-4">
+        <div className="w-full md:max-w-[90%] mx-auto px-4 sm:px-6 py-2 sm:py-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8 justify-items-center sm:justify-items-start">
             {[
               { icon: Shield, text: "100% Safe & Certified" },
               { icon: Zap, text: "Premium Quality" },
               { icon: Percent, text: "Discounted Prices" },
             ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-3 py-2">
+              <div key={text} className="flex items-center gap-3 py-1 sm:py-2">
                 <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(255,102,0,0.1)" }}>
                   <Icon className="w-4 h-4 text-primary" />
                 </div>
@@ -785,8 +772,6 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-
-      <DiscountBanner discount={discount} />
 
       {/* ══════════════════════════════════════════
           SHOP BY CATEGORY (Accordion UI)

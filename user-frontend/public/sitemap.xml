@@ -131,6 +131,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://vcrackers.in/products?category=paper-bombs</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://vcrackers.in/products?category=colour-matches</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
