@@ -56,7 +56,7 @@ const CheckoutPage = () => {
 
 
   const basePayable = total - couponDiscount;
-  const packagingCharges = Math.round(basePayable * 0.015);
+  const packagingCharges = Math.round(basePayable * 0.02);
   const finalAmount = basePayable + packagingCharges;
 
   useEffect(() => {
