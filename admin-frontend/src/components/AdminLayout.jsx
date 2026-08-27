@@ -18,6 +18,7 @@ import {
   TrendingUp,
   Gift,
   Ticket,
+  FileText,
 } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import NotificationBell from "./NotificationBell";
@@ -33,6 +34,7 @@ const navItems = [
   { to: "/stock", icon: Archive, label: "Stock" },
   { to: "/discount", icon: Percent, label: "Discount" },
   { to: "/coupons", icon: Ticket, label: "Coupons" },
+  { to: "/gst-bill", icon: FileText, label: "GST Bill Generator" },
   { to: "/notifications", icon: Send, label: "Push Notifications" },
   { to: "/reports", icon: BarChart2, label: "Reports" },
   { to: "/product-analytics", icon: TrendingUp, label: "Product Analytics" },
