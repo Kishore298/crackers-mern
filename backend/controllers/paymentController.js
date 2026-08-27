@@ -161,7 +161,11 @@ const placeOfflineOrder = async (req, res) => {
             coupon.usedBy.push({ user: req.user._id, count: 1 });
           }
           await coupon.save();
+        } else {
+          return res.status(400).json({ success: false, message: "Coupon is invalid, expired, or limit exceeded." });
         }
+      } else {
+        return res.status(400).json({ success: false, message: "Invalid coupon code." });
       }
     }
 

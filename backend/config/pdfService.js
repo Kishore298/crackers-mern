@@ -228,8 +228,29 @@ const generateReceiptPDF = async (sale, customer) => {
     if (sale.discount > 0) {
       y += 18;
       doc.fillColor("#10B981");
-      doc.text("Discount:", 360, y, { width: 80, align: "right" });
+      const discountLabel = sale.couponCode ? `Coupon (${sale.couponCode}):` : "Discount:";
+      doc.text(discountLabel, 320, y, { width: 120, align: "right" });
       doc.text(`- Rs. ${(sale.discount || 0).toLocaleString("en-IN")}`, 445, y, {
+        width: 90,
+        align: "right",
+      });
+    }
+
+    if (sale.slabDiscount > 0) {
+      y += 18;
+      doc.fillColor("#10B981");
+      doc.text("Slab Discount:", 360, y, { width: 80, align: "right" });
+      doc.text(`- Rs. ${(sale.slabDiscount || 0).toLocaleString("en-IN")}`, 445, y, {
+        width: 90,
+        align: "right",
+      });
+    }
+
+    if (sale.packagingCharges > 0) {
+      y += 18;
+      doc.fillColor(gray);
+      doc.text("Packing (2%):", 360, y, { width: 80, align: "right" });
+      doc.text(`Rs. ${(sale.packagingCharges || 0).toLocaleString("en-IN")}`, 445, y, {
         width: 90,
         align: "right",
       });

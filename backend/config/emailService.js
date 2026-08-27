@@ -131,7 +131,9 @@ const sendOrderConfirmationEmail = async (to, sale, customer) => {
           <!-- Totals -->
           <div style="text-align: right; margin-bottom: 30px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
             <p style="font-size: 14px; color: #4b5563; margin: 4px 0;">Subtotal: <strong>₹${(sale.totalAmount || 0).toLocaleString("en-IN")}</strong></p>
-            ${sale.discount > 0 ? `<p style="font-size: 14px; color: #10B981; margin: 4px 0;">Discount: <strong>-₹${(sale.discount || 0).toLocaleString("en-IN")}</strong></p>` : ""}
+            ${sale.discount > 0 ? `<p style="font-size: 14px; color: #10B981; margin: 4px 0;">${sale.couponCode ? `Coupon (${sale.couponCode})` : 'Discount'}: <strong>-₹${(sale.discount || 0).toLocaleString("en-IN")}</strong></p>` : ""}
+            ${sale.slabDiscount > 0 ? `<p style="font-size: 14px; color: #10B981; margin: 4px 0;">Slab Discount: <strong>-₹${(sale.slabDiscount || 0).toLocaleString("en-IN")}</strong></p>` : ""}
+            ${sale.packagingCharges > 0 ? `<p style="font-size: 14px; color: #4b5563; margin: 4px 0;">Packing (2%): <strong>₹${(sale.packagingCharges || 0).toLocaleString("en-IN")}</strong></p>` : ""}
             <p style="font-size: 20px; color: #111827; font-weight: 700; margin: 12px 0 0;">Total: ₹${(sale.finalPayable || 0).toLocaleString("en-IN")}</p>
           </div>
 
