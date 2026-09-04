@@ -393,6 +393,36 @@ class WhatsAppService {
   async sendMessage(to, templateName, components = [], language = "en_US") {
     return this.sendTemplate(to, templateName, components, language);
   }
+
+  // ─────────────────────────────────────────────────────────────────
+  // MARKETING  –  Bulk Document (Pricelist / Catalogue)
+  // ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Send a template message with a DOCUMENT header and no body parameters.
+   * Useful for pricelist / catalogue bulk sends where the body is static.
+   *
+   * @param {string} phone        – recipient E.164 number
+   * @param {string} mediaId      – WhatsApp media ID of the uploaded PDF
+   * @param {string} filename     – display filename in chat
+   * @param {string} templateName – approved Meta template name
+   * @param {string} [language]   – BCP-47 language code
+   */
+  async sendDocumentTemplate(phone, { mediaId, filename, templateName, language }) {
+    const components = [
+      {
+        type: "header",
+        parameters: [
+          {
+            type: "document",
+            document: { id: mediaId, filename },
+          },
+        ],
+      },
+    ];
+
+    return this.sendTemplate(phone, templateName, components, language || "en");
+  }
 }
 
 module.exports = new WhatsAppService();
