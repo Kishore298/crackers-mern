@@ -1,5 +1,11 @@
 const mongoose = require("mongoose");
 
+const optimizeCloudinaryUrl = (url, width) => {
+  if (!url || !url.includes("cloudinary.com")) return url;
+  if (url.includes("/upload/q_auto")) return url;
+  return url.replace("/upload/", `/upload/q_auto,f_auto,c_limit,w_${width}/`);
+};
+
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -15,7 +21,11 @@ const productSchema = new mongoose.Schema(
     },
     images: [
       {
-        url: { type: String, required: true },
+        url: { 
+          type: String, 
+          required: true,
+          get: (url) => optimizeCloudinaryUrl(url, 1200)
+        },
         publicId: { type: String, required: true },
       },
     ],
@@ -46,6 +56,7 @@ productSchema.virtual("effectivePrice").get(function () {
     : this.price;
 });
 
-productSchema.set("toJSON", { virtuals: true });
+productSchema.set("toJSON", { virtuals: true, getters: true });
+productSchema.set("toObject", { virtuals: true, getters: true });
 
 module.exports = mongoose.model("Product", productSchema);
