@@ -126,10 +126,13 @@ const placeOfflineOrder = async (req, res) => {
       const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
       if (coupon) {
         // Validation checks
-        const isValid =
-          new Date() >= new Date(coupon.startDate) &&
-          new Date() <= new Date(coupon.expiresAt) &&
-          serverSubtotal >= coupon.minOrderValue;
+        let isValid = serverSubtotal >= coupon.minOrderValue;
+        if (coupon.startDate) {
+          isValid = isValid && new Date() >= new Date(coupon.startDate);
+        }
+        if (coupon.expiresAt) {
+          isValid = isValid && new Date() <= new Date(coupon.expiresAt);
+        }
 
         let limitExceeded = false;
 
