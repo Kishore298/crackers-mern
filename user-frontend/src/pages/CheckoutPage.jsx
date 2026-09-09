@@ -56,7 +56,8 @@ const CheckoutPage = () => {
 
 
   const basePayable = total - couponDiscount;
-  const packagingCharges = Math.round(basePayable * 0.02);
+  // const packagingCharges = Math.round(basePayable * 0.02);
+  const packagingCharges = 0;
   const finalAmount = basePayable + packagingCharges;
 
   useEffect(() => {
@@ -476,10 +477,12 @@ const CheckoutPage = () => {
                 </div>
               )}
               
+              {/* 
               <div className="flex justify-between text-gray-400">
                 <span>Packaging Charges</span>
                 <span className="text-white">+₹{packagingCharges.toLocaleString("en-IN")}</span>
               </div>
+              */}
 
               <div className="pt-3 flex justify-between font-heading font-bold text-white text-base" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
                 <span>Total</span>
