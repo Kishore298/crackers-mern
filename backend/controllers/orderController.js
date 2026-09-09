@@ -493,6 +493,23 @@ const updateShippingAddress = async (req, res) => {
   }
 };
 
+// ─── DELETE /api/orders/:id (admin) ──────────────────────────────
+const deleteOrder = async (req, res) => {
+  try {
+    const order = await Sale.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    if (order.orderStatus !== "cancelled") {
+      return res.status(400).json({ success: false, message: "Only cancelled orders can be deleted" });
+    }
+
+    await Sale.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: "Order deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = {
   getOrders,
   getOrderById,
@@ -504,4 +521,5 @@ module.exports = {
   resendWhatsappReceipt,
   updateShippingAddress,
   getOrderPdf,
+  deleteOrder,
 };

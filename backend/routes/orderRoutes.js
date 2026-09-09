@@ -11,6 +11,7 @@ const {
   resendWhatsappReceipt,
   updateShippingAddress,
   getOrderPdf,
+  deleteOrder,
 } = require("../controllers/orderController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { handleMethodOverride } = require("../middleware/methodOverride");
@@ -37,5 +38,8 @@ router.post("/:id/cancel-reject", protect, adminOnly, rejectCancellationRequest)
 
 // Resend WhatsApp Receipt
 router.post("/:id/resend-whatsapp", protect, adminOnly, resendWhatsappReceipt); // admin
+
+// Delete Order
+router.delete("/:id", protect, adminOnly, deleteOrder); // admin
 
 module.exports = router;

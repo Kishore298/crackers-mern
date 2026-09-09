@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Pagination from "../components/Pagination";
-import { Search, X, AlertTriangle, Send, Edit2, MapPin, Eye, Download, Loader, RefreshCw } from "lucide-react";
+import { Search, X, AlertTriangle, Send, Edit2, MapPin, Eye, Download, Loader, RefreshCw, Trash2 } from "lucide-react";
 import { api } from "../context/AdminAuthContext";
 import toast from "react-hot-toast";
 
@@ -174,6 +174,17 @@ const OrdersPage = () => {
       toast.error(err?.response?.data?.message || "Failed to update address");
     } finally {
       setAddressLoading(false);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to delete this order permanently?")) return;
+    try {
+      await api.delete(`/orders/${orderId}`);
+      toast.success("Order deleted successfully");
+      fetchOrders();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to delete order");
     }
   };
 
@@ -374,6 +385,15 @@ const OrdersPage = () => {
                         >
                           <Send className="w-3 h-3" /> Resend WhatsApp
                         </button>
+
+                        {order.orderStatus === "cancelled" && (
+                          <button
+                            onClick={() => handleDeleteOrder(order._id)}
+                            className="text-[10px] text-red-700 bg-red-100/50 hover:bg-red-100 px-2 py-1 rounded font-semibold text-left flex items-center gap-1 mt-1"
+                          >
+                            <Trash2 className="w-3 h-3" /> Delete Order
+                          </button>
+                        )}
 
                         {order.cancellationRequest?.requested && (
                           <div className="flex flex-col gap-1 mt-1 border-t border-gray-100 pt-1">
