@@ -172,9 +172,8 @@ const placeOfflineOrder = async (req, res) => {
       }
     }
 
-    // const packagingCharges = Math.round(serverFinalPayable * 0.02);
-    // serverFinalPayable += packagingCharges;
-    const packagingCharges = 0;
+    const packagingCharges = Math.round(serverFinalPayable * 0.02);
+    serverFinalPayable += packagingCharges;
 
     // Create sale as Pending
     const sale = await Sale.create({

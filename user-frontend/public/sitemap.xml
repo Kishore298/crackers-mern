@@ -126,7 +126,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products?category=multisound-crackers</loc>
+    <loc>https://vcrackers.in/products?category=wala</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -677,6 +677,16 @@
   </url>
   <url>
     <loc>https://vcrackers.in/products/4-2-piece-mega-fancy</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products/200-wala</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products/snow-falls</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>

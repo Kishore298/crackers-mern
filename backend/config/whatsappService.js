@@ -407,8 +407,9 @@ class WhatsAppService {
    * @param {string} filename     – display filename in chat
    * @param {string} templateName – approved Meta template name
    * @param {string} [language]   – BCP-47 language code
+   * @param {string} [couponCode] – Optional coupon code if the template has a copy_code button at index 2
    */
-  async sendDocumentTemplate(phone, { mediaId, filename, templateName, language }) {
+  async sendDocumentTemplate(phone, { mediaId, filename, templateName, language, couponCode }) {
     const components = [
       {
         type: "header",
@@ -420,6 +421,20 @@ class WhatsAppService {
         ],
       },
     ];
+
+    if (couponCode) {
+      components.push({
+        type: "button",
+        sub_type: "copy_code",
+        index: 2,
+        parameters: [
+          {
+            type: "coupon_code",
+            coupon_code: couponCode
+          }
+        ]
+      });
+    }
 
     return this.sendTemplate(phone, templateName, components, language || "en");
   }

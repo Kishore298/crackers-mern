@@ -29,15 +29,13 @@ const whatsapp = require("../config/whatsappService");
 // ══════════════════════════════════════════════════════════════════
 
 /** Full path to the Excel/CSV file containing customer phone numbers */
-const EXCEL_PATH = "";
-// Example: "C:/Users/ADMIN/Desktop/customers.xlsx"
+const EXCEL_PATH = "C:\\Users\\ADMIN\\Desktop\\cracker-website\\backend\\Customer-Details-Report.xlsx";
 
 /** Full path to the pricelist PDF to attach */
-const PDF_PATH = "";
-// Example: "C:/Users/ADMIN/Desktop/V-Crackers-Pricelist-2026.pdf"
+const PDF_PATH = "C:\\Users\\ADMIN\\Desktop\\cracker-website\\user-frontend\\public\\price-list.pdf";
 
 /** Your approved WhatsApp template name from Meta Business Manager */
-const TEMPLATE_NAME = "pricelist_2026";
+const TEMPLATE_NAME = "diwali_pricelist_2026";
 
 /** Template language code (as submitted in Meta Business Manager) */
 const TEMPLATE_LANGUAGE = "en";
@@ -260,13 +258,7 @@ async function main() {
   console.log(`  Est. Time  : ~${estimatedTime} minutes`);
   console.log("═".repeat(54));
 
-  if (!DRY_RUN) {
-    const answer = await ask(`\n⚠️  Send to ${phones.length} numbers? (yes/no): `);
-    if (answer !== "yes" && answer !== "y") {
-      console.log("❌ Cancelled by user.");
-      process.exit(0);
-    }
-  }
+  console.log("\n🚀 Proceeding with bulk send automatically...");
 
   // ── Send Messages ──
   const results = { sent: 0, failed: 0, errors: [] };
@@ -284,6 +276,7 @@ async function main() {
           filename: pdfFilename,
           templateName: TEMPLATE_NAME,
           language: TEMPLATE_LANGUAGE,
+          couponCode: "VDIWALI",
         });
       }
       results.sent++;
