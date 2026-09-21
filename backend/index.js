@@ -14,6 +14,8 @@ const { initFirebase } = require("./config/firebase");
 
 // Route imports
 const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
@@ -23,7 +25,6 @@ const stockRoutes = require("./routes/stockRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const discountRoutes = require("./routes/discountRoutes");
-const userRoutes = require("./routes/userRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const fcmRoutes = require("./routes/fcmRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
@@ -92,6 +93,8 @@ app.get("/api/health", (req, res) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users/cart", cartRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
@@ -101,7 +104,6 @@ app.use("/api/discount", discountRoutes);
 // app.use("/api/banners", bannerRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
-app.use("/api/users", userRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/fcm", fcmRoutes);
 app.use("/webhook", whatsappRoutes);

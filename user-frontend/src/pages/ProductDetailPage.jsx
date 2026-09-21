@@ -70,15 +70,31 @@ const ProductDetailPage = () => {
       </div>
     );
 
-  // Apply global discount to base price
+  // Apply global discount to base price unless it is a combo
   const basePrice = product.price;
-  const effectivePrice =
-    discountPct > 0
+  let effectivePrice;
+  let displayPct = 0;
+  let showDiscount = false;
+
+  if (product.isCombo) {
+    displayPct = product.discountPercent || 0;
+    effectivePrice = displayPct > 0
+      ? Math.round(basePrice * (1 - displayPct / 100))
+      : basePrice;
+    showDiscount = displayPct > 0;
+  } else {
+    displayPct = discountPct > 0
+      ? discountPct
+      : (product.discountedPrice > 0 && product.discountedPrice < basePrice)
+        ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
+        : 0;
+
+    effectivePrice = discountPct > 0
       ? Math.round(basePrice * (1 - discountPct / 100))
-      : (product.discountedPrice ?? basePrice);
-  const showDiscount =
-    discountPct > 0 ||
-    (product.discountedPrice && product.discountedPrice < basePrice);
+      : (product.discountedPrice > 0 ? product.discountedPrice : basePrice);
+
+    showDiscount = discountPct > 0 || (product.discountedPrice > 0 && product.discountedPrice < basePrice);
+  }
 
   const FORCE_COMING_SOON = false;
   const inStock = !FORCE_COMING_SOON && product.stock > 0;
@@ -156,10 +172,10 @@ const ProductDetailPage = () => {
                 />
               ) : (
                 <div className="w-full h-[50vh] min-h-[300px] flex items-center justify-center p-6 bg-[#0f0d1a]">
-                  <img 
-                    src="/v-crackers-logo.webp" 
-                    alt="V Crackers Logo" 
-                    className="w-full h-full object-contain opacity-20 filter grayscale" 
+                  <img
+                    src="/v-crackers-logo.webp"
+                    alt="V Crackers Logo"
+                    className="w-full h-full object-contain opacity-20 filter grayscale"
                   />
                 </div>
               )}

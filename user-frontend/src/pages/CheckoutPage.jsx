@@ -174,7 +174,8 @@ const CheckoutPage = () => {
 
       if (data.success) {
         setOrderPlaced(true);
-        clearCart();
+        const purchasedItemIds = cartItems.map((i) => i._id);
+        clearCart(purchasedItemIds);
         toast.success("Order placed successfully! 🎇");
         navigate(`/order-success/${data.sale._id}`, { state: { isNewOrder: true } });
       }
