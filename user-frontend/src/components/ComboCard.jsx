@@ -4,6 +4,7 @@ import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
 import { formatComboName } from "../utils/comboUtils";
+import { getEffectivePrice, hasDiscount, getDiscountPct } from "../utils/priceUtils";
 
 const ComboCard = ({ combo, discountPct = 0 }) => {
   const { addToCart } = useCart();
@@ -12,14 +13,12 @@ const ComboCard = ({ combo, discountPct = 0 }) => {
   const isAvailable = !FORCE_COMING_SOON && combo.stock > 0;
 
   const basePrice = combo.price;
-  const displayPct = combo.discountPercent || 0;
-  const effectivePrice = displayPct > 0 
-    ? Math.round(basePrice * (1 - displayPct / 100)) 
-    : basePrice;
-  const showDiscount = displayPct > 0;
+  const effectivePrice = getEffectivePrice(combo, 0); // combos use their own discountPercent
+  const showDiscount = hasDiscount(combo, 0);
+  const displayPct = getDiscountPct(combo, 0);
 
   const handleAdd = () => {
-    addToCart({ ...combo, effectivePrice }, qty);
+    addToCart(combo, qty);
     setQty(1);
   };
 

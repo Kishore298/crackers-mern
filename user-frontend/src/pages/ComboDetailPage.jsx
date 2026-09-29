@@ -13,6 +13,7 @@ import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
 import SEO from "../components/SEO";
 import { formatComboName, getValidComboProducts } from "../utils/comboUtils";
+import { getEffectivePrice, hasDiscount, getDiscountPct } from "../utils/priceUtils";
 
 const ComboDetailPage = () => {
   const { slug } = useParams();
@@ -74,11 +75,9 @@ const ComboDetailPage = () => {
 
 
   const basePrice = product.price;
-  const displayPct = product.discountPercent || 0;
-  const effectivePrice = displayPct > 0 
-    ? Math.round(basePrice * (1 - displayPct / 100)) 
-    : basePrice;
-  const showDiscount = displayPct > 0;
+  const effectivePrice = getEffectivePrice(product, 0); // combos use their own discountPercent
+  const showDiscount = hasDiscount(product, 0);
+  const displayPct = getDiscountPct(product, 0);
   const FORCE_COMING_SOON = false;
   const inStock = !FORCE_COMING_SOON && product.stock > 0;
 
@@ -339,7 +338,7 @@ const ComboDetailPage = () => {
                   </div>
                 ) : (
                   <button
-                    onClick={() => addToCart({ ...product, effectivePrice }, 1)}
+                    onClick={() => addToCart(product, 1)}
                     className="btn-fire flex-1 justify-center py-3.5 rounded-xl text-base h-12"
                   >
                     <ShoppingCart className="w-5 h-5" /> Add to Cart

@@ -4,14 +4,14 @@ import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, AlertCircle } from "lucid
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
-
 import { formatComboName } from "../utils/comboUtils";
+import { getEffectivePrice } from "../utils/priceUtils";
 
 const CartPage = () => {
   const {
     cartItems, updateQty, removeFromCart, subtotal, total, itemCount,
     canCheckout, minCartShortfall,
-    MIN_CART_VALUE,
+    MIN_CART_VALUE, globalDiscountPct,
   } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -61,8 +61,7 @@ const CartPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-3">
             {cartItems.map((item) => {
-              const price =
-                item.effectivePrice ?? item.discountedPrice ?? item.price;
+              const price = getEffectivePrice(item, globalDiscountPct);
               return (
                 <div
                   key={item._id}

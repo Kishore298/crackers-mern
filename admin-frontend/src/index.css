@@ -8,9 +8,12 @@
   * {
     box-sizing: border-box;
   }
+  html,
   body {
     font-family: "Inter", system-ui, sans-serif;
-    @apply bg-white text-gray-900 antialiased;
+    @apply text-gray-900 antialiased;
+    background-color: #f9fafb; /* same as AdminLayout's bg-gray-50 — prevents white flash on modal scroll */
+    min-height: 100%;
   }
   h1,
   h2,

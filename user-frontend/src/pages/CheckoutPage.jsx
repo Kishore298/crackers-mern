@@ -21,9 +21,10 @@ import api from "../services/api";
 import toast from "react-hot-toast";
 import SEO from "../components/SEO";
 import { formatComboName, calculateComboStats, getValidComboProducts } from "../utils/comboUtils";
+import { getEffectivePrice } from "../utils/priceUtils";
 
 const CheckoutPage = () => {
-  const { cartItems, subtotal, total, clearCart, canCheckout, MIN_CART_VALUE } = useCart();
+  const { cartItems, subtotal, total, clearCart, canCheckout, MIN_CART_VALUE, globalDiscountPct } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [addresses, setAddresses] = useState([]);
@@ -205,7 +206,7 @@ const CheckoutPage = () => {
               </h2>
               <div className="space-y-4">
                 {cartItems.map((item) => {
-                  const itemPrice = item.effectivePrice ?? item.discountedPrice ?? item.price;
+                  const itemPrice = getEffectivePrice(item, globalDiscountPct);
                   const itemTotal = itemPrice * item.quantity;
                   const isCombo = item.isCombo && item.comboProducts?.length > 0;
                   const displayName = formatComboName(item);

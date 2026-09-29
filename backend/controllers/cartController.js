@@ -1,18 +1,49 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
+const Discount = require("../models/Discount");
 
-// Helper to format the cart: filter out deleted products and flatten the structure for the frontend
-const getFormattedCart = (user) => {
+// Compute the authoritative selling price for a product — mirrors frontend priceUtils.js
+const computeEffectivePrice = (product, globalDiscountPct = 0) => {
+  const basePrice = product.price || 0;
+  if (product.isCombo) {
+    const pct = product.discountPercent || 0;
+    return pct > 0 ? Math.round(basePrice * (1 - pct / 100)) : basePrice;
+  }
+  if (globalDiscountPct > 0) {
+    return Math.round(basePrice * (1 - globalDiscountPct / 100));
+  }
+  if (product.discountedPrice && product.discountedPrice < basePrice) {
+    return product.discountedPrice;
+  }
+  return basePrice;
+};
+
+// Helper to fetch the active global discount percentage
+const getGlobalDiscountPct = async () => {
+  try {
+    const discount = await Discount.findOne({ isActive: true });
+    return discount ? discount.percentage : 0;
+  } catch {
+    return 0;
+  }
+};
+
+// Helper to format the cart: filter out deleted products and flatten for the frontend
+// Attaches the authoritative effectivePrice so the frontend always shows a consistent price.
+const getFormattedCart = (user, globalDiscountPct = 0) => {
   const validItems = user.cart.filter((item) => item.product != null && item.product.isActive !== false);
-  return validItems.map((item) => ({
-    ...item.product.toObject(),
-    quantity: item.quantity,
-  }));
+  return validItems.map((item) => {
+    const productObj = item.product.toObject();
+    // Override effectivePrice with our authoritative computation (same logic as frontend)
+    productObj.effectivePrice = computeEffectivePrice(productObj, globalDiscountPct);
+    return { ...productObj, quantity: item.quantity };
+  });
 };
 
 // GET /api/users/cart
 const getCart = async (req, res) => {
   try {
+    const globalDiscountPct = await getGlobalDiscountPct();
     const user = await User.findById(req.user._id).populate("cart.product");
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
@@ -24,7 +55,7 @@ const getCart = async (req, res) => {
       await user.save();
     }
 
-    res.json({ success: true, cart: getFormattedCart(user) });
+    res.json({ success: true, cart: getFormattedCart(user, globalDiscountPct) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -35,6 +66,7 @@ const getCart = async (req, res) => {
 const syncCart = async (req, res) => {
   try {
     const { items = [] } = req.body;
+    const globalDiscountPct = await getGlobalDiscountPct();
     const user = await User.findById(req.user._id).populate("cart.product");
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
@@ -81,7 +113,7 @@ const syncCart = async (req, res) => {
     // Populate again to get full product details for the newly added items
     await user.populate("cart.product");
 
-    res.json({ success: true, cart: getFormattedCart(user) });
+    res.json({ success: true, cart: getFormattedCart(user, globalDiscountPct) });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

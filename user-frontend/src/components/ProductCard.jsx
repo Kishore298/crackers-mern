@@ -3,40 +3,23 @@ import { Link } from "react-router-dom";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { motion } from "framer-motion";
+import { getEffectivePrice, hasDiscount, getDiscountPct } from "../utils/priceUtils";
 
 const ProductCard = ({ product, discountPct = 0 }) => {
-  const { addToCart, getCartItem, updateQty } = useCart();
+  const { addToCart, getCartItem, updateQty, globalDiscountPct } = useCart();
   const cartItem = getCartItem(product._id);
   const FORCE_COMING_SOON = false;
   const isAvailable = !FORCE_COMING_SOON && product.stock > 0;
 
+  // Use the shared price utility — identical logic to CartContext and CartPage
+  const effectivePct = discountPct > 0 ? discountPct : globalDiscountPct;
+  const effectivePrice = getEffectivePrice(product, effectivePct);
   const basePrice = product.price;
-  let effectivePrice;
-  let displayPct = 0;
-  let showDiscount = false;
-
-  if (product.isCombo) {
-    displayPct = product.discountPercent || 0;
-    effectivePrice = displayPct > 0
-      ? Math.round(basePrice * (1 - displayPct / 100))
-      : basePrice;
-    showDiscount = displayPct > 0;
-  } else {
-    displayPct = discountPct > 0
-      ? discountPct
-      : product.discountedPrice
-        ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
-        : 0;
-
-    effectivePrice = discountPct > 0
-      ? Math.round(basePrice * (1 - discountPct / 100))
-      : (product.discountedPrice ?? basePrice);
-
-    showDiscount = discountPct > 0 || (product.discountedPrice && product.discountedPrice < basePrice);
-  }
+  const showDiscount = hasDiscount(product, effectivePct);
+  const displayPct = getDiscountPct(product, effectivePct);
 
   const handleAdd = () => {
-    addToCart({ ...product, effectivePrice }, 1);
+    addToCart(product, 1);
   };
 
   return (

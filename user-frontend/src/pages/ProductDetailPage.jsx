@@ -12,6 +12,7 @@ import api from "../services/api";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
 import SEO from "../components/SEO";
+import { getEffectivePrice, hasDiscount, getDiscountPct } from "../utils/priceUtils";
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -70,31 +71,11 @@ const ProductDetailPage = () => {
       </div>
     );
 
-  // Apply global discount to base price unless it is a combo
+  // Apply global discount to base price unless it is a combo — uses shared priceUtils
   const basePrice = product.price;
-  let effectivePrice;
-  let displayPct = 0;
-  let showDiscount = false;
-
-  if (product.isCombo) {
-    displayPct = product.discountPercent || 0;
-    effectivePrice = displayPct > 0
-      ? Math.round(basePrice * (1 - displayPct / 100))
-      : basePrice;
-    showDiscount = displayPct > 0;
-  } else {
-    displayPct = discountPct > 0
-      ? discountPct
-      : (product.discountedPrice > 0 && product.discountedPrice < basePrice)
-        ? Math.round(((basePrice - product.discountedPrice) / basePrice) * 100)
-        : 0;
-
-    effectivePrice = discountPct > 0
-      ? Math.round(basePrice * (1 - discountPct / 100))
-      : (product.discountedPrice > 0 ? product.discountedPrice : basePrice);
-
-    showDiscount = discountPct > 0 || (product.discountedPrice > 0 && product.discountedPrice < basePrice);
-  }
+  const effectivePrice = getEffectivePrice(product, discountPct);
+  const showDiscount = hasDiscount(product, discountPct);
+  const displayPct = getDiscountPct(product, discountPct);
 
   const FORCE_COMING_SOON = false;
   const inStock = !FORCE_COMING_SOON && product.stock > 0;
@@ -285,7 +266,7 @@ const ProductDetailPage = () => {
                   </div>
                 ) : (
                   <button
-                    onClick={() => addToCart({ ...product, effectivePrice }, 1)}
+                    onClick={() => addToCart(product, 1)}
                     className="btn-fire flex-1 justify-center py-3.5 rounded-xl text-base h-12"
                   >
                     <ShoppingCart className="w-5 h-5" /> Add to Cart

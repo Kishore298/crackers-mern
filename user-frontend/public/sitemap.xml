@@ -91,7 +91,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products?category=mud-pots</loc>
+    <loc>https://vcrackers.in/products?category=laddu-fountains</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -121,11 +121,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products?category=sparklers</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://vcrackers.in/products?category=wala</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -136,12 +131,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://vcrackers.in/products?category=sparklers</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://vcrackers.in/products?category=colour-matches</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products?category=premium-combos</loc>
+    <loc>https://vcrackers.in/products?category=gift-boxes</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products?category=v-combos</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -511,22 +516,12 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products/magic-pops</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://vcrackers.in/products/photoflash-green</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://vcrackers.in/products/dora-singer-5pcs</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://vcrackers.in/products/mini-siren</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -681,11 +676,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products/snow-falls</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://vcrackers.in/products/100-wala</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -711,11 +701,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/products/magic-sword</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://vcrackers.in/products/chorsa</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -726,37 +711,52 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/the-champions</loc>
+    <loc>https://vcrackers.in/products/6-single-special-colours</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/the-lcu</loc>
+    <loc>https://vcrackers.in/products/cuckoo-20-items</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/the-dhurandhar</loc>
+    <loc>https://vcrackers.in/products/duck-25-items</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/the-goat</loc>
+    <loc>https://vcrackers.in/products/dove</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/the-lcu-1</loc>
+    <loc>https://vcrackers.in/products/flamingo</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/the-kids</loc>
+    <loc>https://vcrackers.in/products/garuda-40-items</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vcrackers.in/combos/vaanathai-pola-budjet-combo</loc>
+    <loc>https://vcrackers.in/products/peacock-50-items</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/products/wow-pink-wow-purple-combo</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/combos/the-champions-combo</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://vcrackers.in/combos/the-goat-combo</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
