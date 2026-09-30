@@ -56,11 +56,20 @@ const CheckoutPage = () => {
   const [editingAddrId, setEditingAddrId] = useState(null);
 
 
+  const [settings, setSettings] = useState({ packagingChargeEnabled: true, packagingChargePercentage: 2 });
+
   const basePayable = total - couponDiscount;
-  const packagingCharges = Math.round(basePayable * 0.02);
+  const packagingCharges = settings.packagingChargeEnabled ? Math.round(basePayable * (settings.packagingChargePercentage / 100)) : 0;
   const finalAmount = basePayable + packagingCharges;
 
   useEffect(() => {
+    // Fetch settings
+    api.get("/settings").then(res => {
+      if (res.data.success && res.data.settings) {
+        setSettings(res.data.settings);
+      }
+    }).catch(err => console.error("Failed to load settings", err));
+
     if (orderPlaced) return;
 
     if (!user) {
@@ -478,10 +487,12 @@ const CheckoutPage = () => {
                 </div>
               )}
               
-              <div className="flex justify-between items-center text-sm text-gray-400">
-                <span>Packaging Charges</span>
-                <span className="text-white">+₹{packagingCharges.toLocaleString("en-IN")}</span>
-              </div>
+              {settings.packagingChargeEnabled && (
+                <div className="flex justify-between items-center text-sm text-gray-400">
+                  <span>Packaging Charges ({settings.packagingChargePercentage}%)</span>
+                  <span className="text-white">+₹{packagingCharges.toLocaleString("en-IN")}</span>
+                </div>
+              )}
 
               <div className="pt-3 flex justify-between font-heading font-bold text-white text-base" style={{ borderTop: "1px solid rgba(255,102,0,0.08)" }}>
                 <span>Total</span>

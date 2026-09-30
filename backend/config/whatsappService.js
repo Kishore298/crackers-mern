@@ -240,7 +240,6 @@ class WhatsAppService {
         parameters: [
           { type: "text", text: name },
           { type: "text", text: orderId },
-          { type: "text", text: `Rs.${amount}` },
         ],
       },
     ];
@@ -378,6 +377,104 @@ class WhatsAppService {
     ];
 
     return this.sendTemplate(phone, templateName, components);
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // UTILITY  –  Review Request (sent within 24h conversation window)
+  // ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Send a review request to an online order customer via free-form text.
+   * This should be called after a delivery status update (within the 24h window).
+   *
+   * @param {string} phone – customer phone
+   * @param {Object} opts
+   * @param {string} opts.name – customer name
+   * @param {string} opts.reviewLink – website review page URL
+   * @param {string} [opts.googleReviewUrl] – Google review URL (optional)
+   */
+  async sendReviewRequest(phone, { name, reviewLink, googleReviewUrl }) {
+    if (!this.isConfigured) {
+      console.warn("[WhatsApp] Credentials not configured – skipping review request.");
+      return null;
+    }
+
+    const formattedPhone = phone.startsWith("+") ? phone.substring(1) : phone;
+
+    let text = `Hi *${name}*! 🎇\n\nThank you for choosing *VCrackers!* We hope you loved your order 💥\n\nWe'd love to hear about your experience:\n\n⭐ *Write a Review:*\n${reviewLink}`;
+
+    if (googleReviewUrl) {
+      text += `\n\n🔗 *Rate us on Google:*\n${googleReviewUrl}`;
+    }
+
+    text += `\n\nYour feedback means the world to us! 🙏`;
+
+    const payload = {
+      messaging_product: "whatsapp",
+      to: formattedPhone,
+      type: "text",
+      text: { body: text },
+    };
+
+    try {
+      const response = await axios.post(this.baseUrl, payload, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(`[WhatsApp] ✓ Review request → ${formattedPhone}`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "[WhatsApp] ✗ Review request error:",
+        error.response?.data || error.message
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Send a Google review request to a POS customer via free-form text.
+   *
+   * @param {string} phone – customer phone
+   * @param {Object} opts
+   * @param {string} opts.name – customer name
+   * @param {string} opts.googleReviewUrl – Google review URL
+   */
+  async sendPosReviewRequest(phone, { name, googleReviewUrl }) {
+    if (!this.isConfigured || !googleReviewUrl) {
+      console.warn("[WhatsApp] Credentials or Google URL not configured – skipping POS review request.");
+      return null;
+    }
+
+    const formattedPhone = phone.startsWith("+") ? phone.substring(1) : phone;
+
+    const text = `Hi *${name}*! 🎇\n\nThank you for shopping with *VCrackers!* 💥\n\nWe'd love your feedback — it helps us serve you better!\n\n⭐ *Rate us on Google:*\n${googleReviewUrl}\n\nThank you for your support! 🙏`;
+
+    const payload = {
+      messaging_product: "whatsapp",
+      to: formattedPhone,
+      type: "text",
+      text: { body: text },
+    };
+
+    try {
+      const response = await axios.post(this.baseUrl, payload, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(`[WhatsApp] ✓ POS review request → ${formattedPhone}`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "[WhatsApp] ✗ POS review request error:",
+        error.response?.data || error.message
+      );
+      return null;
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────

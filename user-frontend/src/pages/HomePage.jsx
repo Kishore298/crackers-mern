@@ -8,6 +8,7 @@ import api from "../services/api";
 import ProductCard from "../components/ProductCard";
 import { Shield, Zap, Percent } from "lucide-react";
 import SEO from "../components/SEO";
+import ReviewsSection from "../components/ReviewsSection";
 
 /* ─── Discount banner (uses global Discount model) ─── */
 const DiscountBanner = ({ discount }) => {
@@ -1010,6 +1011,9 @@ const HomePage = () => {
           }
         `}</style>
       </section>
+
+      {/* ══ Reviews Section ══ */}
+      <ReviewsSection />
 
       {/* ══ Safety Section ══ */}
       <section className="py-16" style={{ background: "#0f0d1a" }}>

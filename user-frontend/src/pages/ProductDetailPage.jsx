@@ -12,7 +12,7 @@ import api from "../services/api";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
 import SEO from "../components/SEO";
-import { getEffectivePrice, hasDiscount, getDiscountPct } from "../utils/priceUtils";
+import { getEffectivePrice, hasDiscount } from "../utils/priceUtils";
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -75,7 +75,6 @@ const ProductDetailPage = () => {
   const basePrice = product.price;
   const effectivePrice = getEffectivePrice(product, discountPct);
   const showDiscount = hasDiscount(product, discountPct);
-  const displayPct = getDiscountPct(product, discountPct);
 
   const FORCE_COMING_SOON = false;
   const inStock = !FORCE_COMING_SOON && product.stock > 0;

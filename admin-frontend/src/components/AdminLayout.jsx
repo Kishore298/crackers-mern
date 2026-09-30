@@ -19,6 +19,8 @@ import {
   Gift,
   Ticket,
   FileText,
+  Settings,
+  MessageSquare,
 } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import NotificationBell from "./NotificationBell";
@@ -35,9 +37,11 @@ const navItems = [
   { to: "/discount", icon: Percent, label: "Discount" },
   { to: "/coupons", icon: Ticket, label: "Coupons" },
   { to: "/gst-bill", icon: FileText, label: "GST Bill Generator" },
+  { to: "/reviews", icon: MessageSquare, label: "Reviews" },
   { to: "/notifications", icon: Send, label: "Push Notifications" },
   { to: "/reports", icon: BarChart2, label: "Reports" },
   { to: "/product-analytics", icon: TrendingUp, label: "Product Analytics" },
+  { to: "/settings", icon: Settings, label: "Settings" },
 ];
 
 const AdminLayout = () => {

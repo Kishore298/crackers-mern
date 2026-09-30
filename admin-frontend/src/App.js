@@ -18,6 +18,8 @@ import UsersPage from "./pages/UsersPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProductPerformancePage from "./pages/ProductPerformancePage";
 import GstBillPage from "./pages/GstBillPage";
+import SettingsPage from "./pages/SettingsPage";
+import ReviewsPage from "./pages/ReviewsPage";
 import "./index.css";
 
 const PrivateRoute = ({ children }) => {
@@ -55,6 +57,8 @@ function AppRoutes() {
         <Route path="gst-bill" element={<GstBillPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="users" element={<UsersPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="reviews" element={<ReviewsPage />} />
       </Route>
     </Routes>
   );

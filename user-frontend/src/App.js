@@ -35,6 +35,7 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const ShippingPolicyPage = lazy(() => import("./pages/ShippingPolicyPage"));
 const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage"));
 const SafetyPolicyPage = lazy(() => import("./pages/SafetyPolicyPage"));
+const ReviewPage = lazy(() => import("./pages/ReviewPage"));
 
 
 
@@ -122,6 +123,7 @@ function App() {
                     <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
                     <Route path="/refund-policy" element={<RefundPolicyPage />} />
                     <Route path="/safety-guidelines" element={<SafetyPolicyPage />} />
+                    <Route path="/review" element={<ReviewPage />} />
                   </Routes>
                 </Suspense>
               </main>

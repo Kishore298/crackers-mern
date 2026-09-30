@@ -81,16 +81,34 @@ const sendPostOrderComms = async (sale, customer) => {
   if (customer.phone) {
     try {
       const pdfBuffer = await generateReceiptPDF(sale, customer);
+      
+      whatsapp.sendOrderConfirmation(customer.phone, {
+        name: customer.name,
+        orderId: sale.invoiceNo,
+        amount: sale.finalPayable
+      }).catch((e) => console.error("[WhatsApp] Confirmation send failed:", e.message));
+
       whatsapp.sendOrderReceipt(customer.phone, {
         name: customer.name,
         orderId: sale.invoiceNo,
-        amount: sale.finalPayable,
         pdfBuffer,
         filename: `Receipt-${sale.invoiceNo}.pdf`,
       }).catch((e) => console.error("[WhatsApp] Receipt send failed:", e.message));
     } catch (e) {
       console.error("[WhatsApp] PDF generation failed:", e.message);
     }
+  }
+
+  // Notify admin
+  const adminPhone = process.env.ADMIN_PHONE_NUMBER;
+  if (adminPhone) {
+    const adminLink = `${process.env.ADMIN_FRONTEND_URL || "https://admin.vcrackers.in"}/orders/${sale._id}`;
+    whatsapp.sendAdminOrderNotification(adminPhone, {
+      customerName: customer.name,
+      orderId: sale.invoiceNo,
+      amount: sale.finalPayable,
+      adminLink
+    }).catch((e) => console.error("[WhatsApp] Admin notification failed:", e.message));
   }
 };
 
@@ -161,7 +179,19 @@ const placeOfflineOrder = async (req, res) => {
       await coupon.save({ session });
     }
 
-    const packagingCharges = Math.round(serverFinalPayable * 0.02);
+    const Setting = require("../models/Setting");
+    const settingsDocs = await Setting.find();
+    let isPackagingChargeEnabled = true;
+    let packagingChargePercentage = 2;
+    settingsDocs.forEach((s) => {
+      if (s.key === "packagingChargeEnabled") isPackagingChargeEnabled = s.value;
+      if (s.key === "packagingChargePercentage") packagingChargePercentage = s.value;
+    });
+
+    let packagingCharges = 0;
+    if (isPackagingChargeEnabled) {
+      packagingCharges = Math.round(serverFinalPayable * (packagingChargePercentage / 100));
+    }
     serverFinalPayable += packagingCharges;
 
     // Create Sale

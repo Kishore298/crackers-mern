@@ -257,6 +257,7 @@ const updateOrderStatus = async (req, res) => {
         } catch (e) {
           console.error("[WhatsApp] PDF generation on delivery failed:", e.message);
         }
+
       }
     }
 
@@ -433,7 +434,6 @@ const resendWhatsappReceipt = async (req, res) => {
     await whatsapp.sendOrderReceipt(customerPhone, {
       name: customerName,
       orderId: order.invoiceNo,
-      amount: order.finalPayable,
       pdfBuffer,
       filename: `Receipt-${order.invoiceNo}.pdf`,
     });

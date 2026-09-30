@@ -105,6 +105,7 @@ const createPosBill = async (req, res) => {
     res
       .status(201)
       .json({ success: true, sale, message: "Bill generated successfully" });
+
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
