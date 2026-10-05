@@ -8,6 +8,7 @@ const SettingsPage = () => {
     packagingChargePercentage: 2,
     googleReviewUrl: "",
     minOrderAmount: 4000,
+    onlineOrdersOpen: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,6 +67,34 @@ const SettingsPage = () => {
       </div>
 
       <div className="space-y-6 max-w-2xl">
+
+        {/* Online Orders Status */}
+        <div className="card-admin p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900">🟢 Store Status</h2>
+            <div className="flex items-center gap-2">
+              <span className={`text-sm font-medium ${settings.onlineOrdersOpen ? "text-green-600" : "text-red-600"}`}>
+                {settings.onlineOrdersOpen ? "Open for Orders" : "Closed"}
+              </span>
+            </div>
+          </div>
+          
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="onlineOrdersOpen"
+              checked={settings.onlineOrdersOpen}
+              onChange={(e) => setSettings({ ...settings, onlineOrdersOpen: e.target.checked })}
+              className="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary"
+            />
+            <label htmlFor="onlineOrdersOpen" className="ml-2 text-sm font-medium text-gray-700">
+              Enable Online Ordering
+            </label>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            If disabled, customers will see a "Store Closed" page instead of the website and won't be able to place online orders.
+          </p>
+        </div>
 
         {/* Minimum Order Amount */}
         <div className="card-admin p-6">

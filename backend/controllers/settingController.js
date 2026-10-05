@@ -19,6 +19,9 @@ const getSettings = async (req, res) => {
     if (config.minOrderAmount === undefined) {
       config.minOrderAmount = 4000;
     }
+    if (config.onlineOrdersOpen === undefined) {
+      config.onlineOrdersOpen = true;
+    }
 
     res.json({ success: true, settings: config });
   } catch (err) {

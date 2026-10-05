@@ -13,6 +13,8 @@ import FloatingCart from "./components/FloatingCart";
 import WelcomeFireworks from "./components/WelcomeFireworks";
 
 import "./index.css";
+import api from "./services/api";
+import StoreClosedPage from "./pages/StoreClosedPage";
 
 // Lazy loading pages for better performance
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -41,6 +43,19 @@ const ReviewPage = lazy(() => import("./pages/ReviewPage"));
 
 function App() {
   const [toastPosition, setToastPosition] = useState("bottom-right");
+  const [onlineOrdersOpen, setOnlineOrdersOpen] = useState(true);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+
+  useEffect(() => {
+    api.get("/settings")
+      .then((res) => {
+        if (res.data?.success && res.data?.settings?.onlineOrdersOpen !== undefined) {
+          setOnlineOrdersOpen(res.data.settings.onlineOrdersOpen);
+        }
+      })
+      .catch(() => console.error("Failed to fetch store status"))
+      .finally(() => setCheckingStatus(false));
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,6 +71,18 @@ function App() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  if (checkingStatus) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-dark-bg">
+        <div className="w-10 h-10 rounded-full border-4 border-dark-card-2 border-t-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (!onlineOrdersOpen) {
+    return <StoreClosedPage />;
+  }
 
   return (
     <HelmetProvider>
