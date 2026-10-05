@@ -8,7 +8,7 @@ const User = require("../models/User");
 const { sendOrderConfirmationEmail } = require("../config/emailService");
 const { generateReceiptPDF } = require("../config/pdfService");
 const whatsapp = require("../config/whatsappService");
-const { MIN_CART_VALUE } = require("../config/discountSlabs");
+const Setting = require("../models/Setting");
 
 // ─── Shared helper: validate items (optimistic) ──────────────
 const buildValidatedItems = async (cartItems) => {
@@ -130,8 +130,15 @@ const placeOfflineOrder = async (req, res) => {
 
     const serverSubtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
 
-    if (serverSubtotal < MIN_CART_VALUE) {
-      throw Object.assign(new Error(`Minimum order value is ₹${MIN_CART_VALUE.toLocaleString("en-IN")} to proceed with checkout.`), { status: 400 });
+    // Fetch dynamic minimum order amount from settings
+    let minOrderAmount = 4000;
+    const minOrderSetting = await Setting.findOne({ key: "minOrderAmount" });
+    if (minOrderSetting) {
+      minOrderAmount = minOrderSetting.value;
+    }
+
+    if (serverSubtotal < minOrderAmount) {
+      throw Object.assign(new Error(`Minimum order value is ₹${minOrderAmount.toLocaleString("en-IN")} to proceed with checkout.`), { status: 400 });
     }
 
     let serverFinalPayable = serverSubtotal;

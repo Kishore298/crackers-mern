@@ -14,7 +14,6 @@
  *   ₹3,000 - ₹50,000 → No Extra Discount (Just the 80% default applied earlier)
  */
 
-const MIN_CART_VALUE = 4000;
 
 const DISCOUNT_SLABS = [
   { min: 12500, max: Infinity, discount: 1000, label: "₹12,500 & above" },
@@ -58,4 +57,4 @@ const calculateSlabDiscount = (subtotal) => {
   return { discount, label, nextSlab };
 };
 
-module.exports = { DISCOUNT_SLABS, MIN_CART_VALUE, calculateSlabDiscount };
+module.exports = { DISCOUNT_SLABS, calculateSlabDiscount };

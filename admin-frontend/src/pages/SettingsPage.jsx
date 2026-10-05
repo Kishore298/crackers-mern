@@ -7,6 +7,7 @@ const SettingsPage = () => {
     packagingChargeEnabled: true,
     packagingChargePercentage: 2,
     googleReviewUrl: "",
+    minOrderAmount: 4000,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -65,6 +66,28 @@ const SettingsPage = () => {
       </div>
 
       <div className="space-y-6 max-w-2xl">
+
+        {/* Minimum Order Amount */}
+        <div className="card-admin p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">🛒 Minimum Order Amount</h2>
+          
+          <div className="mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Minimum Cart Value (₹)
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="100"
+              value={settings.minOrderAmount}
+              onChange={(e) => setSettings({ ...settings, minOrderAmount: parseInt(e.target.value) || 0 })}
+              className="input-admin w-full sm:w-1/2"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Customers will not be able to checkout if their cart subtotal is below this amount.
+            </p>
+          </div>
+        </div>
 
         {/* Packaging Charges */}
         <div className="card-admin p-6">

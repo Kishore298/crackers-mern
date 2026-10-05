@@ -10,7 +10,7 @@ const CART_KEY = "lash_cart";
 const OWNER_KEY = "lash_cart_owner";
 const DISCOUNT_KEY = "lash_discount_pct";
 
-const MIN_CART_VALUE = 4000;
+const MIN_CART_VALUE_DEFAULT = 4000;
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
@@ -44,6 +44,9 @@ export const CartProvider = ({ children }) => {
     return cached ? Number(cached) : 0;
   });
 
+  // Minimum Order Value
+  const [minCartValue, setMinCartValue] = useState(MIN_CART_VALUE_DEFAULT);
+
   const cartRef = useRef(cartItems);
 
   // Keep ref in sync
@@ -64,6 +67,14 @@ export const CartProvider = ({ children }) => {
         const pct = d?.isActive ? d.percentage : 0;
         setGlobalDiscountPct(pct);
         localStorage.setItem(DISCOUNT_KEY, String(pct));
+      })
+      .catch(() => {});
+
+    api.get("/settings")
+      .then((r) => {
+        if (r.data?.success && r.data?.settings?.minOrderAmount !== undefined) {
+          setMinCartValue(r.data.settings.minOrderAmount);
+        }
       })
       .catch(() => {});
   }, []);
@@ -247,8 +258,8 @@ export const CartProvider = ({ children }) => {
   }, 0);
 
   const total = subtotal;
-  const canCheckout = subtotal >= MIN_CART_VALUE;
-  const minCartShortfall = canCheckout ? 0 : MIN_CART_VALUE - subtotal;
+  const canCheckout = subtotal >= minCartValue;
+  const minCartShortfall = canCheckout ? 0 : minCartValue - subtotal;
 
   return (
     <CartContext.Provider
@@ -265,7 +276,7 @@ export const CartProvider = ({ children }) => {
         total,
         canCheckout,
         minCartShortfall,
-        MIN_CART_VALUE,
+        MIN_CART_VALUE: minCartValue,
       }}
     >
       {children}

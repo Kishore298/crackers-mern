@@ -16,6 +16,9 @@ const getSettings = async (req, res) => {
     if (config.googleReviewUrl === undefined) {
       config.googleReviewUrl = "";
     }
+    if (config.minOrderAmount === undefined) {
+      config.minOrderAmount = 4000;
+    }
 
     res.json({ success: true, settings: config });
   } catch (err) {
