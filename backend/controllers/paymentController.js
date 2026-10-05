@@ -186,7 +186,6 @@ const placeOfflineOrder = async (req, res) => {
       await coupon.save({ session });
     }
 
-    const Setting = require("../models/Setting");
     const settingsDocs = await Setting.find();
     let isPackagingChargeEnabled = true;
     let packagingChargePercentage = 2;
